@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Class1.cs" />
+    <Compile Remove="XmlPreprocessor.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="4.5.6" />
+    <PackageReference Include="System.Reactive" Version="4.0.0" />
+    <PackageReference Include="SmartFormat.NET" Version="2.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="CoreCLR-NCalc" Version="2.2.34" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Sources\" />
+    <Folder Include="Filters\" />
+    <Folder Include="Outputs\" />
+    <Folder Include="MeepLang\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MeepModel\MeepModel.csproj" />
+  </ItemGroup>
+</Project>
