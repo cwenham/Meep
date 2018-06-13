@@ -46,7 +46,9 @@ namespace MeepLib.Sources
                 LastIssued = new DateTime(LastElapsed)
             };
 
-            msg.Value = Smart.Format(Payload, msg);
+            MessageContext context = new MessageContext(msg, this);
+
+            msg.Value = Smart.Format(Payload, context);
 
             return msg;
         }
