@@ -57,9 +57,9 @@ namespace MeepLib.MeepLang
 
     public enum MacroPosition
     {
-        Parent,     // Insert before the target as its parent 
-        After,      // Insert after the target as stepmother to its children
-        FirstChild, // Insert after the target as first child
-        LastChild   // Insert after the target as last child
+        Downstream,         // Insert downstream (after) module
+        Upstream,           // Insert upstream (before) module
+        FirstUpstream,      // Insert after the target as first child
+        LastUpstream        // Insert after the target as last child
     }
 }

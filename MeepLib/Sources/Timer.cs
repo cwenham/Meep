@@ -9,7 +9,7 @@ using MeepModel.Messages;
 
 namespace MeepLib.Sources
 {
-    [Macro(Name = "Interval", DefaultProperty = "Interval", Position = MacroPosition.FirstChild)]
+    [Macro(Name = "Interval", DefaultProperty = "Interval", Position = MacroPosition.FirstUpstream)]
     public class Timer : AMessageModule
     {
         public Timer()

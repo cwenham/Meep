@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MeepLib\MeepLib.csproj" />
     <ProjectReference Include="..\MeepModel\MeepModel.csproj" />
+    <ProjectReference Include="..\MeepGit\MeepGit.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Filters\" />

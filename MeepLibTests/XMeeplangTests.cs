@@ -68,15 +68,15 @@ namespace MeepLibTests
             attrs.XmlElements.Add(attr);
 
             XmlAttributeOverrides attrOverrides = new XmlAttributeOverrides();
-            attrOverrides.Add(typeof(AMessageModule), "Children", attrs);
+            attrOverrides.Add(typeof(AMessageModule), "Upstreams", attrs);
 
             XmlSerializer serialiser = new XmlSerializer(typeof(Pipeline), attrOverrides);
             var tree = serialiser.Deserialize(meepReader) as AMessageModule;
 
             Assert.NotNull(tree);
             Assert.IsType<Pipeline>(tree);
-            Assert.Equal(1, tree.Children.Count);
-            Assert.IsType<Where>(tree.Children.First());
+            Assert.Equal(1, tree.Upstreams.Count);
+            Assert.IsType<Where>(tree.Upstreams.First());
         }
 
         /// <summary>

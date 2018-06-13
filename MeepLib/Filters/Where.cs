@@ -12,7 +12,7 @@ namespace MeepLib.Filters
     /// <summary>
     /// 'Where' condition using compiled NCalc expressions
     /// </summary>
-    [Macro(DefaultProperty = "Expr", Name = "Where", Position = MacroPosition.After)]
+    [Macro(DefaultProperty = "Expr", Name = "Where", Position = MacroPosition.Upstream)]
     public class Where : AMessageModule
     {
         /// <summary>

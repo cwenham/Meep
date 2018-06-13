@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meep", "Meep\Meep.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeepGit", "MeepGit\MeepGit.csproj", "{50F8817D-84D1-43AC-9150-F3A26C0ED2AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeepSQL", "MeepSQL\MeepSQL.csproj", "{44E77B08-5B0E-4CE7-9123-B24312209882}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,5 +39,9 @@ Global
 		{50F8817D-84D1-43AC-9150-F3A26C0ED2AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50F8817D-84D1-43AC-9150-F3A26C0ED2AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50F8817D-84D1-43AC-9150-F3A26C0ED2AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44E77B08-5B0E-4CE7-9123-B24312209882}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44E77B08-5B0E-4CE7-9123-B24312209882}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44E77B08-5B0E-4CE7-9123-B24312209882}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44E77B08-5B0E-4CE7-9123-B24312209882}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

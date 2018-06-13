@@ -67,7 +67,7 @@ namespace MeepLib
         [XmlAttribute]
         public TimeSpan TardyAt { get; set; }
 
-        public List<AMessageModule> Children { get; set; }
+        public List<AMessageModule> Upstreams { get; set; }
 
         public virtual async Task<Message> HandleMessage(Message msg)
         {
@@ -75,11 +75,11 @@ namespace MeepLib
         }
 
         [XmlIgnore]
-        protected IObservable<Message> ChildMessaging
+        protected IObservable<Message> UpstreamMessaging
         {
             get
             {
-                return Observable.Merge<Message>(Children.Select(x => x.Pipeline));
+                return Observable.Merge<Message>(Upstreams.Select(x => x.Pipeline));
             }
         }
 
@@ -89,7 +89,7 @@ namespace MeepLib
             get
             {
                 if (_Pipeline == null)
-                    _Pipeline = from msg in ChildMessaging
+                    _Pipeline = from msg in UpstreamMessaging
                                 let result = ShippingAndHandling(msg)
                                 where result != null
                                 select result;

@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using System.ComponentModel.DataAnnotations;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
