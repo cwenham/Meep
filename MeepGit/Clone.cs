@@ -21,7 +21,7 @@ namespace MeepGit
         /// </summary>
         /// <value>The repository.</value>
         [XmlAttribute]
-        public string Repository { get; set; }
+        public string Repo { get; set; }
 
         /// <summary>
         /// Working directory in {Smart.Format} to clone into
@@ -33,13 +33,24 @@ namespace MeepGit
 
         public override async Task<Message> HandleMessage(Message msg)
         {
-            string repoURL = Smart.Format(Repository, msg);
-            string workDir = Smart.Format(WorkingDir, msg);
-            if (String.IsNullOrWhiteSpace(workDir))
-                workDir = repoURL.ToWorkingDirectory();
+            MessageContext context = new MessageContext(msg, this);
 
-            // ToDo: implement me
-            return await base.HandleMessage(msg);
+            return await Task.Run<Message>(() =>
+            {
+                string repoURL = Smart.Format(Repo, context);
+                string workDir = Smart.Format(WorkingDir, context);
+                if (String.IsNullOrWhiteSpace(workDir))
+                    workDir = repoURL.ToWorkingDirectory();
+
+                Repository.Clone(repoURL, workDir);
+
+                return new LocalisedResource
+                {
+                    DerivedFrom = msg,
+                    URL = repoURL,
+                    Local = workDir
+                };
+            });
         }
     }
 }

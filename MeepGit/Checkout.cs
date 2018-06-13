@@ -49,10 +49,12 @@ namespace MeepGit
 
         public override async Task<Message> HandleMessage(Message msg)
         {
-            string repoURL = Smart.Format(Repository, msg);
-            string branch = Smart.Format(Branch, msg);
-            string commit = Smart.Format(Commit, msg);
-            string workDir = Smart.Format(WorkingDir, msg);
+            MessageContext context = new MessageContext(msg, this);
+
+            string repoURL = Smart.Format(Repository, context);
+            string branch = Smart.Format(Branch, context);
+            string commit = Smart.Format(Commit, context);
+            string workDir = Smart.Format(WorkingDir, context);
             if (String.IsNullOrWhiteSpace(workDir))
                 workDir = repoURL.ToWorkingDirectory();
                 

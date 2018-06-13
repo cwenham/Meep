@@ -17,7 +17,7 @@ namespace MeepGit
         {
             // For now, just use the bit between last slash and ".git"
             // ToDo: Improve me
-            var dir = Path.GetFileName(repoUrl).Replace(".git", "");
+            var dir = Path.GetFileName(repoUrl.TrimEnd('/')).Replace(".git", "");
             return Path.Combine(System.Environment.CurrentDirectory, dir);
         }
     }
