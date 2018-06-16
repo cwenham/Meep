@@ -12,6 +12,7 @@ namespace MeepLib.Outputs
     /// <summary>
     /// Save message to disk
     /// </summary>
+    [Macro(Name = "SaveAs", DefaultProperty = "As", Position = MacroPosition.Downstream)]
     public class Save : AMessageModule
     {
         /// <summary>
@@ -41,6 +42,7 @@ namespace MeepLib.Outputs
                     File.WriteAllText(saveAs, content);
                     return new LocalisedResource
                     {
+                        DerivedFrom = msg,
                         Local = saveAs,
                         Value = content
                     }; 
