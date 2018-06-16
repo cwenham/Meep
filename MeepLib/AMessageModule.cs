@@ -42,7 +42,7 @@ namespace MeepLib
         {
             get
             {
-                if (!String.IsNullOrWhiteSpace(_Name))
+                if (String.IsNullOrWhiteSpace(_Name))
                     _Name = this.GetType().Name;
 
                 return _Name;
@@ -149,6 +149,6 @@ namespace MeepLib
             return null;
         }
 
-        protected Dictionary<string, AMessageModule> _Phonebook { get; set; }
+        protected Dictionary<string, AMessageModule> _Phonebook { get; set; } = new Dictionary<string, AMessageModule>();
     }
 }
