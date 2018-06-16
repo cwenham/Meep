@@ -17,8 +17,8 @@ namespace MeepLib.Flow
             set
             {
                 _From = value;
-                if (Phonebook.ContainsKey(_From))
-                    Source = Phonebook[_From];
+                if (_Phonebook.ContainsKey(_From))
+                    Source = _Phonebook[_From];
 
             }
         }

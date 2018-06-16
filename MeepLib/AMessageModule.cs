@@ -53,12 +53,12 @@ namespace MeepLib
                 // Maintain the directory of named modules.
                 // This is used by modules that address other modules, such
                 // as Tap.
-                if (Phonebook.ContainsKey(value))
-                    Phonebook.Remove(value);
+                if (_Phonebook.ContainsKey(value))
+                    _Phonebook.Remove(value);
 
                 _Name = value;
 
-                Phonebook.Add(_Name, this);
+                _Phonebook.Add(_Name, this);
             }
         }
         private string _Name;
@@ -149,6 +149,6 @@ namespace MeepLib
             return null;
         }
 
-        protected Dictionary<string, AMessageModule> Phonebook { get; set; }
+        protected Dictionary<string, AMessageModule> _Phonebook { get; set; }
     }
 }
