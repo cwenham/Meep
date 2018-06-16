@@ -20,6 +20,7 @@
     <Folder Include="Filters\" />
     <Folder Include="Outputs\" />
     <Folder Include="MeepLang\" />
+    <Folder Include="Flow\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MeepModel\MeepModel.csproj" />

@@ -12,6 +12,7 @@ using MeepModel.Messages;
 
 namespace MeepLib
 {
+    [XmlRoot(ElementName = "Pipeline", Namespace = "http://meep.example.com/Meep/V1")]
     public abstract class AMessageModule
     {
         protected Logger logger
@@ -19,12 +20,11 @@ namespace MeepLib
             get
             {
                 if (_logger == null)
-                    LogManager.GetLogger(this.Name);
+                    _logger = LogManager.GetLogger(this.Name);
 
                 return _logger;
             }
         }
-
         private Logger _logger;
 
         public AMessageModule()
@@ -50,7 +50,15 @@ namespace MeepLib
 
             set
             {
+                // Maintain the directory of named modules.
+                // This is used by modules that address other modules, such
+                // as Tap.
+                if (Phonebook.ContainsKey(value))
+                    Phonebook.Remove(value);
+
                 _Name = value;
+
+                Phonebook.Add(_Name, this);
             }
         }
         private string _Name;
@@ -141,6 +149,6 @@ namespace MeepLib
             return null;
         }
 
-
+        protected Dictionary<string, AMessageModule> Phonebook { get; set; }
     }
 }
