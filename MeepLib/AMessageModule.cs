@@ -14,7 +14,18 @@ namespace MeepLib
 {
     public abstract class AMessageModule
     {
-        protected Logger logger = LogManager.GetCurrentClassLogger();
+        protected Logger logger
+        {
+            get
+            {
+                if (_logger == null)
+                    LogManager.GetLogger(this.Name);
+
+                return _logger;
+            }
+        }
+
+        private Logger _logger;
 
         public AMessageModule()
         {
