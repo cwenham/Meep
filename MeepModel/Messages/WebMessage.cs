@@ -1,10 +1,20 @@
 ﻿using System;
+using System.Net.Http.Headers;
+
 namespace MeepModel.Messages
 {
-    public class WebMessage
+    public class WebMessage : Message
     {
-        public WebMessage()
-        {
-        }
+        /// <summary>
+        /// URL the message came from
+        /// </summary>
+        /// <value>The URL.</value>
+        public string URL { get; set; }
+
+        /// <summary>
+        /// Headers of the response
+        /// </summary>
+        /// <value>The headers.</value>
+        public HttpResponseHeaders Headers { get; set; }
     }
 }

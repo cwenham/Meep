@@ -27,17 +27,18 @@ namespace MeepLib.Sources
 
             try
             {
-                HttpClient client = new HttpClient();
-
-                var result = await client.SendAsync(req);
-                var returned = await result.Content.ReadAsStringAsync();
-
-                return new WebMessage
+                using (HttpClient client = new HttpClient())
                 {
-                    DerivedFrom = msg,
-                    Headers = result.Headers,
-                    Value = returned
-                };
+                    var result = await client.SendAsync(req);
+                    var returned = await result.Content.ReadAsStringAsync();
+
+                    return new WebMessage
+                    {
+                        DerivedFrom = msg,
+                        Headers = result.Headers,
+                        Value = returned
+                    };
+                }
             }
             catch (Exception ex)
             {
