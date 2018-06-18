@@ -7,6 +7,7 @@
   <ItemGroup>
     <Compile Remove="Class1.cs" />
     <Compile Remove="XmlPreprocessor.cs" />
+    <Compile Remove="AHTTPModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.5.6" />
@@ -21,6 +22,7 @@
     <Folder Include="Outputs\" />
     <Folder Include="MeepLang\" />
     <Folder Include="Flow\" />
+    <Folder Include="Modifiers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MeepModel\MeepModel.csproj" />

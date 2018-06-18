@@ -9,7 +9,7 @@ using System.IO;
 
 using MeepModel.Messages;
 
-namespace MeepLib.Modify
+namespace MeepLib.Modifiers
 {
     /// <summary>
     /// Randomly recombine contents of two XML messages
@@ -118,43 +118,35 @@ namespace MeepLib.Modify
 
         public XMLMessage ReCombine(XMLMessage mum, XMLMessage dad)
         {
-            int coin = Rand.Next(0, 1);
-            XMLMessage p1 = coin == 0 ? mum : dad;
-            XMLMessage p2 = coin == 1 ? dad : mum;
-
-            bool moreLeft = true;
             StringBuilder builder = new StringBuilder();
             using (StringWriter sWriter = new StringWriter(builder))
             using (XmlWriter writer = XmlWriter.Create(sWriter))
-            using (XmlReader r1 = p1.GetReader())
-            using (XmlReader r2 = p2.GetReader())
+            using (XmlReader r1 = mum.GetReader())
+            using (XmlReader r2 = dad.GetReader())
             {
-                XmlReader current = r1;
+                XmlReader current = Rand.Next(1, 100) <= 50 ? r1 : r2;
 
-                moreLeft = r1.Read() && r2.Read();
-                while (moreLeft)
+                r1.Read();
+                r2.Read();
+
+                while (!current.EOF)
                 {
                     if (rNamespace.Match(current.NamespaceURI).Success)
-                    {
-                        coin = Rand.Next(0, 1);
-                        current = coin == 0 ? r1 : r2;
-                    }
+                        current = Rand.Next(1, 100) <= 50 ? r1 : r2;
 
-                    writer.WriteNode(current, true);
-                    if (current == r1)
-                        moreLeft = r2.Read();
-                    else
-                        moreLeft = r1.Read();
+                    current.CopyCurrentNode(writer);
+
+                    r1.Read();
+                    r2.Read();
                 }
             }
 
             return new XMLMessage
             {
-                DerivedFrom = p1,
+                DerivedFrom = mum,
                 Value = builder.ToString()
             };
         }
-
         private Random Rand = new Random();
     }
 }
