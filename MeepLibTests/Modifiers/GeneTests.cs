@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 using Xunit;
 
@@ -20,6 +21,19 @@ namespace MeepLibTests.Modifiers
             var recombined = combiner1.ReCombine(parent1, parent2);
             Assert.NotNull(recombined);
             Assert.IsType(typeof(XMLMessage), recombined);
+        }
+
+        [Fact]
+        public void GenerateOffspringTest()
+        {
+            var combiner1 = new Recombine
+            {
+                Namespace = "http://foobar"
+            };
+
+            var offspring = combiner1.GenerateOffspring((parent1, parent2), 5).ToList();
+            Assert.NotNull(offspring);
+            Assert.Equal(5, offspring.Count());
         }
 
         public static XMLMessage parent1 = new XMLMessage
