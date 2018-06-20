@@ -15,6 +15,10 @@ namespace MeepLib
     [XmlRoot(ElementName = "Pipeline", Namespace = "http://meep.example.com/Meep/V1")]
     public abstract class AMessageModule
     {
+        public AMessageModule()
+        {
+        }
+
         protected Logger logger
         {
             get
@@ -27,9 +31,11 @@ namespace MeepLib
         }
         private Logger _logger;
 
-        public AMessageModule()
-        {
-        }
+        /// <summary>
+        /// A proxy for the host app, to provide platform-specific functions and data
+        /// </summary>
+        /// <value>The host proxy.</value>
+        public static IHostProxy HostProxy { get; set; }
 
         /// <summary>
         /// Name of the module

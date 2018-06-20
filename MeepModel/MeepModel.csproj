@@ -13,5 +13,6 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
+    <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.1" />
   </ItemGroup>
 </Project>

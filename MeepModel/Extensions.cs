@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml.Serialization;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
 
 namespace MeepModel
 {
@@ -87,6 +88,15 @@ namespace MeepModel
             {
                 TypeNameHandling = TypeNameHandling.Objects
             });
+        }
+
+        public static void ToBSONStream(this object obj, Stream output)
+        {
+            using (BsonWriter writer = new BsonWriter(output))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(writer, obj);
+            }
         }
     }
 }

@@ -11,10 +11,14 @@ using System.Xml.Serialization;
 using NLog;
 using Mono.Options;
 using Mvp.Xml.XInclude;
+using Newtonsoft.Json;
 
 using MeepLib;
 using MeepLib.MeepLang;
+using MeepModel;
 using MeepModel.Messages;
+using System.Diagnostics;
+using System.Net;
 
 namespace Meep
 {
@@ -26,6 +30,8 @@ namespace Meep
 
         static IDisposable Subscription { get; set; }
 
+        static GutterSerialisation GutterSerialisation = GutterSerialisation.JSON;
+
         static void Main(string[] args)
         {
             bool shouldShowHelp = false;
@@ -35,6 +41,8 @@ namespace Meep
             var options = new OptionSet
             {
                 { "p|pipeline=", "Path to pipeline.", p => pipelineFile = p },
+                { "x|xml", "Gutter serialisation in XML", g => GutterSerialisation = GutterSerialisation.XML },
+                { "b|bson", "Gutter serialisation in BSON", b => GutterSerialisation = GutterSerialisation.BSON },
                 { "r|redis=", "Redis server hostname[:port].", r => redisHost = r },
                 { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
             };
@@ -56,6 +64,7 @@ namespace Meep
             if (shouldShowHelp)
                 ShowHelp();
 
+            AMessageModule.HostProxy = new HostProxy();
             PipelineRoot = DeserialisePipeline(pipelineFile);
             Subscription = SubscribeToPipeline(PipelineRoot);
 
@@ -111,12 +120,36 @@ namespace Meep
 
         private static void RegisterMessage(Message msg)
         {
-            Console.WriteLine($"{msg.AsJSON}\0");
+            switch (GutterSerialisation)
+            {
+                case GutterSerialisation.JSON:
+                    Console.WriteLine($"{msg.AsJSON}\0");
+                    break;
+                case GutterSerialisation.XML:
+                    Console.WriteLine($"{msg.AsXML}\0");
+                    break;
+                case GutterSerialisation.BSON:
+                    MemoryStream ms = new MemoryStream();
+                    msg.ToBSONStream(ms);
+                    Console.WriteLine(Convert.ToBase64String(ms.ToArray()) + "\0");
+                    break;
+                default:
+                    break;
+            }
         }
 
         private static void LogError(Exception ex)
         {
             Console.WriteLine($"{ex.GetType().Name} thrown: {ex.Message}");
         }
+    }
+
+    public enum GutterSerialisation
+    {
+        XML,
+
+        JSON,
+
+        BSON
     }
 }
