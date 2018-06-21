@@ -1,5 +1,6 @@
 ﻿using System;
-namespace MeepModel.Messages
+
+namespace MeepLib.Messages
 {
     public class Step : Message
     {

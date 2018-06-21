@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace MeepModel.Messages
+namespace MeepLib.Messages
 {
     [DataContract]
     public class Message

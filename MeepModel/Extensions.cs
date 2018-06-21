@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 
-namespace MeepModel
+namespace MeepLib.Messages
 {
     /// <summary>
     /// Extension methods for common

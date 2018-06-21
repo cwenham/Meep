@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http.Headers;
 
-namespace MeepModel.Messages
+namespace MeepLib.Messages
 {
     public class WebMessage : Message
     {

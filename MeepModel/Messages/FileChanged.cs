@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace MeepModel.Messages
+namespace MeepLib.Messages
 {
     public class FileChanged : Message
     {
