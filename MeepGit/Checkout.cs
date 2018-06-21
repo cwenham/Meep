@@ -6,7 +6,7 @@ using LibGit2Sharp;
 using SmartFormat;
 
 using MeepLib;
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepGit
 {
