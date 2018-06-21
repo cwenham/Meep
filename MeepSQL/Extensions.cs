@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.Data.Sqlite;
 using SmartFormat;
 
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepSQL
 {

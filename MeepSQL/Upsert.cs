@@ -11,7 +11,7 @@ using Microsoft.Data.Sqlite;
 
 using MeepLib;
 using MeepLib.MeepLang;
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepSQL
 {
