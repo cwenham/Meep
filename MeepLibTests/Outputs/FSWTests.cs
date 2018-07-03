@@ -5,7 +5,7 @@ using System.Reactive.Linq;
 using Xunit;
 
 using MeepLib.Sources;
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepLibTests.Outputs
 {

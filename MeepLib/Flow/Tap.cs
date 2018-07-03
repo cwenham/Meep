@@ -1,7 +1,7 @@
 ﻿using System;
 
 using MeepLib.MeepLang;
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepLib.Flow
 {

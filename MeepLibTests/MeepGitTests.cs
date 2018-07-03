@@ -11,7 +11,7 @@ using MeepLib;
 using MeepLib.Filters;
 using MeepLib.Sources;
 using MeepLib.MeepLang;
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 using MeepGit;
 

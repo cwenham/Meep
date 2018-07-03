@@ -4,7 +4,7 @@ using System.IO;
 using Xunit;
 
 using MeepLib.Outputs;
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepLibTests.Outputs
 {

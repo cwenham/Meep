@@ -3,7 +3,7 @@
 using Xunit;
 
 using MeepLib.Filters;
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepLibTests.Filters
 {

@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
 
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepLib.Modifiers
 {

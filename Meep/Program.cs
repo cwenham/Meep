@@ -15,8 +15,7 @@ using Newtonsoft.Json;
 
 using MeepLib;
 using MeepLib.MeepLang;
-using MeepModel;
-using MeepModel.Messages;
+using MeepLib.Messages;
 using System.Diagnostics;
 using System.Net;
 
@@ -64,7 +63,7 @@ namespace Meep
             if (shouldShowHelp)
                 ShowHelp();
 
-            AMessageModule.HostProxy = new HostProxy();
+            var proxy = new HostProxy();
             PipelineRoot = DeserialisePipeline(pipelineFile);
             Subscription = SubscribeToPipeline(PipelineRoot);
 
@@ -74,13 +73,13 @@ namespace Meep
 
         static void ShowHelp()
         {
-            Console.WriteLine("E.G.: meep evilplan.meep");
+            Console.WriteLine("E.G.: meep -b evilplan.meep");
         }
 
         static AMessageModule DeserialisePipeline(string file)
         {
             XmlReader includingReader = new XIncludingReader(file);
-            XMeeplangReader meeplangReader = new XMeeplangReader(includingReader);
+            XMeeplangDownstreamReader meeplangReader = new XMeeplangDownstreamReader(includingReader);
             XmlSerializer serialiser = new XmlSerializer(typeof(AMessageModule));
 
             try

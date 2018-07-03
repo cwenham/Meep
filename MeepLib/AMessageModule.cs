@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 
 using NLog;
 
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepLib
 {
@@ -30,12 +30,6 @@ namespace MeepLib
             }
         }
         private Logger _logger;
-
-        /// <summary>
-        /// A proxy for the host app, to provide platform-specific functions and data
-        /// </summary>
-        /// <value>The host proxy.</value>
-        public static IHostProxy HostProxy { get; set; }
 
         /// <summary>
         /// Name of the module

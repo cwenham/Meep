@@ -3,7 +3,7 @@ using System.IO;
 using System.Reactive.Linq;
 using System.Reactive.Concurrency;
 
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepLib.Sources
 {

@@ -4,7 +4,7 @@ using System.Net.Http;
 using SmartFormat;
 
 using MeepLib.MeepLang;
-using MeepModel.Messages;
+using MeepLib.Messages;
 using System.Threading.Tasks;
 
 namespace MeepLib.Sources

@@ -4,7 +4,7 @@ using System.Linq;
 using Xunit;
 
 using MeepLib.Modifiers;
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepLibTests.Modifiers
 {

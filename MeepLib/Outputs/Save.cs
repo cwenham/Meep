@@ -5,7 +5,7 @@ using System.IO;
 using SmartFormat;
 
 using MeepLib.MeepLang;
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepLib.Outputs
 {

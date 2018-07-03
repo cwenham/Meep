@@ -8,6 +8,11 @@ namespace MeepLib
     /// </summary>
     public static class Extensions
     {
+        public static string ToUnixEndings(this string text)
+        {
+            return text.Replace("\r\n", "\n");
+        }
+
         /// <summary>
         /// Copies the current node of reader to the writer
         /// </summary>

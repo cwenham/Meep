@@ -4,7 +4,7 @@ using System.Net.Mail;
 
 using SmartFormat;
 
-using MeepModel.Messages;
+using MeepLib.Messages;
 using System.Threading.Tasks;
 
 namespace MeepLib.Outputs
@@ -61,7 +61,7 @@ namespace MeepLib.Outputs
                 using (SmtpClient client = new SmtpClient(server, port))
                 {
                     client.EnableSsl = SSL;
-                    client.Credentials = HostProxy?.GetCredential(server,port) as ICredentialsByHost;
+                    client.Credentials = AHostProxy.Current?.GetCredential(server,port) as ICredentialsByHost;
 
                     MailMessage message = new MailMessage(from, to, subject, body);
                     await client.SendMailAsync(message);

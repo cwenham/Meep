@@ -4,7 +4,7 @@ using System.Net.NetworkInformation;
 
 using SmartFormat;
 
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepLib.Sources
 {

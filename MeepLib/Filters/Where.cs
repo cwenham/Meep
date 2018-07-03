@@ -4,7 +4,7 @@ using NCalc;
 
 using MeepLib;
 using MeepLib.MeepLang;
-using MeepModel.Messages;
+using MeepLib.Messages;
 using System.Threading.Tasks;
 
 namespace MeepLib.Filters

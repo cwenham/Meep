@@ -10,17 +10,26 @@ namespace Meep
     /// <summary>
     /// Provide platform and host-specific functions and data
     /// </summary>
-    public class HostProxy : IHostProxy
+    public class HostProxy : AHostProxy
     {
         public HostProxy()
         {
+            Current = this;
+        }
+
+        public override string BaseDirectory
+        {
+            get
+            {
+                return System.Reflection.Assembly.GetEntryAssembly().Location;
+            }
         }
 
         /// <summary>
         /// Network credentials from a secret store
         /// </summary>
         /// <value>The credentials.</value>
-        public ICredentials GetCredential(string host, int port)
+        public override ICredentials GetCredential(string host, int port)
         {
             throw new NotImplementedException();
         }
@@ -30,7 +39,7 @@ namespace Meep
         /// </summary>
         /// <returns>The invoke.</returns>
         /// <param name="pipelineFile">Pipeline file.</param>
-        public Process SelfInvoke(string pipelineFile)
+        public override Process SelfInvoke(string pipelineFile)
         {
             throw new NotImplementedException();
         }
@@ -40,9 +49,17 @@ namespace Meep
         /// </summary>
         /// <returns>The invoke.</returns>
         /// <param name="pipelineDefinition">Pipeline definition.</param>
-        public Process SelfInvoke(Stream pipelineDefinition)
+        public override Process SelfInvoke(Stream pipelineDefinition)
         {
             throw new NotImplementedException();
+        }
+
+        public override bool DevelMode
+        {
+            get
+            {
+                return File.Exists("devmode.switch");
+            }
         }
     }
 }

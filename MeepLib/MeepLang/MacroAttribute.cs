@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Linq;
 
 namespace MeepLib.MeepLang
 {
@@ -61,5 +61,13 @@ namespace MeepLib.MeepLang
         Upstream,           // Insert upstream (before) module
         FirstUpstream,      // Insert after the target as first child
         LastUpstream        // Insert after the target as last child
+    }
+
+    public static class MacroExtension
+    {
+        public static MacroAttribute GetMacro(this Type t)
+        {
+            return t.GetCustomAttributes(typeof(MacroAttribute), true).Cast<MacroAttribute>().FirstOrDefault();
+        }
     }
 }

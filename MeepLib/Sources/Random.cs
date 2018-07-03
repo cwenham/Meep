@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 using MeepLib.MeepLang;
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepLib.Sources
 {

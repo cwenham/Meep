@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 
-using MeepModel.Messages;
+using MeepLib.Messages;
 
 namespace MeepLib
 {
@@ -27,7 +28,5 @@ namespace MeepLib
         /// </summary>
         /// <value>The mdl.</value>
         public AMessageModule mdl { get; set; }
-
-
     }
 }

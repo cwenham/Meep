@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Pipeline>
+    <Localise From="{AsJSON}">
+        <CheckSomething Localise="{AsJSON}" />
+    </Localise>
+    
+    <Unzip Path="/tmp">
+        <CleanSomething Unzip="/tmp">
+            <Localise From="{AsJSON}">
+                <CheckSomething Localise="{AsJSON}" />
+            </Localise>
+            
+            <Unzip Path="/tmp">
+            </Unzip>
+        </CleanSomething>
+    </Unzip>
+    
+</Pipeline>
