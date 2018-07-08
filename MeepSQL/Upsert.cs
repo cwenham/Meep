@@ -25,7 +25,8 @@ namespace MeepSQL
     /// 
     /// <para>Table will be created if it doesn't already exist.</para>
     /// </remarks>
-    [Macro(Name="SaveDB", DefaultProperty = "DBTable", Position = MacroPosition.Downstream)]
+    [XmlRoot(ElementName = "Upsert", Namespace = "http://meep.example.com/MeepSQL/V1")]
+    [Macro(Name="Save", DefaultProperty = "DBTable", Position = MacroPosition.Downstream)]
     public class Upsert : AMessageModule
     {
         /// <summary>

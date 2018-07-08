@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Xml.Serialization;
 
 using SmartFormat;
 
@@ -12,12 +13,14 @@ namespace MeepLib.Sources
     /// <summary>
     /// HTTP GET a URL
     /// </summary>
+    [XmlRoot(ElementName = "Get", Namespace = "http://meep.example.com/Meep/V1")]
     public class Get : AMessageModule
     {
         /// <summary>
         /// URL in {Smart.Format}
         /// </summary>
         /// <value>The URL.</value>
+        [XmlAttribute]
         public string URL { get; set; }
 
         public override async Task<Message> HandleMessage(Message msg)

@@ -16,7 +16,7 @@ namespace MeepLib.MeepLang
 
         private static readonly object sync = new { };
 
-        public static (Type,MacroAttribute) GetMacro(string attribName)
+        public static (Type,MacroAttribute) GetMacro(string nspace, string attribName)
         {
             lock (sync)
             {
@@ -25,11 +25,18 @@ namespace MeepLib.MeepLang
                               from t in a.GetTypes()
                               let macro = t.GetMacro()
                               where macro != null
-                              select new {t,macro})
-                        .ToDictionary(x => x.macro.Name, y => (y.t, y.macro));
+                              let xr = t.GetXmlRoot()
+                              let ns = xr?.Namespace ?? ""
+                              let keyname = $"{ns}:{macro.Name}"
+                              select new {keyname,t,macro})
+                        .ToDictionary(x => x.keyname, y => (y.t, y.macro));
             }
 
-            return Macros.ContainsKey(attribName) ? Macros[attribName] : (null,null);
+            if (nspace == null)
+                nspace = "";
+            string key = $"{nspace}:{attribName}";
+
+            return Macros.ContainsKey(key) ? Macros[key] : (null,null);
         }
     }
 }

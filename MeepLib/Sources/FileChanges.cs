@@ -2,23 +2,27 @@
 using System.IO;
 using System.Reactive.Linq;
 using System.Reactive.Concurrency;
+using System.Xml.Serialization;
 
 using MeepLib.Messages;
 
 namespace MeepLib.Sources
 {
+    [XmlRoot(ElementName = "FileChanges", Namespace = "http://meep.example.com/Meep/V1")]
     public class FileChanges : AMessageModule
     {
         /// <summary>
         /// Directory to monitor
         /// </summary>
         /// <value>The path.</value>
+        [XmlAttribute]
         public string Path { get; set; }
 
         /// <summary>
         /// Filename filter, honoring "*" wildcards
         /// </summary>
         /// <value>The filter.</value>
+        [XmlAttribute]
         public string Filter { get; set; }
 
         /// <summary>
@@ -27,6 +31,7 @@ namespace MeepLib.Sources
         /// <value>The throttle.</value>
         /// <remarks>This should be set, since FileSystemWatcher can fire
         /// multiple times for one change. Defaults to 250ms.</remarks>
+        [XmlAttribute]
         public TimeSpan Throttle { get; set; } = TimeSpan.FromMilliseconds(250);
 
         public override IObservable<Message> Pipeline { 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Collections.Generic;
 using System.Xml;
+using System.Xml.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
@@ -27,6 +28,7 @@ namespace MeepLib.Modifiers
     /// <para>For best results, genomes should be normalised before recombination
     /// so their structures match.</para>
     /// </remarks>
+    [XmlRoot(ElementName = "Recombine", Namespace = "http://meep.example.com/Meep/V1")]
     public class Recombine : AMessageModule
     {
         /// <summary>
@@ -57,6 +59,7 @@ namespace MeepLib.Modifiers
         /// 
         /// <para>Precede with a $ to treat it as a regex.</para>
         /// </remarks>
+        [XmlAttribute]
         public string Namespace
         {
             get
@@ -78,6 +81,7 @@ namespace MeepLib.Modifiers
         /// </summary>
         /// <value>Number of offspring.</value>
         /// <remarks>Defaults to 5.</remarks>
+        [XmlAttribute]
         public int Offspring { get; set; } = 5;
 
         public override IObservable<Message> Pipeline

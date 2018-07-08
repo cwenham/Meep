@@ -12,28 +12,11 @@ namespace MeepLib.MeepLang
     /// </summary>
     /// <remarks>A little trickier than upstream, because we're adding
     /// container elements behind the XML reader's current point.</remarks>
-    public class XMeeplangDownstreamReader : XmlReader
+    public class XMeeplangDownstreamReader : XmlPassthroughReader
     {
-        public XMeeplangDownstreamReader(XmlReader reader)
+        public XMeeplangDownstreamReader(XmlReader reader) : base(reader)
         {
-            _Given = reader;
-            _Reader = _Given;
         }
-
-        /// <summary>
-        /// Reader given in the constructor with the main document
-        /// </summary>
-        /// <value>The given.</value>
-        private XmlReader _Given { get; set; }
-
-        /// <summary>
-        /// Reader we're reflecting at any moment
-        /// </summary>
-        /// <value>The reader.</value>
-        /// <remarks>This is usually _Given, but will be switched with a
-        /// temporary reader populated with a macro expansion as they are
-        /// detected and handled.</remarks>
-        private XmlReader _Reader { get; set; }
 
         private XMPReaderState state = XMPReaderState.relay;
 
@@ -62,7 +45,7 @@ namespace MeepLib.MeepLang
                             {
                                 state = XMPReaderState.substitute;
                                 InjectedMacros.Push((m, _Given.Depth));
-                                _Reader = m.Reader;                                
+                                _Reader = m.Reader;
                                 if (_Given.IsEmptyElement)
                                     deliveredEmptyElement = false;
                             }
@@ -119,14 +102,17 @@ namespace MeepLib.MeepLang
 
             if (reader.IsStartElement())
             {
+                string elementNS = reader.NamespaceURI;
                 reader.MoveToFirstAttribute();
                 for (int i = 0; i < reader.AttributeCount; i++)
                 {
-                    var (mtype, macro) = MacroFinder.GetMacro(reader.LocalName);
+                    string nspace = String.IsNullOrWhiteSpace(reader.NamespaceURI) ? elementNS : reader.NamespaceURI;
+                    var (mtype, macro) = MacroFinder.GetMacro(nspace, reader.LocalName);
                     if (macro != null && macro.Position == MacroPosition.Downstream)
                     {
                         XmlReader substitute = MacroToReader(macro, mtype, reader);
-                        macros.Add(new MacroSubstitution {
+                        macros.Add(new MacroSubstitution
+                        {
                             Macro = macro,
                             Attribute = reader.LocalName,
                             Reader = substitute
@@ -143,97 +129,21 @@ namespace MeepLib.MeepLang
 
         private XmlReader MacroToReader(MacroAttribute macro, Type type, XmlReader current)
         {
-            string doc = String.Format(@"<{0} {1}=""{2}""></{0}>",
-                                                           type.Name,
-                                                           macro.DefaultProperty,
-                                                           current.Value);
+            var xmlr = type.GetXmlRoot();
+            string ns = xmlr?.Namespace ?? current.NamespaceURI;
 
-            var newReader = XmlReader.Create(new StringReader(doc));
-            newReader.Read();
+            XmlDocument xdoc = new XmlDocument();
+            XmlElement melement = xdoc.CreateElement(string.Empty, type.Name, ns);
+            XmlAttribute prop = xdoc.CreateAttribute(string.Empty, macro.DefaultProperty, string.Empty);
+            prop.Value = current.Value;
+            melement.Attributes.Append(prop);
+            melement.IsEmpty = false;
+            xdoc.AppendChild(melement);
 
-            return newReader;
+            XmlReader newreader = new XmlNodeReader(xdoc);
+            newreader.Read();
+            return newreader;
         }
-
-        #region Pass-through
-        public override int AttributeCount => _Reader.AttributeCount;
-
-        public override string BaseURI => _Reader.BaseURI;
-
-        public override int Depth => _Reader.Depth;
-
-        public override bool EOF => _Reader.EOF;
-
-        public override bool IsEmptyElement => _Reader.IsEmptyElement;
-
-        public override string LocalName => _Reader.LocalName;
-
-        public override string NamespaceURI => _Reader.NamespaceURI;
-
-        public override XmlNameTable NameTable => _Reader.NameTable;
-
-        public override XmlNodeType NodeType => _Reader.NodeType;
-
-        public override string Prefix => _Reader.Prefix;
-
-        public override ReadState ReadState => _Reader.ReadState;
-
-        public override string Value => _Reader.Value;
-
-        public override string GetAttribute(int i)
-        {
-            return _Reader.GetAttribute(i);
-        }
-
-        public override string GetAttribute(string name)
-        {
-            return _Reader.GetAttribute(name);
-        }
-
-        public override string GetAttribute(string name, string namespaceURI)
-        {
-            return _Reader.GetAttribute(name, namespaceURI);
-        }
-
-        public override string LookupNamespace(string prefix)
-        {
-            return _Reader.LookupNamespace(prefix);
-        }
-
-        public override bool MoveToAttribute(string name)
-        {
-            return _Reader.MoveToAttribute(name);
-        }
-
-        public override bool MoveToAttribute(string name, string ns)
-        {
-            return _Reader.MoveToAttribute(name, ns);
-        }
-
-        public override bool MoveToElement()
-        {
-            return _Reader.MoveToElement();
-        }
-
-        public override bool MoveToFirstAttribute()
-        {
-            return _Reader.MoveToFirstAttribute();
-        }
-
-        public override bool MoveToNextAttribute()
-        {
-            return _Reader.MoveToNextAttribute();
-        }
-
-        public override bool ReadAttributeValue()
-        {
-            return _Reader.ReadAttributeValue();
-        }
-
-        public override void ResolveEntity()
-        {
-            _Reader.ResolveEntity();
-        }
-        #endregion
     }
 
     internal enum XMPReaderState

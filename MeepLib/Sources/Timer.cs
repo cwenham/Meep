@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Xml.Linq;
+using System.Xml.Serialization;
 using System.Reactive.Linq;
 
 using SmartFormat;
@@ -9,6 +9,7 @@ using MeepLib.Messages;
 
 namespace MeepLib.Sources
 {
+    [XmlRoot(ElementName = "Timer", Namespace = "http://meep.example.com/Meep/V1")]
     [Macro(Name = "Interval", DefaultProperty = "Interval", Position = MacroPosition.FirstUpstream)]
     public class Timer : AMessageModule
     {
@@ -24,18 +25,21 @@ namespace MeepLib.Sources
         /// Length of timer interval
         /// </summary>
         /// <value>The interval.</value>
+        [XmlAttribute]
         public TimeSpan Interval { get; set; }
 
         /// <summary>
         /// Last time the timer elapsed
         /// </summary>
         /// <value>The last elapsed.</value>
+        [XmlAttribute]
         public long LastElapsed { get; private set; }
 
         /// <summary>
         /// Value in {Smart.Format} to put in each message
         /// </summary>
         /// <value>The payload.</value>
+        [XmlAttribute]
         public string Payload { get; set; }
 
         public virtual Message CreateMessage(long step)

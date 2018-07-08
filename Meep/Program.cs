@@ -79,7 +79,7 @@ namespace Meep
         static AMessageModule DeserialisePipeline(string file)
         {
             XmlReader includingReader = new XIncludingReader(file);
-            XMeeplangDownstreamReader meeplangReader = new XMeeplangDownstreamReader(includingReader);
+            XDownstreamReader meeplangReader = new XDownstreamReader(includingReader);
             XmlSerializer serialiser = new XmlSerializer(typeof(AMessageModule));
 
             try

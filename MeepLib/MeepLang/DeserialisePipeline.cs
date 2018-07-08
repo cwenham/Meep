@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using SmartFormat;
 
 using MeepLib.Messages;
-using System.Threading.Tasks;
 
 namespace MeepLib.MeepLang
 {
+    [XmlRoot(ElementName = "DeserialisePipeline", Namespace = "http://meep.example.com/Meep/V1")]
     public class DeserialisePipeline : AMessageModule
     {
         public override async Task<Message> HandleMessage(Message msg)
@@ -22,7 +22,7 @@ namespace MeepLib.MeepLang
                 try
                 {
                     XmlSerializer serialiser = new XmlSerializer(typeof(Pipeline));
-                    XMeeplangDownstreamReader meeplangReader = new XMeeplangDownstreamReader(xmsg.GetReader());
+                    XDownstreamReader meeplangReader = new XDownstreamReader(xmsg.GetReader());
                     var tree = serialiser.Deserialize(meeplangReader) as AMessageModule;
 
                     return new DeserialisedPipeline

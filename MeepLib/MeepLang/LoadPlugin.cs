@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.IO;
 using System.Reflection;
+using System.Xml.Serialization;
 
 using SmartFormat;
 
@@ -14,6 +15,7 @@ namespace MeepLib.MeepLang
     /// </summary>
     /// <remarks>This makes a plugin's modules available for use in the next
     /// pipeline to be instantiated.</remarks>
+    [XmlRoot(ElementName = "LoadPlugin", Namespace = "http://meep.example.com/Meep/V1")]
     public class LoadPlugin : AMessageModule
     {
         /// <summary>
@@ -21,6 +23,7 @@ namespace MeepLib.MeepLang
         /// </summary>
         /// <value>The name of the dll file.</value>
         /// <remarks>Defaults to the suggested "Plugin.dll" for zipped plugin packages.</remarks>
+        [XmlAttribute]
         public string DLL { get; set; } = "Plugin.dll";
 
         public override async Task<Message> HandleMessage(Message msg)

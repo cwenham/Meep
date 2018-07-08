@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Net.NetworkInformation;
+using System.Xml.Serialization;
 
 using SmartFormat;
 
@@ -8,6 +9,7 @@ using MeepLib.Messages;
 
 namespace MeepLib.Sources
 {
+    [XmlRoot(ElementName = "Ping", Namespace = "http://meep.example.com/Meep/V1")]
     public class Ping : AMessageModule
     {
         /// <summary>

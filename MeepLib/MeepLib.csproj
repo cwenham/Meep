@@ -8,6 +8,7 @@
     <Compile Remove="Class1.cs" />
     <Compile Remove="XmlPreprocessor.cs" />
     <Compile Remove="AHTTPModule.cs" />
+    <Compile Remove="MeepLang\XMeeplangDownstreamReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.5.6" />
