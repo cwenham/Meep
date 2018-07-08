@@ -100,57 +100,5 @@ namespace MeepLib.MeepLang
             return givenRead;
         }
 
-
-
-
-
-        private IEnumerable<ReaderState> ApplicableMacros(XmlReader reader)
-        {
-            List<ReaderState> macros = new List<ReaderState>();
-
-            if (reader.IsStartElement())
-            {
-                string elementNS = reader.NamespaceURI;
-                reader.MoveToFirstAttribute();
-                for (int i = 0; i < reader.AttributeCount; i++)
-                {
-                    string nspace = String.IsNullOrWhiteSpace(reader.NamespaceURI) ? elementNS : reader.NamespaceURI;
-                    var (mtype, macro) = MacroFinder.GetMacro(nspace, reader.LocalName);
-                    if (macro != null && macro.Position == MacroPosition.Downstream)
-                    {
-                        XmlReader substitute = MacroToReader(macro, mtype, reader);
-                        macros.Add(new ReaderState
-                        {
-                            Attribute = macro,
-                            AttributeName = reader.LocalName,
-                            Reader = substitute,
-                            Depth = reader.Depth
-                        });
-                    }
-
-                    reader.MoveToNextAttribute();
-                }
-                reader.MoveToElement();
-            }
-
-            return macros;
-        }
-
-        private XmlReader MacroToReader(MacroAttribute macro, Type type, XmlReader current)
-        {
-            var xmlr = type.GetXmlRoot();
-            string ns = xmlr?.Namespace ?? current.NamespaceURI;
-
-            XmlDocument xdoc = new XmlDocument();
-            XmlElement melement = xdoc.CreateElement(string.Empty, type.Name, ns);
-            XmlAttribute prop = xdoc.CreateAttribute(string.Empty, macro.DefaultProperty, string.Empty);
-            prop.Value = current.Value;
-            melement.Attributes.Append(prop);
-            melement.IsEmpty = false;
-            xdoc.AppendChild(melement);
-
-            XmlReader newreader = new XmlNodeReader(xdoc);
-            return newreader;
-        }
     }
 }

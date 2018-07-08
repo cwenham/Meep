@@ -141,7 +141,9 @@ namespace MeepLibTests
     <Unzip Path=""/tmp"">
         <CleanSomething Unzip=""/tmp"">
             <Localise From=""Two"">
-                <CheckSomethingTwo Localise=""Two""/>
+                <CheckSomethingTwo Localise=""Two"">
+                    <Foo/>
+                </CheckSomethingTwo>
             </Localise>
         </CleanSomething>
     </Unzip>
@@ -161,7 +163,9 @@ namespace MeepLibTests
     <CheckSomethingOne Localise=""One""/>
 
     <CleanSomething Unzip=""/tmp"">
-        <CheckSomethingTwo Localise=""Two""/>
+        <CheckSomethingTwo Localise=""Two"">
+            <Foo/>
+        </CheckSomethingTwo>
     </CleanSomething>
 
     <FetchFromSomewhere s:Save=""MyDB:Widgets""/>
