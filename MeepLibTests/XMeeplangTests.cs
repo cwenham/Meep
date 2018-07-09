@@ -85,6 +85,11 @@ namespace MeepLibTests
             attr.Type = typeof(Where);
             attrs.XmlElements.Add(attr);
 
+            XmlElementAttribute attr2 = new XmlElementAttribute();
+            attr2.ElementName = "Timer";
+            attr2.Type = typeof(Timer);
+            attrs.XmlElements.Add(attr2);
+
             XmlAttributeOverrides attrOverrides = new XmlAttributeOverrides();
             attrOverrides.Add(typeof(AMessageModule), "Upstreams", attrs);
 
@@ -95,6 +100,10 @@ namespace MeepLibTests
             Assert.IsType<Pipeline>(tree);
             Assert.Equal(1, tree.Upstreams.Count);
             Assert.IsType<Where>(tree.Upstreams.First());
+            Assert.IsType<Timer>(tree.Upstreams.First().Upstreams.First());
+
+            var timer = tree.Upstreams.First().Upstreams.First() as Timer;
+            Assert.Equal(14, timer.Interval.TotalSeconds);
         }
 
         [Fact]
@@ -179,7 +188,7 @@ namespace MeepLibTests
         public static string WhereTimer = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Pipeline xmlns=""http://meep.example.com/Meep/V1"">
     <Where Expr=""[Step] % 2 = 0"">
-        <Timer Interval=""00:00:01""/>
+        <Timer Interval=""00:00:14""/>
     </Where>
 </Pipeline>
 ";

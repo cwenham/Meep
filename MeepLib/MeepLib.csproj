@@ -28,4 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MeepModel\MeepModel.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="MeepLang\XmlTimeSpan.xml" />
+  </ItemGroup>
 </Project>

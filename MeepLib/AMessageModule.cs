@@ -9,6 +9,8 @@ using System.Xml.Serialization;
 using NLog;
 
 using MeepLib.Messages;
+using System.Xml;
+using System.Xml.Schema;
 
 namespace MeepLib
 {

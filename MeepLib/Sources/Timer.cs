@@ -25,14 +25,27 @@ namespace MeepLib.Sources
         /// Length of timer interval
         /// </summary>
         /// <value>The interval.</value>
-        [XmlAttribute]
+        [XmlIgnore]
         public TimeSpan Interval { get; set; }
+
+        [XmlAttribute(AttributeName = "Interval")]
+        public string strInterval
+        {
+            get
+            {
+                return Interval.ToString();
+            }
+            set
+            {
+                Interval = TimeSpan.Parse(value);
+            }
+        }
 
         /// <summary>
         /// Last time the timer elapsed
         /// </summary>
         /// <value>The last elapsed.</value>
-        [XmlAttribute]
+        [XmlIgnore]
         public long LastElapsed { get; private set; }
 
         /// <summary>
