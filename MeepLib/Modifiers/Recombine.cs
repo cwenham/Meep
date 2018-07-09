@@ -84,6 +84,7 @@ namespace MeepLib.Modifiers
         [XmlAttribute]
         public int Offspring { get; set; } = 5;
 
+        [XmlIgnore]
         public override IObservable<Message> Pipeline
         {
             get

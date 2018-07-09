@@ -78,17 +78,7 @@ namespace MeepLibTests
             var xmlReader = XmlReader.Create(textReader);
             var meepReader = new XDownstreamReader(xmlReader);
 
-            XmlAttributes attrs = new XmlAttributes();
-
-            XmlElementAttribute attr = new XmlElementAttribute();
-            attr.ElementName = "Where";
-            attr.Type = typeof(Where);
-            attrs.XmlElements.Add(attr);
-
-            XmlElementAttribute attr2 = new XmlElementAttribute();
-            attr2.ElementName = "Timer";
-            attr2.Type = typeof(Timer);
-            attrs.XmlElements.Add(attr2);
+            XmlAttributes attrs = DeserialisePipeline.AllModuleXmlAttributes();
 
             XmlAttributeOverrides attrOverrides = new XmlAttributeOverrides();
             attrOverrides.Add(typeof(AMessageModule), "Upstreams", attrs);

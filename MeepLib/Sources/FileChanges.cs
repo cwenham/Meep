@@ -34,6 +34,7 @@ namespace MeepLib.Sources
         [XmlAttribute]
         public TimeSpan Throttle { get; set; } = TimeSpan.FromMilliseconds(250);
 
+        [XmlIgnore]
         public override IObservable<Message> Pipeline { 
             get
             {

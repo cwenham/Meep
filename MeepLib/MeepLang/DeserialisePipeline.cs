@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Xml.Serialization;
 using System.Threading.Tasks;
+using System.Reflection;
 
 using SmartFormat;
 
@@ -21,7 +23,12 @@ namespace MeepLib.MeepLang
             {
                 try
                 {
-                    XmlSerializer serialiser = new XmlSerializer(typeof(Pipeline));
+                    XmlAttributes attrs = AllModuleXmlAttributes();
+
+                    XmlAttributeOverrides attrOverrides = new XmlAttributeOverrides();
+                    attrOverrides.Add(typeof(AMessageModule), "Upstreams", attrs);
+
+                    XmlSerializer serialiser = new XmlSerializer(typeof(Pipeline), attrOverrides);
                     XDownstreamReader meeplangReader = new XDownstreamReader(xmsg.GetReader());
                     var tree = serialiser.Deserialize(meeplangReader) as AMessageModule;
 
@@ -37,6 +44,27 @@ namespace MeepLib.MeepLang
                     return null;
                 }
             });
+        }
+
+        public static XmlAttributes AllModuleXmlAttributes()
+        {
+            XmlAttributes attrs = new XmlAttributes();
+
+            var modules = from a in AppDomain.CurrentDomain.GetAssemblies()
+                          from t in a.GetTypes()
+                          where t.IsSubclassOf(typeof(AMessageModule))
+                          let r = t.GetXmlRoot()
+                          select new { t, r };
+
+            foreach (var t in modules)
+            {
+                XmlElementAttribute attr = new XmlElementAttribute();
+                attr.ElementName = t.r != null ? t.r.ElementName : t.t.Name;
+                attr.Type = t.t;
+                attrs.XmlElements.Add(attr);
+            }
+
+            return attrs;
         }
     }
 }

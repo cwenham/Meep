@@ -27,8 +27,10 @@ namespace MeepLib.Flow
         }
         public string _From;
 
+        [XmlIgnore]
         public AMessageModule Source { get; private set; }
 
+        [XmlIgnore]
         public override IObservable<Message> Pipeline { get => Source.Pipeline; protected set => base.Pipeline = value; }
     }
 }
