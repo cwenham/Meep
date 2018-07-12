@@ -25,9 +25,9 @@ namespace Meep
     {
         static Logger logger = LogManager.GetCurrentClassLogger();
 
-        static AMessageModule PipelineRoot { get; set; }
-
         static IDisposable Subscription { get; set; }
+
+        static Bootstrapper Bootstrapper { get; set; }
 
         static GutterSerialisation GutterSerialisation = GutterSerialisation.JSON;
 
@@ -39,10 +39,10 @@ namespace Meep
 
             var options = new OptionSet
             {
-                { "p|pipeline=", "Path to pipeline.", p => pipelineFile = p },
+                { "p|pipeline=", "Path to pipeline file", p => pipelineFile = p },
                 { "x|xml", "Gutter serialisation in XML", g => GutterSerialisation = GutterSerialisation.XML },
                 { "b|bson", "Gutter serialisation in BSON", b => GutterSerialisation = GutterSerialisation.BSON },
-                { "r|redis=", "Redis server hostname[:port].", r => redisHost = r },
+                { "r|redis=", "Redis server hostname[:port]", r => redisHost = r },
                 { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
             };
 
@@ -64,11 +64,16 @@ namespace Meep
                 ShowHelp();
 
             var proxy = new HostProxy();
-            PipelineRoot = DeserialisePipeline(pipelineFile);
-            Subscription = SubscribeToPipeline(PipelineRoot);
+
+            Bootstrapper = new Bootstrapper(pipelineFile);
+            Bootstrapper.PipelineRefreshed += Bootstrapper_PipelineRefreshed;
+            Bootstrapper.Start();
 
             System.Threading.ManualResetEvent resetEvent = new System.Threading.ManualResetEvent(false);
             resetEvent.WaitOne();
+
+            Bootstrapper.Stop();
+            Subscription?.Dispose();
         }
 
         static void ShowHelp()
@@ -76,35 +81,18 @@ namespace Meep
             Console.WriteLine("E.G.: meep -b evilplan.meep");
         }
 
-        static AMessageModule DeserialisePipeline(string file)
+        static void Bootstrapper_PipelineRefreshed(object sender, PipelineRefreshEventArgs e)
         {
-            XmlReader includingReader = new XIncludingReader(file);
-            XDownstreamReader meeplangReader = new XDownstreamReader(includingReader);
-            XmlSerializer serialiser = new XmlSerializer(typeof(AMessageModule));
-
-            try
-            {
-                return serialiser.Deserialize(meeplangReader) as AMessageModule;
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "{0} thrown when deserialising pipeline: {1}", ex.GetType().Name, ex.Message);
-                return null;
-            }
-        }
-
-        private static IDisposable SubscribeToPipeline(AMessageModule root)
-        {
-            Console.WriteLine("Starting pipeline");
+            Console.WriteLine("{0}tarting pipeline", Subscription == null ? "S" : "Re");
 
             Subscription?.Dispose();
 
             try
             {
-                IConnectableObservable<Message> observable = root.Pipeline.Publish();
+                IConnectableObservable<Message> observable = Bootstrapper.PipelineRoot.Pipeline.Publish();
                 observable.Connect();
 
-                return observable.SubscribeOn(TaskPoolScheduler.Default).Subscribe<Message>(
+                Subscription = observable.SubscribeOn(TaskPoolScheduler.Default).Subscribe<Message>(
                     msg => RegisterMessage(msg),
                     ex => LogError(ex),
                     () => Console.WriteLine("Pipeline completed")
@@ -113,7 +101,6 @@ namespace Meep
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return null;
             }
         }
 

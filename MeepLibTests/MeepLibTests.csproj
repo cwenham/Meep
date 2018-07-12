@@ -23,4 +23,7 @@
     <Folder Include="Outputs\" />
     <Folder Include="Modifiers\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="..\..\..\Meeplines\Smoketest.meep" />
+  </ItemGroup>
 </Project>

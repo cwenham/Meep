@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Xml.Serialization;
 using System.Threading.Tasks;
-using System.Reflection;
+using System.Xml;
+using System.IO;
 
 using SmartFormat;
 
@@ -15,9 +16,13 @@ namespace MeepLib.MeepLang
     {
         public override async Task<Message> HandleMessage(Message msg)
         {
-            var xmsg = msg as XMLMessage;
-            if (xmsg == null)
-                return null;
+            XmlReader reader;
+            if (msg is XMLMessage)
+                reader = ((XMLMessage)msg).GetReader();
+            else if (msg is StreamMessage)
+                reader = XmlReader.Create(((StreamMessage)msg).Stream);
+            else
+                reader = XmlReader.Create(new StringReader(msg.Value.ToString()));
 
             return await Task.Run<Message>(() =>
             {
@@ -29,7 +34,7 @@ namespace MeepLib.MeepLang
                     attrOverrides.Add(typeof(AMessageModule), "Upstreams", attrs);
 
                     XmlSerializer serialiser = new XmlSerializer(typeof(Pipeline), attrOverrides);
-                    XDownstreamReader meeplangReader = new XDownstreamReader(xmsg.GetReader());
+                    XDownstreamReader meeplangReader = new XDownstreamReader(reader);
                     var tree = serialiser.Deserialize(meeplangReader) as AMessageModule;
 
                     return new DeserialisedPipeline

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
+using System.Collections.Generic;
 
 namespace MeepLib
 {
@@ -63,6 +64,20 @@ namespace MeepLib
                 default:
                     break;
             }
+        }
+
+        /// <summary>
+        /// Add a module upstream
+        /// </summary>
+        /// <param name="module">Module.</param>
+        /// <remarks>This is used when constructing pipelines in code, not
+        /// when deserialising them.</remarks>
+        public static void AddUpstream(this AMessageModule parent, AMessageModule module)
+        {
+            if (parent.Upstreams == null)
+                parent.Upstreams = new List<AMessageModule>();
+
+            parent.Upstreams.Add(module);
         }
     }
 }

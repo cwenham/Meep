@@ -13,14 +13,6 @@ namespace MeepLib.Sources
     [Macro(Name = "Interval", DefaultProperty = "Interval", Position = MacroPosition.FirstUpstream)]
     public class Timer : AMessageModule
     {
-        public Timer()
-        {
-            Pipeline = from seq in Observable.Interval(Interval)
-                       let message = IssueMessage(seq)
-                       where message != null
-                       select message;
-        }
-
         /// <summary>
         /// Length of timer interval
         /// </summary>
@@ -53,7 +45,23 @@ namespace MeepLib.Sources
         /// </summary>
         /// <value>The payload.</value>
         [XmlAttribute]
-        public string Payload { get; set; }
+        public string Payload { get; set; } = "{msg.Number}";
+
+        [XmlIgnore]
+        public override IObservable<Message> Pipeline { 
+            get
+            {
+                if (_Pipeline == null)
+                    _Pipeline = from seq in Observable.Interval(Interval)
+                                let message = IssueMessage(seq)
+                                where message != null
+                                select message;
+
+                return _Pipeline;
+            }
+            protected set => base.Pipeline = value; 
+        }
+        private IObservable<Message> _Pipeline;
 
         public virtual Message CreateMessage(long step)
         {
