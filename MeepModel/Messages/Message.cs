@@ -35,7 +35,7 @@ namespace MeepLib.Messages
         /// Reference to original message, if available
         /// </summary>
         /// <value>The derived from.</value>
-        [DataMember]
+        [XmlIgnore, JsonIgnore]
         public Message DerivedFrom
         {
             get => _DerivedFrom;

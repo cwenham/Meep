@@ -12,10 +12,17 @@ namespace MeepLib.Sources
     [XmlRoot(ElementName = "Ping", Namespace = "http://meep.example.com/Meep/V1")]
     public class Ping : AMessageModule
     {
+        public Ping()
+        {
+            // Set default timeout
+            Timeout = TimeSpan.FromMilliseconds(3000);
+        }
+
         /// <summary>
         /// Address of host to ping, in {Smart.Format}
         /// </summary>
         /// <value>To.</value>
+        [XmlAttribute]
         public string To { get; set; }
 
         /// <summary>
@@ -25,7 +32,21 @@ namespace MeepLib.Sources
         /// <remarks>The main use is to distinguish between no-response and a sub-milisecond
         /// response on health monitoring systems that ignore error messages and just display 
         /// a number, like a packed Telemetry dashboard.</remarks>
+        [XmlIgnore]
         public TimeSpan Padding { get; set; } = TimeSpan.Zero;
+
+        [XmlAttribute(AttributeName = "Padding")]
+        public string strPadding
+        {
+            get
+            {
+                return Padding.ToString();
+            }
+            set
+            {
+                Padding = TimeSpan.Parse(value);
+            }
+        }
 
         private System.Net.NetworkInformation.Ping Pinger { get; set; }
 

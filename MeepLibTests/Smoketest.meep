@@ -4,4 +4,8 @@
     <Random>
         <Timer Interval="00:00:05"/>
     </Random>
+
+    <Ping To="www.mit.edu">
+        <Timer Interval="00:00:10"/>
+    </Ping>
 </Pipeline>

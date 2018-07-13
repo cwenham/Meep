@@ -73,10 +73,8 @@ namespace MeepLib.Sources
                                           select new FileSystemEventArgs(WatcherChangeTypes.Created,
                                                                          Path,
                                                                          System.IO.Path.GetFileName(f));
-                        mergedEvents = Observable.Merge(
-                            mergedEvents,
-                            initialList.ToObservable()
-                        );
+
+                        mergedEvents = mergedEvents.StartWith(initialList);
                     }
 
                     _Pipeline = from fev in mergedEvents.Throttle(Throttle, TaskPoolScheduler.Default)

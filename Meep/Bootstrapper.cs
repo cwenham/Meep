@@ -27,7 +27,7 @@ namespace Meep
     /// <para>This is an example of Meep self-hosting.</para>
     /// 
     /// </remarks>
-    public class Bootstrapper : INotifyPropertyChanging, INotifyPropertyChanged
+    public class Bootstrapper : INotifyPropertyChanging, INotifyPropertyChanged, IDisposable
     {
         /// <summary>
         /// The root of the loaded Meep pipeline, ready for subscription when not null
@@ -141,6 +141,11 @@ namespace Meep
         public void Stop()
         {
             _subscription.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Stop();
         }
 
         public event EventHandler<PipelineRefreshEventArgs> PipelineRefreshed;
