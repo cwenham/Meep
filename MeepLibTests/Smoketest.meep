@@ -1,11 +1,21 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Pipeline xmlns="http://meep.example.com/Meep/V1"
     xmlns:s="http://meep.example.com/MeepSQL/V1">
-    <Random>
-        <Timer Interval="00:00:05"/>
-    </Random>
+
+    <Respond>
+        <Body>Thank you, sir, may I have another?</Body>
+
+        <Listen Base="http://127.0.0.1:7780/"/>
+    </Respond>
+
+    <Get URL="http://127.0.0.1:7780/{msg.Value}">
+        <Random>
+            <Timer Interval="00:00:05"/>
+        </Random>
+    </Get>
 
     <Ping To="www.mit.edu">
         <Timer Interval="00:00:10"/>
     </Ping>
+    
 </Pipeline>

@@ -4,6 +4,8 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 
+using MeepLib.Messages;
+
 namespace MeepLib
 {
     /// <summary>
@@ -78,6 +80,29 @@ namespace MeepLib
                 parent.Upstreams = new List<AMessageModule>();
 
             parent.Upstreams.Add(module);
+        }
+
+        /// <summary>
+        /// Find the first ancestor in the DerivedFrom chain that matches a type
+        /// </summary>
+        /// <returns>The ancestor.</returns>
+        /// <param name="msg">Message.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public static T FirstAncestor<T>(this Message msg) where T : Message
+        {
+            if (msg == null)
+                return null;
+
+            if (msg is T)
+                return msg as T;
+
+            if (msg.DerivedFrom == null)
+                return null;
+
+            if (msg.DerivedFrom is T)
+                return msg.DerivedFrom as T;
+
+            return FirstAncestor<T>(msg.DerivedFrom);
         }
     }
 }
