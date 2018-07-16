@@ -62,12 +62,12 @@ namespace MeepLibTests.Filters
             Assert.Same(NumMessage, resultB.Result);
         }
 
-        public static Message TextMessage = new Message
+        public static Message TextMessage = new StringMessage
         {
             Value = "Foo"
         };
 
-        public static Message NumMessage = new Message
+        public static Message NumMessage = new NumericMessage
         {
             Value = 12
         };

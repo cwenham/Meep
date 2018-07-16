@@ -39,7 +39,7 @@ namespace MeepLibTests.Outputs
         }
 
 
-        public static Message PlainText = new Message
+        public static StringMessage PlainText = new StringMessage
         {
             Value = "Meeps eat fruit, nuts, leafy vegetables, and continuous streams of complex structured data packaged in discrete messages."
         };

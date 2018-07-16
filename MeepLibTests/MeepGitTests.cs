@@ -28,7 +28,7 @@ namespace MeepLibTests
                 WorkingDir = "/Users/cwenham/Documents/Meep/{Value}"
             };
 
-            var task = cloner.HandleMessage(new Message
+            var task = cloner.HandleMessage(new StringMessage
             {
                 Value = "Meep"
             });

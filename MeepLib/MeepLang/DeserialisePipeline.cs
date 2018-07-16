@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
 using System.IO;
+using System.Reflection;
 
+using NLog;
 using SmartFormat;
 
 using MeepLib.Messages;
@@ -21,8 +24,10 @@ namespace MeepLib.MeepLang
                 reader = ((XMLMessage)msg).GetReader();
             else if (msg is StreamMessage)
                 reader = XmlReader.Create(((StreamMessage)msg).Stream);
+            else if (msg is StringMessage)
+                reader = XmlReader.Create(new StringReader(((StringMessage)msg).Value));
             else
-                reader = XmlReader.Create(new StringReader(msg.Value.ToString()));
+                return null;
 
             return await Task.Run<Message>(() =>
             {
@@ -35,6 +40,12 @@ namespace MeepLib.MeepLang
 
                     XmlSerializer serialiser = new XmlSerializer(typeof(Pipeline), attrOverrides);
                     XDownstreamReader meeplangReader = new XDownstreamReader(reader);
+
+                    // Uncomment to inspect meeplangReader's output, just know it breaks the rest.
+                    //XmlDocument doc = new XmlDocument();
+                    //doc.Load(meeplangReader);
+
+                    serialiser.UnknownElement += Serialiser_UnknownElement;
                     var tree = serialiser.Deserialize(meeplangReader) as AMessageModule;
 
                     return new DeserialisedPipeline
@@ -51,25 +62,56 @@ namespace MeepLib.MeepLang
             });
         }
 
+        void Serialiser_UnknownElement(object sender, XmlElementEventArgs e)
+        {
+            // ToDo: There's still a problem deserialising elements created from
+            // macros by meeplangReader. Probably related to namespace prefixes
+            // and the "xmlns" attrib. 
+            Console.WriteLine(e.LineNumber);
+            Console.WriteLine(e.Element.InnerXml);
+        }
+
+
         public static XmlAttributes AllModuleXmlAttributes()
         {
             XmlAttributes attrs = new XmlAttributes();
 
-            var modules = from a in AppDomain.CurrentDomain.GetAssemblies()
-                          from t in a.GetTypes()
-                          where t.IsSubclassOf(typeof(AMessageModule))
-                          let r = t.GetXmlRoot()
-                          select new { t, r };
-
-            foreach (var t in modules)
+            try
             {
-                XmlElementAttribute attr = new XmlElementAttribute();
-                attr.ElementName = t.r != null ? t.r.ElementName : t.t.Name;
-                attr.Type = t.t;
-                attrs.XmlElements.Add(attr);
+                var modules = from a in AppDomain.CurrentDomain.GetAssemblies()
+                              from t in TryLoadTypes(a)
+                              where t.IsSubclassOf(typeof(AMessageModule))
+                              let r = t.GetXmlRoot()
+                              select new { t, r };
+
+                foreach (var t in modules)
+                {
+                    XmlElementAttribute attr = new XmlElementAttribute();
+                    attr.ElementName = t.r != null ? t.r.ElementName : t.t.Name;
+                    attr.Namespace = t.r.Namespace;
+                    attr.Type = t.t;
+                    attrs.XmlElements.Add(attr);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger logger = LogManager.GetCurrentClassLogger();
+                logger.Error(ex, "Error loading XmlAttributes");
             }
 
             return attrs;
+        }
+
+        public static Type[] TryLoadTypes(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (Exception)
+            {
+                return new Type[] { };
+            }
         }
     }
 }

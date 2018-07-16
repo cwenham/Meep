@@ -158,7 +158,7 @@ namespace MeepLib.MeepLang
             string ns = xmlr?.Namespace ?? current.NamespaceURI;
 
             XmlDocument xdoc = new XmlDocument();
-            XmlElement melement = xdoc.CreateElement(string.Empty, type.Name, ns);
+            XmlElement melement = xdoc.CreateElement(current.Prefix, type.Name, ns);
             XmlAttribute prop = xdoc.CreateAttribute(string.Empty, macro.DefaultProperty, string.Empty);
             prop.Value = current.Value;
             melement.Attributes.Append(prop);

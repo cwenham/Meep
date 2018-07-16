@@ -37,7 +37,7 @@ namespace MeepSQL
         [XmlAttribute]
         public string Connection { get; set; }
 
-        private static string _defaultConnection = "Data Source={0}.sqlite;Version=3.0";
+        private static string _defaultConnection = "Data Source={0}.sqlite";
 
         /// <summary>
         /// Database name in {Smart.Format}
@@ -60,10 +60,10 @@ namespace MeepSQL
         /// </summary>
         /// <value>Database and table names separated by colon</value>
         /// <remarks>Mainly for use with the macro syntax</remarks>
-        [XmlIgnore]
+        [XmlAttribute]
         public string DBTable
         {
-            get {
+            private get {
                 return String.Format("{0}:{1}", Database, Table);
             }
             set {
@@ -77,7 +77,7 @@ namespace MeepSQL
         {
             MessageContext context = new MessageContext(msg, this);
 
-            string connectionString = Smart.Format(Connection, context);
+            string connectionString = Connection != null ? Smart.Format(Connection, context) : null;
             string dbName = Smart.Format(Database, context);
             string tableName = Smart.Format(Table, context);
 
@@ -90,16 +90,42 @@ namespace MeepSQL
             if (String.IsNullOrWhiteSpace(tableName))
                 tableName = dbName;
 
-            // Warning: At the moment, .ToConnection() blindly assumes its always SQLite
-            DbConnection connection = connectionString.ToConnection();
-
-            var tables = connection.GetSchema("Tables");
-            if (!tables.Rows.Contains(tableName))
+            try
             {
-                // Create table
+                // Warning: At the moment, .ToConnection() blindly assumes its always SQLite
+                using (DbConnection connection = connectionString.ToConnection())
+                {
+                    connection.Open();
+
+                    // Microsoft.Data.Sqlite doesn't support GetSchema, so we have to
+                    // wait for System.Data.SQLite 0.109 to be released, which does.
+                    // In the mean time, we'll rely on CREATE TABLE IF NOT EXISTS
+                    //var tables = connection.GetSchema("Tables");
+                    //bool tableExists = tables.Rows.Contains(tableName);
+                    bool tableExists = false;
+
+                    // ToDo: develop something more flexible that supports user
+                    // defined schemas and bulk inserts (especially when paired with
+                    // a batch module). For now we'll just save one message at a time 
+                    // using the message's structure.
+
+                    if (!tableExists)
+                    {
+                        var ctcmd = connection.CreateCommand();
+                        ctcmd.CommandText = msg.ToCreateTable(tableName);
+                        ctcmd.ExecuteScalar();
+                    }
+
+                    DbCommand cmd = msg.ToInsertOrReplace(connection, tableName);
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Error saving to DB");
             }
 
-            return await base.HandleMessage(msg);
+            return msg;
         }
     }
 }

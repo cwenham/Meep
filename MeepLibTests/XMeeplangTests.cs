@@ -50,9 +50,6 @@ namespace MeepLibTests
         [Fact]
         public void Desweeten()
         {
-            // We're testing with MeepSQL, so we need to load the plugin
-            //Assembly.LoadFrom("MeepSQL.dll");
-
             var textReader = new StringReader(SweetenedDownstream.ToUnixEndings());
             var xmlReader = XmlReader.Create(textReader);
             var meepReader = new XDownstreamReader(xmlReader);

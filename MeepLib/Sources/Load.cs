@@ -45,7 +45,7 @@ namespace MeepLib.Sources
                     FileInfo info = new FileInfo(filePath);
 
                     if (info.Length < StreamAt)
-                        return new Message
+                        return new StringMessage
                         {
                             DerivedFrom = msg,
                             Value = await File.ReadAllTextAsync(filePath)

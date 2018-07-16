@@ -19,7 +19,7 @@ namespace MeepLib.Sources
     /// saves the HttpListenerContext to the message so another module can
     /// respond.</remarks>
     [XmlRoot(ElementName = "Listen", Namespace = "http://meep.example.com/Meep/V1")]
-    public class Listen : AMessageModule
+    public class Listen : AMessageModule, IDisposable
     {
         /// <summary>
         /// Base URL to bind to
@@ -39,7 +39,7 @@ namespace MeepLib.Sources
             {
                 if (_pipeline == null)
                 {
-                    _cancelTokenSource = new CancellationTokenSource();
+                    _cancelSource = new CancellationTokenSource();
 
                     _pipeline = Observable.Create<WebMessage>(async observer =>
                     {
@@ -48,9 +48,9 @@ namespace MeepLib.Sources
                             server.Prefixes.Add(Base);
                         server.Start();
 
-                        while (!_cancelTokenSource.IsCancellationRequested)
+                        while (!_cancelSource.IsCancellationRequested)
                         {
-                            var context = await Task.Run(() => server.GetContext(), _cancelTokenSource.Token);
+                            var context = await Task.Run(() => server.GetContext(), _cancelSource.Token);
                             observer.OnNext(new WebMessage
                             {
                                 URL = context.Request.RawUrl,
@@ -66,6 +66,11 @@ namespace MeepLib.Sources
         }
         private IObservable<Message> _pipeline;
 
-        private CancellationTokenSource _cancelTokenSource;
+        private CancellationTokenSource _cancelSource;
+
+        public void Dispose()
+        {
+            _cancelSource?.Cancel();
+        }
     }
 }

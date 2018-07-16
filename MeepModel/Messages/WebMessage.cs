@@ -3,13 +3,18 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 using Newtonsoft.Json;
 
 namespace MeepLib.Messages
 {
+    /// <summary>
+    /// An HTTP request or response
+    /// </summary>
     [DataContract]
-    public class WebMessage : Message
+    public class WebMessage : StringMessage
     {
         /// <summary>
         /// URL the message came from/was delivered to
@@ -26,14 +31,14 @@ namespace MeepLib.Messages
         /// this will hold the live context of the call so another module in
         /// the pipeline can respond, making the pipeline act as an HTTP server.
         /// </remarks>
-        [XmlIgnore, JsonIgnore]
+        [XmlIgnore, JsonIgnore, NotMapped]
         public HttpListenerContext Context { get; set; }
 
         /// <summary>
         /// Headers of the response
         /// </summary>
         /// <value>The headers.</value>
-        [DataMember]
+        [DataMember, NotMapped]
         public HttpResponseHeaders Headers { get; set; }
     }
 }

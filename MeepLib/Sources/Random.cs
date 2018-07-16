@@ -26,16 +26,16 @@ namespace MeepLib.Sources
             return await Task.Run<Message>(() =>
             {
                 if (Min != 0 || Max != 0)
-                    return new Message
+                    return new NumericMessage
                     {
                         DerivedFrom = msg,
-                        Value = _rand.Next(Min, Max)
+                        Value = (Decimal)_rand.Next(Min, Max)
                     };
                 else
-                    return new Message
+                    return new NumericMessage
                     {
                         DerivedFrom = msg,
-                        Value = _rand.NextDouble()
+                        Value = (Decimal)_rand.NextDouble()
                     };
             });
         }

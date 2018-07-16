@@ -1,41 +1,40 @@
 ﻿using System;
-using System.Reflection;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace MeepLib.Messages
 {
+    /// <summary>
+    /// A message, the smallest unit of data in a Meep pipeline
+    /// </summary>
+    /// <remarks>All communication between modules in a pipeline take the form
+    /// of messages derived from this class.</remarks>
     [DataContract]
     public class Message
     {
-        public Message()
-        {
-        }
-
         /// <summary>
         /// Message ID
         /// </summary>
         /// <value>The identifier.</value>
-        [DataMember]
+        [DataMember, Key]
         public Guid ID { get; set; } = Guid.NewGuid();
 
         /// <summary>
         /// Message that this was derived from
         /// </summary>
         /// <value>The derived from identifier.</value>
-        [DataMember]
+        [DataMember, Index(IsUnique = false)]
         public Guid DerivedFromID { get; set; }
 
         /// <summary>
         /// Reference to original message, if available
         /// </summary>
         /// <value>The derived from.</value>
-        [XmlIgnore, JsonIgnore]
+        [XmlIgnore, JsonIgnore, NotMapped]
         public Message DerivedFrom
         {
             get => _DerivedFrom;
@@ -52,13 +51,14 @@ namespace MeepLib.Messages
         /// Creation timestamp in UTC, set with high-resolution timer if available on platform
         /// </summary>
         /// <value>The created ticks.</value>
-        [DataMember]
+        [DataMember, Index(IsUnique = false)]
         public long CreatedTicks { get; set; } = new DateTime(System.Diagnostics.Stopwatch.GetTimestamp()).ToUniversalTime().Ticks;
 
         /// <summary>
         /// When the message was created, in UTC
         /// </summary>
         /// <value>The created.</value>
+        [XmlIgnore, JsonIgnore, NotMapped]
         public DateTime Created
         {
             get
@@ -77,34 +77,10 @@ namespace MeepLib.Messages
         /// <value>The deadline.</value>
         /// <remarks>&lt;= 0 for no deadline.
         /// </remarks>
-        [DataMember]
+        [DataMember, NotMapped]
         public long Deadline { get; set; }
 
-        /// <summary>
-        /// Message payload
-        /// </summary>
-        /// <value>The value.</value>
-        [DataMember]
-        public object Value { get; set; }
-
-        public override string ToString()
-        {
-            return Value?.ToString();
-        }
-
-        public int ToInt()
-        {
-            try
-            {
-                return (int)Value;
-            }
-            catch (Exception)
-            {
-                return 0;
-            }
-        }
-
-        [JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore, NotMapped]
         public string AsJSON
         {
             get
@@ -113,7 +89,7 @@ namespace MeepLib.Messages
             }
         }
 
-        [JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore, NotMapped]
         public string AsXML
         {
             get

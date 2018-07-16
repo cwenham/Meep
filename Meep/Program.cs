@@ -5,12 +5,10 @@ using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Subjects;
-using System.Xml;
-using System.Xml.Serialization;
+using System.Reflection;
 
 using NLog;
 using Mono.Options;
-using Mvp.Xml.XInclude;
 using Newtonsoft.Json;
 
 using MeepLib;
@@ -63,6 +61,7 @@ namespace Meep
             if (shouldShowHelp)
                 ShowHelp();
 
+            LoadBasePlugins();
             var proxy = new HostProxy();
 
             Bootstrapper = new Bootstrapper(pipelineFile);
@@ -127,6 +126,17 @@ namespace Meep
         private static void LogError(Exception ex)
         {
             Console.WriteLine($"{ex.GetType().Name} thrown: {ex.Message}");
+        }
+
+        /// <summary>
+        /// Load the plugins that form the Meep core library
+        /// </summary>
+        private static void LoadBasePlugins()
+        {
+            string exeDirectory = Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]);
+
+            Assembly.LoadFrom(Path.Combine(exeDirectory, "MeepSQL.dll"));
+            Assembly.LoadFrom(Path.Combine(exeDirectory, "MeepGit.dll"));
         }
     }
 

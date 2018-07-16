@@ -9,6 +9,7 @@
     <ProjectReference Include="..\MeepLib\MeepLib.csproj" />
     <ProjectReference Include="..\MeepModel\MeepModel.csproj" />
     <ProjectReference Include="..\MeepGit\MeepGit.csproj" />
+    <ProjectReference Include="..\MeepSQL\MeepSQL.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO.Pipelines;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using System.ComponentModel.DataAnnotations;
@@ -10,9 +9,14 @@ using Newtonsoft.Json;
 namespace MeepLib.Messages
 {
     [DataContract]
-    public class PipeReaderMessage : Message
+    public class StringMessage : Message
     {
-        [XmlIgnore, JsonIgnore, NotMapped]
-        public PipeReader Reader { get; set; }
+        [DataMember]
+        public string Value { get; set; }
+
+        public override string ToString()
+        {
+            return Value;
+        }
     }
 }

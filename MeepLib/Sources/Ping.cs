@@ -65,10 +65,11 @@ namespace MeepLib.Sources
                 {
                     DerivedFrom = msg,
                     Number = ((Step)msg)?.Number ?? 0,
-                    Value = response.RoundtripTime + Padding.TotalMilliseconds
+                    Duration = TimeSpan.FromMilliseconds(response.RoundtripTime) + Padding,
+                    LastIssued = ((Step)msg)?.LastIssued ?? DateTime.Now
                 };
             else
-                return new Message
+                return new StringMessage
                 {
                     DerivedFrom = msg,
                     Value = response.Status.ToString()

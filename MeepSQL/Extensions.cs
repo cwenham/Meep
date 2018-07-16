@@ -3,10 +3,13 @@ using System.Linq;
 using System.Data.Common;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
 
 using Microsoft.Data.Sqlite;
 using SmartFormat;
 
+using MeepLib;
 using MeepLib.Messages;
 
 namespace MeepSQL
@@ -44,27 +47,110 @@ namespace MeepSQL
         public static string ToCreateTable(this Message msg, string tableName)
         {
             var cols = from p in msg.GetType().GetProperties()
-                       let length = p.GetCustomAttributes(typeof(MaxLengthAttribute), true).Cast<MaxLengthAttribute>()
-                       let sType = Smart.Format(p.PropertyType.ToSQLType(), length.FirstOrDefault()?.Length.ToString() ?? "max")
-                       select String.Format("{0} {1}", p.Name, sType);
 
-            return String.Format(_createTableTemplate, tableName, String.Join(",", cols));
+                           // Ignore NotMapped properties
+                       let nm = p.GetCustomAttributes(typeof(NotMappedAttribute), true)
+                       where !nm.Any()
+
+                       let length = p.GetCustomAttributes(typeof(MaxLengthAttribute), true).Cast<MaxLengthAttribute>()
+                       let key = p.GetCustomAttributes(typeof(KeyAttribute), true).Cast<KeyAttribute>()
+                       let index = p.GetCustomAttributes(typeof(IndexAttribute), true).Cast<IndexAttribute>()
+                       let sType = Smart.Format(p.PropertyType.ToSQLType(), length.FirstOrDefault()?.Length.ToString() ?? int.MaxValue.ToString())
+
+                       select new
+                       {
+                           Name = p.Name,
+                           Definition = String.Format("{0} {1}", p.Name, sType),
+                           Key = key,
+                           Index = index
+                       };
+
+            List<string> definitions = new List<string>();
+            List<string> indexes = new List<string>();
+            foreach (var c in cols)
+            {
+                string def = c.Definition;
+                if (c.Key.Any())
+                    def = String.Format("{0} PRIMARY KEY", def);
+
+                definitions.Add(def);
+
+                if (c.Index.Any() && !c.Key.Any())
+                    indexes.Add(String.Format(_createIndexTemplate, tableName, c.Name));
+            }
+
+            StringBuilder transaction = new StringBuilder();
+            transaction.AppendLine("BEGIN;");
+            transaction.AppendLine(String.Format(_createTableTemplate, tableName, String.Join(",\n", definitions)));
+            transaction.AppendLine(String.Join('\n', indexes));
+            transaction.AppendLine("COMMIT;");
+
+            return transaction.ToString();
         }
-        private static string _createTableTemplate = "CREATE TABLE {0} ({1})";
+
+        public static DbCommand ToInsertOrReplace(this Message msg, DbConnection connection, string tableName)
+        {
+            var cols = (from p in msg.GetType().GetProperties()
+
+                            // Ignore NotMapped properties
+                        let nm = p.GetCustomAttributes(typeof(NotMappedAttribute), true)
+                        where !nm.Any()
+
+                        select new
+                        {
+                            p.Name,
+                            Value = p.GetValue(msg)
+                        }).ToList();
+
+            DbCommand cmd = connection.CreateCommand();
+            cmd.CommandText = String.Format(_insertOrReplaceTemplate, tableName,
+                                            String.Join(',', cols.Select(x => x.Name)),
+                                            String.Join(',', cols.Select(x => $"@{x.Name}")));
+
+            foreach (var c in cols)
+            {
+                DbParameter param = cmd.CreateParameter();
+                param.ParameterName = $"@{c.Name}";
+                param.Value = c.Value;
+                cmd.Parameters.Add(param);
+            }
+
+            return cmd;
+        }
+
+        private static string _createTableTemplate = "CREATE TABLE IF NOT EXISTS {0} (\n{1}\n);";
+        private static string _createIndexTemplate = "CREATE INDEX IF NOT EXISTS {0}_{1}_idx ON {0} ({1});";
+        private static string _insertOrReplaceTemplate = "INSERT OR REPLACE INTO {0}({1}) VALUES ({2});";
 
         public static string ToSQLType(this Type type)
         {
+            string sqlType = $"varchar({int.MaxValue})";
+
             if (SqlTypeMap.ContainsKey(type))
-                return SqlTypeMap[type];
+                sqlType = SqlTypeMap[type];
+
+            if ((type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                || !type.IsValueType)
+                sqlType = $"{sqlType} NULL";
             else
-                return "varchar(max)";
+                sqlType = $"{sqlType} NOT NULL";
+
+            return sqlType;
         }
+
         private static Dictionary<Type, string> SqlTypeMap = new Dictionary<Type, string>
         {
+            // Store GUIDs as a formatted string. According to tests done by others
+            // (see https://stackoverflow.com/questions/11337324/how-to-efficient-insert-and-fetch-uuid-in-core-data/11337522#11337522)
+            // the trade-off favours strings for query speed and programmer productivity,
+            // while binary wins for storage space. We're going to choose the former.
+            { typeof(Guid), "varchar(36)" },
+
             { typeof(string), "varchar({0})" },
             { typeof(DateTime), "datetime" },
-            { typeof(int), "int" },
+            { typeof(byte), "tinyint" },
             { typeof(short), "smallint" },
+            { typeof(int), "int" },
             { typeof(long), "bigint" },
             { typeof(decimal), "decimal" }
         };
