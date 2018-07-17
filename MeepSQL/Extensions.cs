@@ -111,7 +111,7 @@ namespace MeepSQL
             {
                 DbParameter param = cmd.CreateParameter();
                 param.ParameterName = $"@{c.Name}";
-                param.Value = c.Value;
+                param.Value = c.Value ?? DBNull.Value;
                 cmd.Parameters.Add(param);
             }
 
