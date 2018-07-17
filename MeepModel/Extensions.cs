@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -97,6 +98,20 @@ namespace MeepLib.Messages
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Serialize(writer, obj);
             }
+        }
+
+        /// <summary>
+        /// Convert a message to enumerable form, exposing a batch's inner
+        /// messages if applicable
+        /// </summary>
+        /// <returns>The enumerable.</returns>
+        /// <param name="msg">Message.</param>
+        public static IEnumerable<Message> AsEnumerable(this Message msg)
+        {
+            if (msg is Batch)
+                return ((Batch)msg).Messages;
+            else
+                return new List<Message> { msg };
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Meep
         {
             get
             {
-                return System.Reflection.Assembly.GetEntryAssembly().Location;
+                return Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
             }
         }
 

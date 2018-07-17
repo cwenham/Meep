@@ -14,10 +14,14 @@
         <Listen Base="http://127.0.0.1:7780/"/>
     </Respond>
 
-    <s:Upsert Database="Smoketest" Table="Pings">
-        <Ping To="www.mit.edu">
-            <Timer Interval="00:00:10"/>
-        </Ping>
-    </s:Upsert>
     
+    <s:Upsert Database="Smoketest" Table="Pings">
+        <Batch MaxSize="5">
+            <Ping To="www.mit.edu">
+                <Timer Interval="00:00:10"/>
+            </Ping>
+        </Batch>
+    </s:Upsert>
+
+
 </Pipeline>
