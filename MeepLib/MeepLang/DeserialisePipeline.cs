@@ -23,7 +23,7 @@ namespace MeepLib.MeepLang
             if (msg is XMLMessage)
                 reader = ((XMLMessage)msg).GetReader();
             else if (msg is StreamMessage)
-                reader = XmlReader.Create(((StreamMessage)msg).Stream);
+                reader = XmlReader.Create(await ((StreamMessage)msg).Stream);
             else if (msg is StringMessage)
                 reader = XmlReader.Create(new StringReader(((StringMessage)msg).Value));
             else

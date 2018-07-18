@@ -50,7 +50,11 @@ namespace MeepLib.Sources
                     HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, url);
 
                     var rTask = client.SendAsync(req);
-                    string cacheFile = Path.Combine(AHostProxy.Current.BaseDirectory, Subdir, url.ToMD5(), Path.GetFileName(url));
+
+                    string cacheDir = Path.Combine(AHostProxy.Current.BaseDirectory, Subdir, url.ToMD5());
+                    if (!Directory.Exists(cacheDir))
+                        Directory.CreateDirectory(cacheDir);
+                    string cacheFile = Path.Combine(cacheDir, Path.GetFileName(url));
 
                     if (!File.Exists(cacheFile))
                         using (var fs = new FileStream(cacheFile, FileMode.Append))

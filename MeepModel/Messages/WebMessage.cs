@@ -14,7 +14,7 @@ namespace MeepLib.Messages
     /// An HTTP request or response
     /// </summary>
     [DataContract]
-    public class WebMessage : StringMessage
+    public class WebMessage : StreamMessage
     {
         /// <summary>
         /// URL the message came from/was delivered to

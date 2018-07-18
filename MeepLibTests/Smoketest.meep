@@ -2,19 +2,23 @@
 <Pipeline xmlns="http://meep.example.com/Meep/V1"
     xmlns:s="http://meep.example.com/MeepSQL/V1">
 
+    <!-- Get from our own Listen/Respond module pair further below -->
     <Get URL="http://127.0.0.1:7780/{msg.Value}">
         <Random>
             <Timer Interval="00:00:05"/>
         </Random>
     </Get>
 
+    <!-- Listen for the Gets generated above and Respond to them with a simple message -->
     <Respond>
         <Body>Thank you, sir, may I have another?</Body>
 
         <Listen Base="http://127.0.0.1:7780/"/>
     </Respond>
 
-    
+
+
+    <!-- Ping a well known host and store the response times in a database. -->
     <s:Upsert Database="Smoketest" Table="Pings">
         <Batch MaxSize="5">
             <Ping To="www.mit.edu">
@@ -22,6 +26,9 @@
             </Ping>
         </Batch>
     </s:Upsert>
+
+
+
 
 
 </Pipeline>

@@ -10,11 +10,8 @@ using System.Threading.Tasks;
 
 namespace MeepLib.Sources
 {
-    /// <summary>
-    /// HTTP GET a URL
-    /// </summary>
-    [XmlRoot(ElementName = "Get", Namespace = "http://meep.example.com/Meep/V1")]
-    public class Get : AMessageModule
+    [XmlRoot(ElementName = "Post", Namespace = "http://meep.example.com/Meep/V1")]
+    public class Post : AMessageModule
     {
         /// <summary>
         /// URL in {Smart.Format}
@@ -23,10 +20,30 @@ namespace MeepLib.Sources
         [XmlAttribute]
         public string URL { get; set; }
 
+        /// <summary>
+        /// What to deliver in the POST
+        /// </summary>
+        /// <value>The payload.</value>
+        /// <remarks>Defaults to message serialised to JSON.</remarks>
+        [XmlElement]
+        public string Payload { get; set; } = "{AsJSON}";
+
+        protected virtual HttpMethod Method { get; set; } = HttpMethod.Post;
+
         public override async Task<Message> HandleMessage(Message msg)
         {
             MessageContext context = new MessageContext(msg, this);
-            HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, Smart.Format(URL, context));
+            HttpRequestMessage req = new HttpRequestMessage(Method, Smart.Format(URL, context));
+
+            if (msg is StreamMessage)
+            {
+                req.Content = new StreamContent(await ((StreamMessage)msg).Stream);
+            }
+            else
+            {
+                string payload = Smart.Format(Payload, context);
+                req.Content = new StringContent(payload);
+            }
 
             try
             {
@@ -44,10 +61,9 @@ namespace MeepLib.Sources
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "{0} thrown when getting {1}: {2}", ex.GetType().Name, req.RequestUri.AbsoluteUri, ex.Message);
+                logger.Error(ex, "{0} thrown when sending to {1}: {2}", ex.GetType().Name, req.RequestUri.AbsoluteUri, ex.Message);
                 return null;
             }
-
         }
     }
 }
