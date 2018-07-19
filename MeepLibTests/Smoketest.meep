@@ -4,6 +4,10 @@
 
     <!-- Get from our own Listen/Respond module pair further below -->
     <Get URL="http://127.0.0.1:7780/{msg.Value}">
+        <Headers>
+            <Header Name="Foo" Value="Bar"/>
+        </Headers>
+
         <Random>
             <Timer Interval="00:00:05"/>
         </Random>

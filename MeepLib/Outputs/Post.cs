@@ -1,14 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Xml.Serialization;
 
 using SmartFormat;
 
-using MeepLib.MeepLang;
+using MeepLib.Config;
 using MeepLib.Messages;
 using System.Threading.Tasks;
 
-namespace MeepLib.Sources
+namespace MeepLib.Outputs
 {
     [XmlRoot(ElementName = "Post", Namespace = "http://meep.example.com/Meep/V1")]
     public class Post : AMessageModule
@@ -28,12 +29,21 @@ namespace MeepLib.Sources
         [XmlElement]
         public string Payload { get; set; } = "{AsJSON}";
 
+        /// <summary>
+        /// Headers to include in request
+        /// </summary>
+        /// <value>The headers.</value>
+        [XmlArray(ElementName = "Headers")]
+        public Header[] Headers { get; set; }
+
         protected virtual HttpMethod Method { get; set; } = HttpMethod.Post;
 
         public override async Task<Message> HandleMessage(Message msg)
         {
             MessageContext context = new MessageContext(msg, this);
             HttpRequestMessage req = new HttpRequestMessage(Method, Smart.Format(URL, context));
+            if (Headers != null)
+                req.AddHeaders(context, Headers);
 
             if (msg is StreamMessage)
             {

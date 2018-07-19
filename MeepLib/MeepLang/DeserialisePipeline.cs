@@ -10,6 +10,7 @@ using System.Reflection;
 using NLog;
 using SmartFormat;
 
+using MeepLib.Config;
 using MeepLib.Messages;
 
 namespace MeepLib.MeepLang
@@ -33,7 +34,7 @@ namespace MeepLib.MeepLang
             {
                 try
                 {
-                    XmlAttributes attrs = AllModuleXmlAttributes();
+                    XmlAttributes attrs = AllModuleXmlAttributes(typeof(AMessageModule));
 
                     XmlAttributeOverrides attrOverrides = new XmlAttributeOverrides();
                     attrOverrides.Add(typeof(AMessageModule), "Upstreams", attrs);
@@ -72,7 +73,7 @@ namespace MeepLib.MeepLang
         }
 
 
-        public static XmlAttributes AllModuleXmlAttributes()
+        public static XmlAttributes AllModuleXmlAttributes(Type baseClass)
         {
             XmlAttributes attrs = new XmlAttributes();
 
@@ -80,7 +81,7 @@ namespace MeepLib.MeepLang
             {
                 var modules = from a in AppDomain.CurrentDomain.GetAssemblies()
                               from t in TryLoadTypes(a)
-                              where t.IsSubclassOf(typeof(AMessageModule))
+                              where t.IsSubclassOf(baseClass)
                               let r = t.GetXmlRoot()
                               select new { t, r };
 

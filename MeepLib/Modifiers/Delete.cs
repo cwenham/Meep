@@ -1,23 +1,21 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Xml.Serialization;
+using System.Threading.Tasks;
 
 using SmartFormat;
 
-using MeepLib.MeepLang;
-using MeepLib.Messages;
 using MeepLib.Config;
-using System.Threading.Tasks;
+using MeepLib.Messages;
 
-namespace MeepLib.Sources
+namespace MeepLib.Modifiers
 {
     /// <summary>
-    /// HTTP GET a URL
+    /// HTTP Delete
     /// </summary>
-    [XmlRoot(ElementName = "Get", Namespace = "http://meep.example.com/Meep/V1")]
-    public class Get : AMessageModule
+    [XmlRoot(ElementName = "Delete", Namespace = "http://meep.example.com/Meep/V1")]
+    public class Delete : AMessageModule
     {
         /// <summary>
         /// URL in {Smart.Format}
@@ -31,12 +29,12 @@ namespace MeepLib.Sources
         /// </summary>
         /// <value>The headers.</value>
         [XmlArray(ElementName = "Headers")]
-        public Header[] Headers { get; set; }
+        public Header[] Headers { get; set; } = new Header[0];
 
         public override async Task<Message> HandleMessage(Message msg)
         {
             MessageContext context = new MessageContext(msg, this);
-            HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, Smart.Format(URL, context));
+            HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Delete, Smart.Format(URL, context));
             if (Headers != null)
                 req.AddHeaders(context, Headers);
 
@@ -46,17 +44,12 @@ namespace MeepLib.Sources
                 {
                     var result = await client.SendAsync(req);
 
-                    return new WebMessage
-                    {
-                        DerivedFrom = msg,
-                        Headers = result.Headers,
-                        Stream = result.Content.ReadAsStreamAsync()
-                    };
+                    return msg;
                 }
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "{0} thrown when getting {1}: {2}", ex.GetType().Name, req.RequestUri.AbsoluteUri, ex.Message);
+                logger.Error(ex, "{0} thrown when deleting {1}: {2}", ex.GetType().Name, req.RequestUri.AbsoluteUri, ex.Message);
                 return null;
             }
 

@@ -14,7 +14,7 @@ using System.Xml.Schema;
 
 namespace MeepLib
 {
-    [XmlRoot(ElementName = "Pipeline", Namespace = "http://meep.example.com/Meep/V1")]
+    //[XmlRoot(ElementName = "Pipeline", Namespace = "http://meep.example.com/Meep/V1")]
     public abstract class AMessageModule
     {
         public AMessageModule()
@@ -142,7 +142,8 @@ namespace MeepLib
             {
                 logger.Error(ex, $"{ex.GetType().Name} thrown when handling message: {ex.Message}");
             }
-            finally {
+            finally
+            {
                 watch.Stop();
                 if (TardyAt > TimeSpan.Zero)
                     logger.Warn("{0} took {1} to process a {2}", Name, watch.Elapsed, msg.GetType().Name);

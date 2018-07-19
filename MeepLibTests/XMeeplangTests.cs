@@ -75,7 +75,7 @@ namespace MeepLibTests
             var xmlReader = XmlReader.Create(textReader);
             var meepReader = new XDownstreamReader(xmlReader);
 
-            XmlAttributes attrs = DeserialisePipeline.AllModuleXmlAttributes();
+            XmlAttributes attrs = DeserialisePipeline.AllModuleXmlAttributes(typeof(AMessageModule));
 
             XmlAttributeOverrides attrOverrides = new XmlAttributeOverrides();
             attrOverrides.Add(typeof(AMessageModule), "Upstreams", attrs);
@@ -144,9 +144,9 @@ namespace MeepLibTests
         </CleanSomething>
     </Unzip>
 
-    <Upsert DBTable=""MyDB:Widgets"" xmlns=""http://meep.example.com/MeepSQL/V1"">
-        <FetchFromSomewhere s:Save=""MyDB:Widgets"" xmlns=""http://meep.example.com/Meep/V1""/>
-    </Upsert>
+    <s:Upsert DBTable=""MyDB:Widgets"">
+        <FetchFromSomewhere s:Save=""MyDB:Widgets""/>
+    </s:Upsert>
 
     <Foo/>
     <Bar/>

@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Xml.Serialization;
 
-namespace MeepLib.Sources
+namespace MeepLib.Outputs
 {
     [XmlRoot(ElementName = "Put", Namespace = "http://meep.example.com/Meep/V1")]
     public class Put : Post

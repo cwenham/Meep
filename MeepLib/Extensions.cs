@@ -3,7 +3,11 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Collections.Generic;
+using System.Net.Http;
 
+using SmartFormat;
+
+using MeepLib.Config;
 using MeepLib.Messages;
 
 namespace MeepLib
@@ -103,6 +107,21 @@ namespace MeepLib
                 return msg.DerivedFrom as T;
 
             return FirstAncestor<T>(msg.DerivedFrom);
+        }
+
+        public static HttpRequestMessage AddHeaders(this HttpRequestMessage req, MessageContext context, IEnumerable<Header> headers)
+        {
+            var reqHeaders = from h in headers
+                             select new
+                             {
+                                 h.Name,
+                                 Value = Smart.Format(h.Value, context)
+                             };
+
+            foreach (var h in reqHeaders)
+                req.Headers.Add(h.Name, h.Value);
+
+            return req;
         }
     }
 }
