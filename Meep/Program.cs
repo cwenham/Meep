@@ -11,6 +11,7 @@ using System.Xml.Serialization;
 using NLog;
 using Mono.Options;
 using Newtonsoft.Json;
+using StackExchange.Redis;
 
 using MeepLib;
 using MeepLib.MeepLang;
@@ -66,7 +67,17 @@ namespace Meep
                 ShowHelp();
 
             LoadBasePlugins();
-            var proxy = new HostProxy();
+
+            IConnectionMultiplexer multiplexer = null;
+            try
+            {
+                multiplexer = ConnectionMultiplexer.Connect(redisHost);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{0} thrown connecting to Redis. Continuing without. ({1})", ex.GetType().Name, ex.Message);
+            }
+            var proxy = new HostProxy(multiplexer);
 
             Bootstrapper = new Bootstrapper(pipelineFile);
             Bootstrapper.PipelineRefreshed += Bootstrapper_PipelineRefreshed;

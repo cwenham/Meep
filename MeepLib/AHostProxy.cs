@@ -31,6 +31,21 @@ namespace MeepLib
         public abstract ICredentials GetCredential(string host, int port);
 
         /// <summary>
+        /// Fetch a cached string value by its key
+        /// </summary>
+        /// <returns>The cached string.</returns>
+        /// <param name="key">Key.</param>
+        public abstract string CachedStringGet(string key);
+
+        /// <summary>
+        /// Set a value in the cache, with a Time-to-Live (TTL)
+        /// </summary>
+        /// <param name="key">Key.</param>
+        /// <param name="value">Value.</param>
+        /// <param name="ttl">Ttl.</param>
+        public abstract void CachedStringSet(string key, string value, TimeSpan ttl);
+
+        /// <summary>
         /// Start a new process of the host with the given pipeline definition file
         /// </summary>
         /// <returns>The invoke.</returns>

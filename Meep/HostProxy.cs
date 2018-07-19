@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 
 using MeepLib;
+using StackExchange.Redis;
 
 namespace Meep
 {
@@ -12,10 +13,17 @@ namespace Meep
     /// </summary>
     public class HostProxy : AHostProxy
     {
-        public HostProxy()
+        public HostProxy(IConnectionMultiplexer multiplexer)
         {
             Current = this;
+            Multiplexer = multiplexer;
         }
+
+        /// <summary>
+        /// Redis multiplexer
+        /// </summary>
+        /// <value>The multiplexer.</value>
+        private IConnectionMultiplexer Multiplexer { get; set; }
 
         public override string BaseDirectory
         {
@@ -32,6 +40,16 @@ namespace Meep
         public override ICredentials GetCredential(string host, int port)
         {
             throw new NotImplementedException();
+        }
+
+        public override string CachedStringGet(string key)
+        {
+            return Multiplexer?.GetDatabase().StringGet(key);
+        }
+
+        public override void CachedStringSet(string key, string value, TimeSpan ttl)
+        {
+            Multiplexer?.GetDatabase().StringSet(key, value, ttl);
         }
 
         /// <summary>

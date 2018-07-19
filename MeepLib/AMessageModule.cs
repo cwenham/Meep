@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Xml.Serialization;
 
 using NLog;
+using Newtonsoft.Json;
 
 using MeepLib.Messages;
 using System.Xml;
@@ -64,6 +65,14 @@ namespace MeepLib
             }
         }
         private string _Name;
+
+        /// <summary>
+        /// True if the module manages the cache itself
+        /// </summary>
+        /// <value></value>
+        /// <remarks>For modules like Get, which will make a HEAD request to see
+        /// if its cache is invalid, yet.</remarks>
+        protected virtual bool SelfCaching { get; set; } = false;
 
         /// <summary>
         /// Time-To-Live for cached messages
@@ -131,11 +140,17 @@ namespace MeepLib
         /// <param name="msg">Message.</param>
         protected Message ShippingAndHandling(Message msg)
         {
+            var result = GetCachedResult(msg);
+            if (result != null)
+                return result;
+
             Stopwatch watch = Stopwatch.StartNew();
             try
             {
                 var task = HandleMessage(msg);
                 task.Wait(Timeout);
+
+                SaveToCache(task.Result, msg.GetKey());
                 return task.Result;
             }
             catch (Exception ex)
@@ -150,6 +165,58 @@ namespace MeepLib
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Fetch cached result for an inbound message
+        /// </summary>
+        /// <returns>The cached result.</returns>
+        /// <param name="msg">Message.</param>
+        protected Message GetCachedResult(Message msg)
+        {
+            if (CacheTTL == TimeSpan.Zero)
+                return null;
+
+            string key = $"{this.Name}:{msg.GetKey()}";
+
+            try
+            {
+                var cached = AHostProxy.Current.CachedStringGet(key);
+                if (cached == null)
+                    return null;
+
+                Message result = JsonConvert.DeserializeObject<Message>(cached);
+                result.DerivedFrom = msg;
+
+                return result;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Save the result of processing a message to the cache
+        /// </summary>
+        /// <returns>The to cache.</returns>
+        /// <param name="msg">Message.</param>
+        /// <param name="key">Key.</param>
+        protected Message SaveToCache(Message msg, string key)
+        {
+            if (CacheTTL == TimeSpan.Zero)
+                return msg;
+
+            try
+            {
+                AHostProxy.Current.CachedStringSet(key, JsonConvert.SerializeObject(msg), CacheTTL);
+            }
+            catch (Exception)
+            {
+                return msg;
+            }
+
+            return msg;
         }
 
         protected Dictionary<string, AMessageModule> _Phonebook { get; set; } = new Dictionary<string, AMessageModule>();
