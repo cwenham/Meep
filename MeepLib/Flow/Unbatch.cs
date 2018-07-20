@@ -15,7 +15,6 @@ namespace MeepLib.Flow
     /// <remarks>Often book-ended with the Batch module to pass on to modules
     /// that don't know how to work with batches.</remarks>
     [XmlRoot(ElementName = "Unbatch", Namespace = "http://meep.example.com/Meep/V1")]
-    [Macro(Name = "Unbatch", DefaultProperty = "MaxSize", Position = MacroPosition.Upstream)]
     public class Unbatch : AMessageModule
     {
         [XmlIgnore]

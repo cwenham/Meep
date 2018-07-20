@@ -86,7 +86,6 @@ namespace MeepLib.MeepLang
         /// <summary>
         /// Macro expansion logic
         /// </summary>
-        /// <returns>The read.</returns>
         public override bool Read()
         {
             bool givenRead = true;
@@ -120,7 +119,7 @@ namespace MeepLib.MeepLang
 
                     // Look for new macros
                     if (CurrentState.Reader.NodeType == XmlNodeType.Element)
-                        foreach (var m in ApplicableMacros(CurrentState.Reader))
+                        foreach (var m in ApplicableMacros(CurrentState.Reader, MacroPosition.Downstream))
                             ReaderStack.Push(m);
                 }
             }

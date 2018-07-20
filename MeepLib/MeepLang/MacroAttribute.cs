@@ -59,8 +59,7 @@ namespace MeepLib.MeepLang
     {
         Downstream,         // Insert downstream (after) module
         Upstream,           // Insert upstream (before) module
-        FirstUpstream,      // Insert after the target as first child
-        LastUpstream        // Insert after the target as last child
+        Child,              // Insert after the target as first child
     }
 
     public static class MacroExtension

@@ -48,7 +48,7 @@ namespace MeepLibTests
         /// Expand sweetened Meeplang sample to show it's the same as unsweetened
         /// </summary>
         [Fact]
-        public void Desweeten()
+        public void DesweetenDownstream()
         {
             var textReader = new StringReader(SweetenedDownstream.ToUnixEndings());
             var xmlReader = XmlReader.Create(textReader);
@@ -67,6 +67,28 @@ namespace MeepLibTests
 
             Assert.Equal(undoc.InnerXml, doc.InnerXml);
         }
+
+        [Fact]
+        public void DesweetenUpstream()
+        {
+            var textReader = new StringReader(SweetenedUpstream.ToUnixEndings());
+            var xmlReader = XmlReader.Create(textReader);
+            var meepReader = new XUpstreamReader(xmlReader);
+
+            var doc = new XmlDocument();
+            doc.Load(meepReader);
+
+            Assert.NotNull(doc);
+
+            var untextReader = new StringReader(UnsweetenedUpstream.ToUnixEndings());
+            var unxmlReader = XmlReader.Create(untextReader);
+
+            var undoc = new XmlDocument();
+            undoc.Load(unxmlReader);
+
+            Assert.Equal(undoc.InnerXml, doc.InnerXml);
+        }
+
 
         [Fact]
         public void Deserialise()
@@ -112,7 +134,7 @@ namespace MeepLibTests
         /// </summary>
         public static string UnsweetenedUpstream = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Pipeline xmlns=""http://meep.example.com/Meep/V1"">
-    <CheckSomething>
+    <CheckSomething Interval=""00:00:30"">
         <Timer Interval=""00:00:30"" />
     </CheckSomething>
 </Pipeline>        
@@ -123,7 +145,8 @@ namespace MeepLibTests
         /// </summary>
         public static string SweetenedUpstream = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Pipeline xmlns=""http://meep.example.com/Meep/V1"">
-    <CheckSomething Interval=""00:00:30"" />
+    <CheckSomething Interval=""00:00:30"">
+    </CheckSomething>
 </Pipeline>
 ";
 

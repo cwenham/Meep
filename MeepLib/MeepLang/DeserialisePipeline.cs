@@ -48,13 +48,14 @@ namespace MeepLib.MeepLang
 
                     XIncludingReader includingReader = new XIncludingReader(reader);
                     XDownstreamReader downstreamReader = new XDownstreamReader(includingReader);
+                    XUpstreamReader upstreamReader = new XUpstreamReader(downstreamReader);
 
                     // The serialiser doesn't like XDownstreamReader right now,
                     // but if we fix the bug then remove the intermediate step
                     // below that reads into an XmlDocument and take it straight 
                     // from the reader instead, since this is more memory efficient.
                     XmlDocument doc = new XmlDocument();
-                    doc.Load(downstreamReader);
+                    doc.Load(upstreamReader);
 
                     // XmlSerialiser needs some hints to put AMessageModule
                     // derivatives into the "Upstreams" collection.

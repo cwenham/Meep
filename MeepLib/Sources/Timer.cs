@@ -10,7 +10,7 @@ using MeepLib.Messages;
 namespace MeepLib.Sources
 {
     [XmlRoot(ElementName = "Timer", Namespace = "http://meep.example.com/Meep/V1")]
-    [Macro(Name = "Interval", DefaultProperty = "Interval", Position = MacroPosition.FirstUpstream)]
+    [Macro(Name = "Interval", DefaultProperty = "Interval", Position = MacroPosition.Child)]
     public class Timer : AMessageModule
     {
         /// <summary>
@@ -48,7 +48,8 @@ namespace MeepLib.Sources
         public string Payload { get; set; } = "{msg.Number}";
 
         [XmlIgnore]
-        public override IObservable<Message> Pipeline { 
+        public override IObservable<Message> Pipeline
+        {
             get
             {
                 if (_Pipeline == null)
@@ -59,7 +60,7 @@ namespace MeepLib.Sources
 
                 return _Pipeline;
             }
-            protected set => base.Pipeline = value; 
+            protected set => base.Pipeline = value;
         }
         private IObservable<Message> _Pipeline;
 

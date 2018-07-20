@@ -9,6 +9,7 @@ using SmartFormat;
 using NLog;
 
 using MeepLib.Messages;
+using MeepLib.MeepLang;
 
 namespace MeepLib.Sources
 {
@@ -19,6 +20,7 @@ namespace MeepLib.Sources
     /// saves the HttpListenerContext to the message so another module can
     /// respond.</remarks>
     [XmlRoot(ElementName = "Listen", Namespace = "http://meep.example.com/Meep/V1")]
+    [Macro(Name = "Listen", DefaultProperty = "Base", Position = MacroPosition.Child)]
     public class Listen : AMessageModule, IDisposable
     {
         /// <summary>

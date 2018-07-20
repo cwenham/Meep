@@ -120,7 +120,7 @@ namespace MeepLib.MeepLang
             _Reader.ResolveEntity();
         }
 
-        internal IEnumerable<ReaderState> ApplicableMacros(XmlReader reader)
+        internal IEnumerable<ReaderState> ApplicableMacros(XmlReader reader, MacroPosition position)
         {
             List<ReaderState> macros = new List<ReaderState>();
 
@@ -131,7 +131,7 @@ namespace MeepLib.MeepLang
                 for (int i = 0; i < reader.AttributeCount; i++)
                 {
                     string nspace = String.IsNullOrWhiteSpace(reader.NamespaceURI) ? elementNS : reader.NamespaceURI;
-                    var (mtype, macro) = MacroFinder.GetMacro(nspace, reader.LocalName);
+                    var (mtype, macro) = MacroFinder.GetMacro(nspace, reader.LocalName, position);
                     if (macro != null && macro.Position == MacroPosition.Downstream)
                     {
                         XmlReader substitute = MacroToReader(macro, mtype, reader);

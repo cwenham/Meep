@@ -10,7 +10,7 @@ namespace MeepLib.Flow
     /// Subscribe to ("tap") message stream from another, named module
     /// </summary>
     [XmlRoot(ElementName = "Tap", Namespace = "http://meep.example.com/Meep/V1")]
-    [Macro(Name = "Tap", DefaultProperty = "From", Position = MacroPosition.FirstUpstream)]
+    [Macro(Name = "Tap", DefaultProperty = "From", Position = MacroPosition.Child)]
     public class Tap : AMessageModule
     {
         [XmlAttribute]
