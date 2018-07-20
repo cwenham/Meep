@@ -75,7 +75,7 @@ namespace MeepLibTests
             var xmlReader = XmlReader.Create(textReader);
             var meepReader = new XDownstreamReader(xmlReader);
 
-            XmlAttributes attrs = DeserialisePipeline.AllModuleXmlAttributes(typeof(AMessageModule));
+            XmlAttributes attrs = DeserialisePipeline.AllXmlAttributes(typeof(AMessageModule));
 
             XmlAttributeOverrides attrOverrides = new XmlAttributeOverrides();
             attrOverrides.Add(typeof(AMessageModule), "Upstreams", attrs);

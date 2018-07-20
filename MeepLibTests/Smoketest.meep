@@ -23,16 +23,11 @@
 
 
     <!-- Ping a well known host and store the response times in a database. -->
-    <s:Upsert Database="Smoketest" Table="Pings">
-        <Batch MaxSize="5">
-            <Ping To="www.mit.edu">
-                <Timer Interval="00:00:10"/>
-            </Ping>
-        </Batch>
-    </s:Upsert>
-
-
-
-
+    <Batch MaxSize="5" s:Save="Smoketest:Pings">
+        <Ping To="www.mit.edu">
+            <Timer Interval="00:00:10"/>
+        </Ping>
+    </Batch>
+    
 
 </Pipeline>
