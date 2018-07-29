@@ -1,6 +1,7 @@
 ﻿using System;
 
 using NCalc;
+using SmartFormat;
 
 using MeepLib;
 using MeepLib.MeepLang;
@@ -15,28 +16,19 @@ namespace MeepLib.Filters
     [Macro(DefaultProperty = "Expr", Name = "Where", Position = MacroPosition.Upstream)]
     public class Where : AMessageModule
     {
+        public bool Compile { get; set; } = false;
+
         /// <summary>
         /// Expression in [NCalc] format
         /// </summary>
         /// <value>The expr.</value>
-        public string Expr
-        {
-            get {
-                return _expr;
-            }
-            set {
-                _expr = value;
-                var expression = new Expression(_expr);
-                Lambda = expression.ToLambda<Message, bool>();
-            }
-        }
-        private string _expr;
+        public string Expr { get; set; }
 
         /// <summary>
         /// Compiled version of the expression
         /// </summary>
         /// <value>The lambda.</value>
-        private Func<Message, bool> Lambda { get; set; }
+        private Func<Message, bool> _lambda { get; set; }
 
         public override async Task<Message> HandleMessage(Message msg)
         {
@@ -44,8 +36,24 @@ namespace MeepLib.Filters
             {
                 try
                 {
-                    if (Lambda(msg))
+                    if (_lambda == null && Compile)
+                    {
+                        var expression = new Expression(Expr);
+                        _lambda = expression.ToLambda<Message, bool>();
+                    }
+
+                    if (_lambda(msg))
                         return msg;
+                    else
+                    {
+                        MessageContext context = new MessageContext(msg, this);
+                        string expr = Smart.Format(Expr, context);
+                        var expression = new Expression(Expr);
+                        expression.Parameters.Add("msg", msg);
+                        expression.Parameters.Add("mdl", this);
+                        if ((bool)expression.Evaluate())
+                            return msg;
+                    }
 
                     return null;
                 }
