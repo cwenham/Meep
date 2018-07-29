@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Folder Include="Messages\" />
-    <Folder Include="Config\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Class1.cs" />

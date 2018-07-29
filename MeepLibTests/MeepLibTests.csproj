@@ -25,5 +25,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="..\..\..\Meeplines\Smoketest.meep" />
+    <None Remove="Smoketest.meep" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Xml.Serialization;
 using System.Reactive.Linq;
 
 using MeepLib.MeepLang;
@@ -14,10 +13,8 @@ namespace MeepLib.Flow
     /// </summary>
     /// <remarks>Often book-ended with the Batch module to pass on to modules
     /// that don't know how to work with batches.</remarks>
-    [XmlRoot(ElementName = "Unbatch", Namespace = "http://meep.example.com/Meep/V1")]
     public class Unbatch : AMessageModule
     {
-        [XmlIgnore]
         public override IObservable<MM.Message> Pipeline
         {
             get

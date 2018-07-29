@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Xml.Serialization;
 
 using SmartFormat;
 
@@ -11,14 +11,12 @@ using System.Threading.Tasks;
 
 namespace MeepLib.Outputs
 {
-    [XmlRoot(ElementName = "Post", Namespace = "http://meep.example.com/Meep/V1")]
     public class Post : AMessageModule
     {
         /// <summary>
         /// URL in {Smart.Format}
         /// </summary>
         /// <value>The URL.</value>
-        [XmlAttribute]
         public string URL { get; set; }
 
         /// <summary>
@@ -26,15 +24,21 @@ namespace MeepLib.Outputs
         /// </summary>
         /// <value>The payload.</value>
         /// <remarks>Defaults to message serialised to JSON.</remarks>
-        [XmlElement]
         public string Payload { get; set; } = "{AsJSON}";
 
-        /// <summary>
-        /// Headers to include in request
-        /// </summary>
-        /// <value>The headers.</value>
-        [XmlArray(ElementName = "Headers")]
-        public Header[] Headers { get; set; }
+        public IEnumerable<Header> Headers
+        {
+            get
+            {
+                if (_headers == null)
+                    _headers = (from c in Config
+                                where c is Header
+                                select c as Header).ToArray();
+
+                return _headers;
+            }
+        }
+        private Header[] _headers;
 
         protected virtual HttpMethod Method { get; set; } = HttpMethod.Post;
 

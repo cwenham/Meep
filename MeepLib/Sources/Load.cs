@@ -2,7 +2,6 @@
 using System.IO;
 using System.Reactive.Linq;
 using System.Reactive.Concurrency;
-using System.Xml.Serialization;
 using System.IO.Pipelines;
 
 using NLog;
@@ -17,7 +16,6 @@ namespace MeepLib.Sources
     /// <summary>
     /// Load a file from disk
     /// </summary>
-    [XmlRoot(ElementName = "Load", Namespace = "http://meep.example.com/Meep/V1")]
     [Macro(Name = "Load", DefaultProperty = "From", Position = MacroPosition.Downstream)]
     public class Load : AMessageModule
     {
@@ -25,14 +23,12 @@ namespace MeepLib.Sources
         /// Path in {Smart.Format} for file to load
         /// </summary>
         /// <value>From.</value>
-        [XmlAttribute]
         public string From { get; set; }
 
         /// <summary>
         /// Max size of file before switching to returning a stream
         /// </summary>
         /// <value>The stream at.</value>
-        [XmlAttribute]
         public long StreamAt { get; set; } = 1024 * 1024; // Default to a MB
 
         public override async Task<Message> HandleMessage(Message msg)

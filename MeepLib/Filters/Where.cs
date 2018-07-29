@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Xml.Serialization;
 
 using NCalc;
 
@@ -13,7 +12,6 @@ namespace MeepLib.Filters
     /// <summary>
     /// 'Where' condition using compiled NCalc expressions
     /// </summary>
-    [XmlRoot(ElementName = "Where", Namespace = "http://meep.example.com/Meep/V1")]
     [Macro(DefaultProperty = "Expr", Name = "Where", Position = MacroPosition.Upstream)]
     public class Where : AMessageModule
     {

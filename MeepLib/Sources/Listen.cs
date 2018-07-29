@@ -3,7 +3,6 @@ using System.Net;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 using SmartFormat;
 using NLog;
@@ -19,7 +18,6 @@ namespace MeepLib.Sources
     /// <remarks>This will not respond to inbound requests itself, instead it
     /// saves the HttpListenerContext to the message so another module can
     /// respond.</remarks>
-    [XmlRoot(ElementName = "Listen", Namespace = "http://meep.example.com/Meep/V1")]
     [Macro(Name = "Listen", DefaultProperty = "Base", Position = MacroPosition.Child)]
     public class Listen : AMessageModule, IDisposable
     {
@@ -31,10 +29,8 @@ namespace MeepLib.Sources
         /// 
         /// <para>(77 = 'M' and 80 = 'P' in ASCII table)</para>
         /// </remarks>
-        [XmlAttribute]
         public string Base { get; set; } = "http://127.0.0.1:7780/";
 
-        [XmlIgnore]
         public override IObservable<Message> Pipeline
         {
             get

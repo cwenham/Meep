@@ -15,6 +15,7 @@ namespace MeepLib
         {
             msg = message;
             mdl = module;
+
         }
 
         /// <summary>
@@ -28,5 +29,13 @@ namespace MeepLib
         /// </summary>
         /// <value>The mdl.</value>
         public AMessageModule mdl { get; set; }
+
+        /// <summary>
+        /// Values from app/web.config settings, if any
+        /// </summary>
+        /// <value></value>
+        // ToDo: This is a placeholder, we need a way for the host app to
+        // populate this according to the platform.
+        public Dictionary<string, string> cfg { get; set; }
     }
 }

@@ -10,21 +10,18 @@ using MeepLib.Messages;
 
 namespace MeepLib.Sources
 {
-    [XmlRoot(ElementName = "FileChanges", Namespace = "http://meep.example.com/Meep/V1")]
     public class FileChanges : AMessageModule
     {
         /// <summary>
         /// Directory to monitor
         /// </summary>
         /// <value>The path.</value>
-        [XmlAttribute]
         public string Path { get; set; }
 
         /// <summary>
         /// Filename filter, honoring "*" wildcards
         /// </summary>
         /// <value>The filter.</value>
-        [XmlAttribute]
         public string Filter { get; set; }
 
         /// <summary>
@@ -33,7 +30,6 @@ namespace MeepLib.Sources
         /// <value>The throttle.</value>
         /// <remarks>This should be set, since FileSystemWatcher can fire
         /// multiple times for one change. Defaults to 250ms.</remarks>
-        [XmlAttribute]
         public TimeSpan Throttle { get; set; } = TimeSpan.FromMilliseconds(250);
 
         /// <summary>
@@ -44,10 +40,8 @@ namespace MeepLib.Sources
         /// with updates", so that's the default behaviour and it will start by
         /// emitting a message for every matching file before settling down for
         /// updates. If you strictly want updates only, set DryStart to true.</remarks>
-        [XmlAttribute]
         public bool DryStart { get; set; } = false;
 
-        [XmlIgnore]
         public override IObservable<Message> Pipeline
         {
             get

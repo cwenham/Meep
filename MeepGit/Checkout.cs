@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Xml.Serialization;
 using System.Threading.Tasks;
 
 using LibGit2Sharp;
 using SmartFormat;
 
 using MeepLib;
+using MeepLib.MeepLang;
 using MeepLib.Messages;
 
 namespace MeepGit
@@ -13,14 +13,13 @@ namespace MeepGit
     /// <summary>
     /// Checkout a branch/tag
     /// </summary>
-    [XmlRoot(ElementName = "Checkout", Namespace = "http://meep.example.com/MeepGit/V1")]
+    [MeepNamespace("http://meep.example.com/MeepGit/V1")]
     public class Checkout : AMessageModule
     {
         /// <summary>
         /// Repository address in {Smart.Format}
         /// </summary>
         /// <value>The repository.</value>
-        [XmlAttribute]
         public string Repository { get; set; }
 
         /// <summary>
@@ -28,7 +27,6 @@ namespace MeepGit
         /// </summary>
         /// <value>The path.</value>
         /// <remarks>Leave empty or null to create one based on the repo address automatically.</remarks>
-        [XmlAttribute]
         public string WorkingDir { get; set; }
 
         /// <summary>
@@ -36,7 +34,6 @@ namespace MeepGit
         /// </summary>
         /// <value>The branch.</value>
         /// <remarks>Defaults to master</remarks>
-        [XmlAttribute]
         public string Branch { get; set; } = "master";
 
         /// <summary>
@@ -44,7 +41,6 @@ namespace MeepGit
         /// </summary>
         /// <value>The commit.</value>
         /// <remarks>Defaults to head</remarks>
-        [XmlAttribute]
         public string Commit { get; set; }
 
         public override async Task<Message> HandleMessage(Message msg)

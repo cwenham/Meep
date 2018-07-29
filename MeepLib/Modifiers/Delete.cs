@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Xml.Serialization;
 using System.Threading.Tasks;
 
 using SmartFormat;
@@ -14,22 +14,31 @@ namespace MeepLib.Modifiers
     /// <summary>
     /// HTTP Delete
     /// </summary>
-    [XmlRoot(ElementName = "Delete", Namespace = "http://meep.example.com/Meep/V1")]
     public class Delete : AMessageModule
     {
         /// <summary>
         /// URL in {Smart.Format}
         /// </summary>
         /// <value>The URL.</value>
-        [XmlAttribute]
         public string URL { get; set; }
 
         /// <summary>
         /// Headers to include in request
         /// </summary>
         /// <value>The headers.</value>
-        [XmlArray(ElementName = "Headers")]
-        public Header[] Headers { get; set; } = new Header[0];
+        public IEnumerable<Header> Headers
+        {
+            get
+            {
+                if (_headers == null)
+                    _headers = (from c in Config
+                                where c is Header
+                                select c as Header).ToArray();
+
+                return _headers;
+            }
+        }
+        private Header[] _headers;
 
         public override async Task<Message> HandleMessage(Message msg)
         {

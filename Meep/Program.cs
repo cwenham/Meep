@@ -33,9 +33,6 @@ namespace Meep
 
         static void Main(string[] args)
         {
-            //MethodInfo method = typeof(XmlSerializer).GetMethod("set_Mode", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-            //method.Invoke(null, new object[] { 1 });
-
             bool shouldShowHelp = false;
             string pipelineFile = Path.Combine(Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]), "Pipelines", "MasterPipeline.meep");
             string redisHost = "localhost";

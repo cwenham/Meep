@@ -3,6 +3,8 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
+using System.Threading.Tasks;
 
 using Newtonsoft.Json;
 
@@ -105,6 +107,20 @@ namespace MeepLib.Messages
         public virtual string GetKey()
         {
             return ToString()?.ToSHA256();
+        }
+
+        public static async Task<Message> TryDeserialise(Stream stream)
+        {
+            try
+            {
+                TextReader reader = new StreamReader(stream);
+                string serialised = await reader.ReadToEndAsync();
+                return JsonConvert.DeserializeObject<Message>(serialised);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

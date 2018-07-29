@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Mail;
-using System.Xml.Serialization;
 
 using SmartFormat;
 
@@ -13,34 +12,28 @@ namespace MeepLib.Outputs
     /// <summary>
     /// Send message by Email
     /// </summary>
-    [XmlRoot(ElementName = "Email", Namespace = "http://meep.example.com/Meep/V1")]
     public class Email : AMessageModule
     {
         /// <summary>
         /// Destination address in {Smart.Format}
         /// </summary>
         /// <value>To.</value>
-        [XmlAttribute]
         public string To { get; set; }
 
         /// <summary>
         /// Sender's address in {Smart.Format}
         /// </summary>
         /// <value>From.</value>
-        [XmlAttribute]
         public string From { get; set; }
 
-        [XmlAttribute]
         public string Subject { get; set; }
 
-        [XmlAttribute]
         public string Body { get; set; } = "{msg.Value}";
 
         /// <summary>
         /// Address of mail server in {Smart.Format}
         /// </summary>
         /// <value>The server.</value>
-        [XmlAttribute]
         public string Server { get; set; }
 
         /// <summary>
@@ -48,10 +41,8 @@ namespace MeepLib.Outputs
         /// </summary>
         /// <value>The port.</value>
         /// <remarks>Defaults to secure (587).</remarks>
-        [XmlAttribute]
         public string Port { get; set; } = "587";
 
-        [XmlAttribute]
         public bool SSL { get; set; } = true;
 
         public override async Task<Message> HandleMessage(Message msg)

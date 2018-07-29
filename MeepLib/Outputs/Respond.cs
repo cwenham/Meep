@@ -2,7 +2,6 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using System.Text;
 
 using SmartFormat;
@@ -17,28 +16,24 @@ namespace MeepLib.Outputs
     /// </summary>
     /// <remarks>This completes the cycle of an HTTP request along with the
     /// Listen module.</remarks>
-    [XmlRoot(ElementName = "Respond", Namespace = "http://meep.example.com/Meep/V1")]
     public class Respond : AMessageModule, IDisposable
     {
         /// <summary>
         /// Body of response in {Smart.Format}
         /// </summary>
         /// <value></value>
-        [XmlElement]
         public string Body { get; set; } = "{AsJSON}";
 
         /// <summary>
         /// MIME type for response
         /// </summary>
         /// <value>The type of the content.</value>
-        [XmlAttribute]
         public string ContentType { get; set; } = "application/json";
 
         /// <summary>
         /// HTTP response code
         /// </summary>
         /// <value>The status code.</value>
-        [XmlAttribute]
         public string StatusCode { get; set; } = "200";
 
         public override async Task<Message> HandleMessage(Message msg)

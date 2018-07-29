@@ -1,7 +1,6 @@
 ﻿using System;
 using SI = System.IO;
 using System.IO.Compression;
-using System.Xml.Serialization;
 
 using SmartFormat;
 
@@ -11,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace MeepLib.Modifiers
 {
-    [XmlRoot(ElementName = "Unzip", Namespace = "http://meep.example.com/Meep/V1")]
     [Macro(Name = "Unzip", DefaultProperty = "Path", Position = MacroPosition.Downstream)]
     public class Unzip : AMessageModule
     {
@@ -21,7 +19,6 @@ namespace MeepLib.Modifiers
         /// <value></value>
         /// <remarks>Defaults to msg.Local, which assumes it's receiving a
         /// LocalisedResource message from just downloading it.</remarks>
-        [XmlAttribute]
         public string Path { get; set; } = "{msg.Local}";
 
         public override async Task<Message> HandleMessage(Message msg)

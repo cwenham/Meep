@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Xml.Serialization;
 using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
@@ -26,7 +25,7 @@ namespace MeepSQL
     /// 
     /// <para>Table will be created if it doesn't already exist.</para>
     /// </remarks>
-    [XmlRoot(ElementName = "Upsert", Namespace = "http://meep.example.com/MeepSQL/V1")]
+    [MeepNamespace("http://meep.example.com/MeepSQL/V1")]
     [Macro(Name = "Save", DefaultProperty = "DBTable", Position = MacroPosition.Downstream)]
     public class Upsert : AMessageModule
     {
@@ -35,7 +34,6 @@ namespace MeepSQL
         /// </summary>
         /// <value>The connection.</value>
         /// <remarks>Defaults to SQLite</remarks>
-        [XmlAttribute]
         public string Connection { get; set; }
 
         private static string _defaultConnection = "Data Source={0}.sqlite";
@@ -45,7 +43,6 @@ namespace MeepSQL
         /// </summary>
         /// <value>The database.</value>
         /// Use instead of a connection string to default to SQLite
-        [XmlAttribute]
         public string Database { get; set; }
 
         /// <summary>
@@ -53,7 +50,6 @@ namespace MeepSQL
         /// </summary>
         /// <value>The table.</value>
         /// <remarks>Defaults to name of database, meant for one-table stores and "just dump it somewhere" usage.</remarks>
-        [XmlAttribute]
         public string Table { get; set; }
 
         /// <summary>
@@ -61,7 +57,6 @@ namespace MeepSQL
         /// </summary>
         /// <value>Database and table names separated by colon</value>
         /// <remarks>Mainly for use with the macro syntax</remarks>
-        [XmlAttribute]
         public string DBTable
         {
             private get

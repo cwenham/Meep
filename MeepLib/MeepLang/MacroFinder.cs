@@ -29,7 +29,7 @@ namespace MeepLib.MeepLang
                               let macro = t.GetMacro()
                               where macro != null
                               && macro.Position == position
-                              let xr = t.GetXmlRoot()
+                              let xr = t.GetMeepNamespace()
                               let ns = xr?.Namespace ?? ""
                               let keyname = $"{ns}:{macro.Name}"
                               select new { keyname, t, macro })

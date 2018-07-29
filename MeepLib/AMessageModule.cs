@@ -5,23 +5,19 @@ using System.Threading.Tasks;
 using System.Reactive.Linq;
 using System.Diagnostics;
 using System.Xml.Serialization;
+using System.Xml;
+using System.Xml.Schema;
 
 using NLog;
 using Newtonsoft.Json;
 
 using MeepLib.Messages;
-using System.Xml;
-using System.Xml.Schema;
+using MeepLib.Config;
 
 namespace MeepLib
 {
-    //[XmlRoot(ElementName = "Pipeline", Namespace = "http://meep.example.com/Meep/V1")]
-    public abstract class AMessageModule
+    public abstract class AMessageModule : ANamable
     {
-        public AMessageModule()
-        {
-        }
-
         protected Logger logger
         {
             get
@@ -33,38 +29,6 @@ namespace MeepLib
             }
         }
         private Logger _logger;
-
-        /// <summary>
-        /// Name of the module
-        /// </summary>
-        /// <value>The name.</value>
-        /// <remarks>This should be unique if it's to be addressed elsewhere in the pipeline,
-        /// such as with the Tap module.</remarks>
-        [XmlAttribute]
-        public string Name
-        {
-            get
-            {
-                if (String.IsNullOrWhiteSpace(_Name))
-                    _Name = this.GetType().Name;
-
-                return _Name;
-            }
-
-            set
-            {
-                // Maintain the directory of named modules.
-                // This is used by modules that address other modules, such
-                // as Tap.
-                if (_Phonebook.ContainsKey(value))
-                    _Phonebook.Remove(value);
-
-                _Name = value;
-
-                _Phonebook.Add(_Name, this);
-            }
-        }
-        private string _Name;
 
         /// <summary>
         /// True if the module manages the cache itself
@@ -79,14 +43,12 @@ namespace MeepLib
         /// </summary>
         /// <value>The cache ttl.</value>
         /// <remarks>Set to zero to disable caching.</remarks>
-        [XmlAttribute]
         public TimeSpan CacheTTL { get; set; }
 
         /// <summary>
         /// Hard deadline for processing a message
         /// </summary>
         /// <value>The deadline.</value>
-        [XmlAttribute]
         public TimeSpan Timeout { get; set; }
 
         /// <summary>
@@ -94,17 +56,17 @@ namespace MeepLib
         /// </summary>
         /// <value></value>
         /// <remarks>Set to &lt;= 0 to disable tardy logging.</remarks>
-        [XmlAttribute]
         public TimeSpan TardyAt { get; set; }
 
-        public List<AMessageModule> Upstreams { get; set; }
+        public List<AMessageModule> Upstreams { get; set; } = new List<AMessageModule>();
+
+        public List<AConfig> Config { get; set; } = new List<AConfig>();
 
         public virtual async Task<Message> HandleMessage(Message msg)
         {
             return await Task.Run(() => msg);
         }
 
-        [XmlIgnore]
         protected IObservable<Message> UpstreamMessaging
         {
             get
@@ -113,7 +75,6 @@ namespace MeepLib
             }
         }
 
-        [XmlIgnore]
         public virtual IObservable<Message> Pipeline
         {
             get
@@ -218,7 +179,5 @@ namespace MeepLib
 
             return msg;
         }
-
-        protected Dictionary<string, AMessageModule> _Phonebook { get; set; } = new Dictionary<string, AMessageModule>();
     }
 }

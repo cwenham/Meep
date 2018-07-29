@@ -1,12 +1,15 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Pipeline xmlns="http://meep.example.com/Meep/V1"
-    xmlns:s="http://meep.example.com/MeepSQL/V1">
+    xmlns:xi="http://www.w3.org/2003/XInclude"
+    xmlns:s="http://meep.example.com/MeepSQL/V1"
+    xmlns:r="http://meep.example.com/MeepReddit/V1">
+
+    <!-- <xi:include href="/users/cwenham/MeepSiteConfig.xml" /> -->
+    <AppKey Name="MeepReddit" ClientID="Foo" ClientSecret="Bar"/>
 
     <!-- Get from our own Listen/Respond module pair further below -->
     <Get URL="http://127.0.0.1:7780/{msg.Value}">
-        <Headers>
-            <Header Name="Foo" Value="Bar"/>
-        </Headers>
+        <Header Name="Foo" Value="Bar"/>
 
         <Random>
             <Timer Interval="00:00:05"/>
@@ -15,7 +18,7 @@
 
     <!-- Listen for the Gets generated above and Respond to them with a simple message -->
     <Respond>
-        <Body>Thank you, sir, may I have another?</Body>
+        <Text>A block of content</Text>
 
         <Listen Base="http://127.0.0.1:7780/"/>
     </Respond>
@@ -27,7 +30,6 @@
         <Ping To="www.mit.edu">
             <Timer Interval="00:00:10"/>
         </Ping>
-    </Batch>
-    
+    </Batch>      
 
 </Pipeline>

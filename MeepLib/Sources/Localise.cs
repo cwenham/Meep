@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.IO;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 using SmartFormat;
 
@@ -18,7 +17,6 @@ namespace MeepLib.Sources
     /// <summary>
     /// Download a remote resource to a location with a predictable local path
     /// </summary>
-    [XmlRoot(ElementName = "Localise", Namespace = "http://meep.example.com/Meep/V1")]
     [Macro(Name = "Localise", DefaultProperty = "From", Position = MacroPosition.Downstream)]
     public class Localise : AMessageModule
     {
@@ -26,7 +24,6 @@ namespace MeepLib.Sources
         /// URL to download from in {Smart.Format}
         /// </summary>
         /// <value>From.</value>
-        [XmlAttribute]
         public string From { get; set; }
 
         /// <summary>
@@ -35,7 +32,6 @@ namespace MeepLib.Sources
         /// <value>The subdir.</value>
         /// <remarks>Usually just "Downloads" but is set to "Plugins" when this
         /// module is used by the plugin system.</remarks>
-        [XmlAttribute]
         public string Subdir { get; set; } = "Downloads";
 
         public override async Task<Message> HandleMessage(Message msg)

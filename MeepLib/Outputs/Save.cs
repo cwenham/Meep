@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.IO;
-using System.Xml.Serialization;
 
 using SmartFormat;
 
@@ -13,7 +12,6 @@ namespace MeepLib.Outputs
     /// <summary>
     /// Save message to disk
     /// </summary>
-    [XmlRoot(ElementName = "Save", Namespace = "http://meep.example.com/Meep/V1")]
     [Macro(Name = "SaveAs", DefaultProperty = "As", Position = MacroPosition.Downstream)]
     public class Save : AMessageModule
     {
