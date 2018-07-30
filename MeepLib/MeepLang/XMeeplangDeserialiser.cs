@@ -23,9 +23,22 @@ namespace MeepLib.MeepLang
         /// <summary>
         /// Container elements that are invisible to the deserialiser
         /// </summary>
-        /// <remarks>Structural elements that are not modules or config elements
-        /// on their own, such as the container for XIncluded content.</remarks>
-        public List<string> Invisibles = new List<string> { $"{ANamable.DefaultNamespace}:Config" };
+        /// <remarks>These include:
+        /// 
+        /// <list type="bullet">
+        ///     <item>Structural elements that are not modules or config elements
+        ///           on their own, such as the container for XIncluded content.</item>
+        ///     <item>Elements evaluated by other XmlReader subclasses, such as
+        ///           XPluginReader.</item>
+        ///     <item>Inline documentation.</item>
+        ///     <item>Elements evaluated by other programs when pipelines are
+        ///           defined within profiles of mixed scope.</item>
+        /// </list>
+        /// </remarks>
+        public List<string> Invisibles = new List<string> { 
+            $"{ANamable.DefaultNamespace}:Config",
+            $"{ANamable.DefaultNamespace}:Plugin"
+        };
 
         private Stack<string> _invisiblesStack = new Stack<string>();
 
@@ -49,7 +62,10 @@ namespace MeepLib.MeepLang
                 if (reader.NodeType == XmlNodeType.Element)
                 {
                     if (Invisibles.Contains(fullName))
-                        _invisiblesStack.Push(fullName);
+                    {
+                        if (!reader.IsEmptyElement)
+                            _invisiblesStack.Push(fullName);
+                    }
                     else
                     {
                         ANamable newModule = ConfiguredModule(reader);

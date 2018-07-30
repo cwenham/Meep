@@ -4,6 +4,7 @@
     xmlns:s="http://meep.example.com/MeepSQL/V1"
     xmlns:r="http://meep.example.com/MeepReddit/V1">
 
+	<!-- Load site-specific config and secrets you don't want in a repo -->
     <xi:include href="/users/cwenham/MeepSiteConfig.xml" />
 
     <!-- Get from our own Listen/Respond module pair further below -->
@@ -29,6 +30,6 @@
         <Ping To="www.mit.edu">
             <Timer Interval="00:00:10"/>
         </Ping>
-    </Batch>      
-
+    </Batch>  
+    
 </Pipeline>

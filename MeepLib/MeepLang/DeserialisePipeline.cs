@@ -46,7 +46,8 @@ namespace MeepLib.MeepLang
                     // A pipeline within a pipeline within a pipeline.
 
                     XIncludingReader includingReader = new XIncludingReader(reader);
-                    XDownstreamReader downstreamReader = new XDownstreamReader(includingReader);
+                    XPluginReader pluginReader = new XPluginReader(includingReader);
+                    XDownstreamReader downstreamReader = new XDownstreamReader(pluginReader);
                     XUpstreamReader upstreamReader = new XUpstreamReader(downstreamReader);
 
                     var deserialiser = new XMeeplangDeserialiser();
