@@ -4,8 +4,7 @@
     xmlns:s="http://meep.example.com/MeepSQL/V1"
     xmlns:r="http://meep.example.com/MeepReddit/V1">
 
-    <!-- <xi:include href="/users/cwenham/MeepSiteConfig.xml" /> -->
-    <AppKey Name="MeepReddit" ClientID="Foo" ClientSecret="Bar"/>
+    <xi:include href="/users/cwenham/MeepSiteConfig.xml" />
 
     <!-- Get from our own Listen/Respond module pair further below -->
     <Get URL="http://127.0.0.1:7780/{msg.Value}">

@@ -20,6 +20,15 @@ namespace MeepLib.MeepLang
             return modules.FirstOrDefault() as AMessageModule;
         }
 
+        /// <summary>
+        /// Container elements that are invisible to the deserialiser
+        /// </summary>
+        /// <remarks>Structural elements that are not modules or config elements
+        /// on their own, such as the container for XIncluded content.</remarks>
+        public List<string> Invisibles = new List<string> { $"{ANamable.DefaultNamespace}:Config" };
+
+        private Stack<string> _invisiblesStack = new Stack<string>();
+
         private IEnumerable<ANamable> DeserialiseRecursive(XmlReader reader)
         {
             List<ANamable> modules = new List<ANamable>();
@@ -29,23 +38,35 @@ namespace MeepLib.MeepLang
 
             while (reader.Read())
             {
+                string fullName = $"{reader.NamespaceURI}:{reader.LocalName}";
+
                 if (reader.NodeType == XmlNodeType.EndElement)
-                    return modules;
+                    if (_invisiblesStack.Count > 0 && _invisiblesStack.Peek() == fullName)
+                        _invisiblesStack.Pop();
+                    else
+                        return modules;
 
                 if (reader.NodeType == XmlNodeType.Element)
                 {
-                    ANamable newModule = ConfiguredModule(reader);
-                    if (newModule != null)
+                    if (Invisibles.Contains(fullName))
+                        _invisiblesStack.Push(fullName);
+                    else
                     {
-                        modules.Add(newModule);
-
-                        var newMessageModule = newModule as AMessageModule;
-                        if (!reader.IsEmptyElement && newMessageModule != null)
+                        ANamable newModule = ConfiguredModule(reader);
+                        if (newModule != null)
                         {
-                            IEnumerable<ANamable> children = DeserialiseRecursive(reader);
-                            newMessageModule.Upstreams.AddRange(children.ModulesByType<AMessageModule>());
-                            newMessageModule.Config.AddRange(children.ModulesByType<AConfig>());
+                            modules.Add(newModule);
+
+                            var newMessageModule = newModule as AMessageModule;
+                            if (!reader.IsEmptyElement && newMessageModule != null)
+                            {
+                                IEnumerable<ANamable> children = DeserialiseRecursive(reader);
+                                newMessageModule.Upstreams.AddRange(children.ModulesByType<AMessageModule>());
+                                newMessageModule.Config.AddRange(children.ModulesByType<AConfig>());
+                            }
                         }
+                        else
+                            throw new UnknownElementException(fullName);
                     }
                 }
             }
@@ -119,6 +140,16 @@ namespace MeepLib.MeepLang
                     let nspace = na != null ? na.Namespace : ANamable.DefaultNamespace
                     select new { name = $"{nspace}:{t.Name}", type = t })
                     .ToDictionary(x => x.name, y => y.type);
+        }
+    }
+
+    public class UnknownElementException : Exception
+    {
+        public string Element { get; set; }
+
+        public UnknownElementException(string element)
+        {
+            Element = element;
         }
     }
 
