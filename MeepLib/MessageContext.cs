@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
+using MeepLib.Config;
 using MeepLib.Messages;
 
 namespace MeepLib
@@ -16,6 +18,7 @@ namespace MeepLib
             msg = message;
             mdl = module;
 
+            cfg = ANamable.InventoryByBase<ANamable>().ToDictionary(x => x.Name);
         }
 
         /// <summary>
@@ -31,11 +34,9 @@ namespace MeepLib
         public AMessageModule mdl { get; set; }
 
         /// <summary>
-        /// Values from app/web.config settings, if any
+        /// Lookup on named modules
         /// </summary>
         /// <value></value>
-        // ToDo: This is a placeholder, we need a way for the host app to
-        // populate this according to the platform.
-        public Dictionary<string, string> cfg { get; set; }
+        public Dictionary<string,ANamable> cfg { get; set; }
     }
 }

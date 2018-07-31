@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace MeepLib
@@ -38,6 +39,14 @@ namespace MeepLib
         }
         private string _Name;
 
-        protected Dictionary<string, ANamable> _Phonebook { get; set; } = new Dictionary<string, ANamable>();
+        internal static IEnumerable<T> InventoryByBase<T>() where T : ANamable
+        {
+            return from e in _Phonebook.Values
+                   let test = e as T
+                   where test != null
+                   select test;
+        }
+
+        protected static Dictionary<string, ANamable> _Phonebook { get; set; } = new Dictionary<string, ANamable>();
     }
 }
