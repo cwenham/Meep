@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 
 using MeepLib.Config;
 using MeepLib.Messages;
@@ -18,7 +19,10 @@ namespace MeepLib
             msg = message;
             mdl = module;
 
-            cfg = ANamable.InventoryByBase<ANamable>().ToDictionary(x => x.Name);
+            _cfgMutex.WaitOne();
+            if (cfg == null)
+                cfg = ANamable.InventoryByBase<ANamable>().ToDictionary(x => x.Name);
+            _cfgMutex.ReleaseMutex();
         }
 
         /// <summary>
@@ -37,6 +41,7 @@ namespace MeepLib
         /// Lookup on named modules
         /// </summary>
         /// <value></value>
-        public Dictionary<string,ANamable> cfg { get; set; }
+        public static Dictionary<string,ANamable> cfg { get; set; }
+        private static Mutex _cfgMutex = new Mutex(false);
     }
 }
