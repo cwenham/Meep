@@ -43,5 +43,10 @@ namespace MeepLib
         /// <value></value>
         public static Dictionary<string,ANamable> cfg { get; set; }
         private static Mutex _cfgMutex = new Mutex(false);
+
+        public static void InvalidateCache()
+        {
+            cfg = null;
+        }
     }
 }

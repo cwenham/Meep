@@ -104,7 +104,7 @@ namespace MeepLib.MeepLang
             if (imp == null)
                 return null;
 
-            ANamable inst = imp.InvokeMember("new", System.Reflection.BindingFlags.CreateInstance, null, null, null) as ANamable;
+            ANamable inst = Activator.CreateInstance(imp) as ANamable;
             if (inst == null)
                 return null;
 
@@ -131,6 +131,11 @@ namespace MeepLib.MeepLang
             }
 
             return inst;
+        }
+
+        public static void InvalidateCache()
+        {
+            Implementations = null;
         }
 
         private static Dictionary<string, Type> Implementations;

@@ -43,7 +43,10 @@ namespace MeepLib.MeepLang
                                 filepath = Path.Combine(pluginDir, filename);
 
                             if (File.Exists(filepath))
+                            {
                                 Assembly.LoadFrom(filepath);
+                                XMeeplangDeserialiser.InvalidateCache();
+                            }
                             else
                                 logger.Warn($"Plugin {filename} not found");
                         }

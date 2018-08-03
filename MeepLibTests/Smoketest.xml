@@ -8,28 +8,38 @@
     <xi:include href="/users/cwenham/MeepSiteConfig.xml" />
 
     <!-- Get from our own Listen/Respond module pair further below -->
-    <Get URL="http://127.0.0.1:7780/{msg.Value}">
+    <!--<Get URL="http://127.0.0.1:7780/{msg.Value}">
         <Header Name="Foo" Value="Bar"/>
 
         <Random>
             <Timer Interval="00:00:05"/>
         </Random>
-    </Get>
+    </Get>-->
 
     <!-- Listen for the Gets generated above and Respond to them with a simple message -->
-    <Respond>
+    <!--<Respond>
         <Text>A block of content</Text>
 
         <Listen Base="http://127.0.0.1:7780/"/>
-    </Respond>
+    </Respond>-->
 
 
 
     <!-- Ping a well known host and store the response times in a database. -->
-    <Batch MaxSize="5" s:Save="Smoketest:Pings">
+    <!--<Batch MaxSize="5" s:Save="Smoketest:Pings">
         <Ping To="www.mit.edu">
             <Timer Interval="00:00:10"/>
         </Ping>
-    </Batch>  
+    </Batch>-->  
+	
+
+	<r:Unmoderated Subreddit="/r/pics"/>
+	<r:Unmoderated Subreddit="/r/aww"/>
+
+	<r:Comments Subreddit="/r/pics"/>
+	<r:Comments Subreddit="/r/aww"/>
+
+	<r:Modmail Subreddit="/r/pics"/>
+	<r:Modmail Subreddit="/r/aww"/>
     
 </Pipeline>

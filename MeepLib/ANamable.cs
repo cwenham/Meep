@@ -8,6 +8,12 @@ namespace MeepLib
     {
         public static string DefaultNamespace = "http://meep.example.com/Meep/V1";
 
+        public ANamable() : base()
+        {
+            MessageContext.InvalidateCache();
+        }
+
+
         /// <summary>
         /// Name of the module
         /// </summary>
