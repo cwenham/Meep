@@ -25,52 +25,10 @@ namespace MeepSQL
     /// 
     /// <para>Table will be created if it doesn't already exist.</para>
     /// </remarks>
-    [MeepNamespace("http://meep.example.com/MeepSQL/V1")]
+    [MeepNamespace(ASqlModule.PluginNamespace)]
     [Macro(Name = "Save", DefaultProperty = "DBTable", Position = MacroPosition.Downstream)]
-    public class Upsert : AMessageModule
+    public class InsertOrReplace : ASqlModule
     {
-        /// <summary>
-        /// Connection string in {Smart.Format}
-        /// </summary>
-        /// <value>The connection.</value>
-        /// <remarks>Defaults to SQLite</remarks>
-        public string Connection { get; set; }
-
-        private static string _defaultConnection = "Data Source={0}.sqlite";
-
-        /// <summary>
-        /// Database name in {Smart.Format}
-        /// </summary>
-        /// <value>The database.</value>
-        /// Use instead of a connection string to default to SQLite
-        public string Database { get; set; }
-
-        /// <summary>
-        /// Name of table in {Smart.Format} to insert|update
-        /// </summary>
-        /// <value>The table.</value>
-        /// <remarks>Defaults to name of database, meant for one-table stores and "just dump it somewhere" usage.</remarks>
-        public string Table { get; set; }
-
-        /// <summary>
-        /// Compound Database:Table name
-        /// </summary>
-        /// <value>Database and table names separated by colon</value>
-        /// <remarks>Mainly for use with the macro syntax</remarks>
-        public string DBTable
-        {
-            private get
-            {
-                return String.Format("{0}:{1}", Database, Table);
-            }
-            set
-            {
-                string[] parts = value.Split(':');
-                Database = parts[0];
-                Table = parts[1];
-            }
-        }
-
         public override async Task<Message> HandleMessage(Message msg)
         {
             var byType = msg.AsEnumerable().GroupBy(x => x.GetType());
