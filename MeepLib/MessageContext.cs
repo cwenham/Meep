@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 using MeepLib.Config;
 using MeepLib.Messages;
@@ -25,6 +26,12 @@ namespace MeepLib
             _cfgMutex.ReleaseMutex();
         }
 
+        public MessageContext(Message message, AMessageModule module, Match match)
+            :this(message, module)
+        {
+            rgx = match;
+        }
+
         /// <summary>
         /// The message being processed
         /// </summary>
@@ -38,9 +45,25 @@ namespace MeepLib
         public AMessageModule mdl { get; set; }
 
         /// <summary>
+        /// Regex match
+        /// </summary>
+        /// <value>The Regex match.</value>
+        /// <remarks>For modules that use a regex on all or part of a message,
+        /// the result of the Match can be made available here.</remarks>
+        public Match rgx { get; set; }
+
+        /// <summary>
         /// Lookup on named modules
         /// </summary>
         /// <value></value>
+        /// <remarks>If a config element (AppKey, Header, Login, etc.) has been
+        /// given a Name then it will be accessible here, no matter where in the
+        /// pipeline its defined.
+        /// 
+        /// <para>E.G.: You can define the secret key, username and password of
+        /// a web service in a file that you XInclude from the main pipeline, 
+        /// then fetch its values from anywhere else, thus keeping them out of
+        /// your repository.</para></remarks>
         public static Dictionary<string,ANamable> cfg { get; set; }
         private static Mutex _cfgMutex = new Mutex(false);
 
