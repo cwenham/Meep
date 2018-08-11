@@ -11,7 +11,7 @@ using MeepLib.Messages;
 namespace MeepLib.Filters
 {
     [Macro(DefaultProperty = "Expr", Name = "Pattern", Position = MacroPosition.Upstream)]
-    public class Match : AMessageModule
+    public class Match : AFilter
     {
         /// <summary>
         /// Part of the message to match on, in {Smart.Format}
@@ -65,15 +65,15 @@ namespace MeepLib.Filters
                 var m = _pattern.Match(test);
                 if (m.Success)
                     if (!String.IsNullOrWhiteSpace(Return))
-                        return new StringMessage
+                        return ThisPassedTheTest(new StringMessage
                         {
                             DerivedFrom = msg,
                             Value = Smart.Format(Return, new MessageContext(msg, this, m))
-                        };
+                        });
                     else
-                        return msg;
+                        return ThisPassedTheTest(msg);
 
-                return null;
+                return ThisFailedTheTest(msg);
             });
         }
     }

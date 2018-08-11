@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Xml.Schema;
+using System.IO;
 
 using NLog;
 using Newtonsoft.Json;
@@ -178,6 +179,48 @@ namespace MeepLib
             }
 
             return msg;
+        }
+
+        /// <summary>
+        /// Returns the path to a directory for storing resources for a module
+        /// </summary>
+        /// <returns>The directory.</returns>
+        /// <param name="resource">Resource name, suitable as a subdirectory name</param>
+        /// <remarks>Modules that need to store files somewhere, such as cached
+        /// web pages, plugins, or bloom filter arrays, can get an existing or
+        /// newly made directory here.
+        /// 
+        /// <para>The <paramref name="resource"/> should refer to the kind of
+        /// resource being stored, not its filetype or the name of the module. So
+        /// "Biographies" is better than "PDFDocs" or "GetWikiBiography".</para>
+        /// 
+        /// <para>It should also be suitable as a subdirectory name, so avoid
+        /// any slashes or other characters that are invalid for a filesystem.
+        /// Also consider omitting spaces to make it easier for a user exploring
+        /// from a URL or command line.</para></remarks>
+        protected static string ResourceDirectory(string resource)
+        {
+            string proposedDir = null;
+
+            try
+            {
+                proposedDir = Path.Combine(AHostProxy.Current.BaseDirectory, resource);
+
+                if (!Directory.Exists(proposedDir))
+                    Directory.CreateDirectory(proposedDir);
+
+                return proposedDir;
+            }
+            catch (Exception)
+            {
+                string temp = Path.GetTempPath();
+
+                // We're static, so we can't use the instance logger
+                Logger logger = LogManager.GetCurrentClassLogger();
+                logger.Warn("Could not create resource directory {0}. Can you check my permissions? Resorting to temp path at {1}", proposedDir, temp);
+
+                return temp;
+            }
         }
     }
 }

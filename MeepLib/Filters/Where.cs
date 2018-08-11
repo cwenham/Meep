@@ -14,7 +14,7 @@ namespace MeepLib.Filters
     /// 'Where' condition using compiled NCalc expressions
     /// </summary>
     [Macro(DefaultProperty = "Expr", Name = "Where", Position = MacroPosition.Upstream)]
-    public class Where : AMessageModule
+    public class Where : AFilter
     {
         public bool Compile { get; set; } = false;
 
@@ -42,8 +42,11 @@ namespace MeepLib.Filters
                         _lambda = expression.ToLambda<Message, bool>();
                     }
 
-                    if (_lambda(msg))
-                        return msg;
+                    if (_lambda != null)
+                    {
+                        if (_lambda(msg))
+                            return ThisPassedTheTest(msg);
+                    }
                     else
                     {
                         MessageContext context = new MessageContext(msg, this);
@@ -52,10 +55,10 @@ namespace MeepLib.Filters
                         expression.Parameters.Add("msg", msg);
                         expression.Parameters.Add("mdl", this);
                         if ((bool)expression.Evaluate())
-                            return msg;
+                            return ThisPassedTheTest(msg);
                     }
 
-                    return null;
+                    return ThisFailedTheTest(msg);
                 }
                 catch (Exception ex)
                 {

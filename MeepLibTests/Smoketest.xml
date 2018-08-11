@@ -31,18 +31,25 @@
             <Timer Interval="00:00:10"/>
         </Ping>
     </Batch>-->  
-	
-	<Match Pattern="\b([Bb]oi|[Dd]ude|[Dd]oggo|[Pp]upper)\b" Return="Matched on {rgx.Groups[0].Value}">
+
+	<WriteLine From="[{msg.Comment.AuthorName}] {msg.Comment.Body}">
+		<Match Pattern="" From="{msg.Comment.Body}">
+			<r:Comments Subreddit="/r/pics"/>
+			<r:Comments Subreddit="/r/aww"/>		
+		</Match>
+	</WriteLine>
+
+	<WriteLine From="[{msg.Post.SubredditName}] {msg.Post.Title} ({msg.Post.Url})">
 		<r:Unmoderated Subreddit="/r/pics"/>
-		<r:Unmoderated Subreddit="/r/aww"/>
+		<r:Unmoderated Subreddit="/r/aww"/>		
+	</WriteLine>
 
-		<r:Comments Subreddit="/r/pics"/>
-
+	<WriteLine>
 		<r:Modmail Subreddit="/r/pics"/>
 		<r:Modmail Subreddit="/r/aww"/>
 
 		<r:ModLog Subreddit="/r/pics"/>
 		<r:ModLog Subreddit="/r/aww"/>
-	</Match>
-
+	</WriteLine>
+		
 </Pipeline>

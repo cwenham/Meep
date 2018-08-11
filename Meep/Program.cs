@@ -40,6 +40,7 @@ namespace Meep
             var options = new OptionSet
             {
                 { "p|pipeline=", "Path to pipeline file", p => pipelineFile = p },
+                { "q|quiet", "No gutter serialisation", g => GutterSerialisation = GutterSerialisation.None },
                 { "x|xml", "Gutter serialisation in XML", g => GutterSerialisation = GutterSerialisation.XML },
                 { "b|bson", "Gutter serialisation in BSON", b => GutterSerialisation = GutterSerialisation.BSON },
                 { "r|redis=", "Redis server hostname[:port]", r => redisHost = r },
@@ -154,6 +155,8 @@ namespace Meep
 
     public enum GutterSerialisation
     {
+        None,
+
         XML,
 
         JSON,

@@ -13,9 +13,9 @@
     <Compile Remove="Budget.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.5.6" />
+    <PackageReference Include="NLog" Version="4.5.8" />
     <PackageReference Include="System.Reactive" Version="4.0.0" />
-    <PackageReference Include="SmartFormat.NET" Version="2.2.0" />
+    <PackageReference Include="SmartFormat.NET" Version="2.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="CoreCLR-NCalc" Version="2.2.34" />
     <PackageReference Include="Mvp.Xml.NetStandard" Version="1.0.0" />
@@ -28,6 +28,7 @@
     <Folder Include="Flow\" />
     <Folder Include="Modifiers\" />
     <Folder Include="Config\" />
+    <Folder Include="Algorithms\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MeepModel\MeepModel.csproj" />

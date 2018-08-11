@@ -11,6 +11,15 @@ namespace MeepLib.Messages
     [DataContract]
     public class StringMessage : Message
     {
+        public StringMessage()
+        { }
+
+        public StringMessage(Message ancestor, string val)
+        {
+            this.DerivedFrom = ancestor;
+            this.Value = val;
+        }
+
         [DataMember]
         public string Value { get; set; }
 
