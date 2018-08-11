@@ -69,7 +69,7 @@ namespace MeepLibTests.Filters
 
         public static Message NumMessage = new NumericMessage
         {
-            Value = 12
+            Number = 12
         };
     }
 }

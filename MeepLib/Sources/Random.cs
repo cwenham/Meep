@@ -25,13 +25,13 @@ namespace MeepLib.Sources
                     return new NumericMessage
                     {
                         DerivedFrom = msg,
-                        Value = (Decimal)_rand.Next(Min, Max)
+                        Number = (Decimal)_rand.Next(Min, Max)
                     };
                 else
                     return new NumericMessage
                     {
                         DerivedFrom = msg,
-                        Value = (Decimal)_rand.NextDouble()
+                        Number = (Decimal)_rand.NextDouble()
                     };
             });
         }

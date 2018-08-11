@@ -9,9 +9,17 @@ using Newtonsoft.Json;
 namespace MeepLib.Messages
 {
     [DataContract]
-    public class NumericMessage : Message
+    public class NumericMessage : Message, IStringMessage
     {
         [DataMember, Index(IsUnique = false)]
-        public Decimal Value { get; set; }
+        public Decimal Number { get; set; }
+
+        public string Value
+        {
+            get
+            {
+                return Number.ToString();
+            }
+        }
     }
 }

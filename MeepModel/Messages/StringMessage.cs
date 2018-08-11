@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace MeepLib.Messages
 {
     [DataContract]
-    public class StringMessage : Message
+    public class StringMessage : Message, IStringMessage
     {
         public StringMessage()
         { }

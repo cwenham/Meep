@@ -4,11 +4,14 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.IO;
 
 using SmartFormat;
+using Newtonsoft.Json;
 
 using MeepLib.Config;
 using MeepLib.Messages;
+using System.Diagnostics.Contracts;
 
 namespace MeepLib
 {
@@ -122,6 +125,31 @@ namespace MeepLib
                 req.Headers.Add(h.Name, h.Value);
 
             return req;
+        }
+
+        /// <summary>
+        /// Try to deserialise a string to a Meep Message, otherwise return
+        /// a StringMessage
+        /// </summary>
+        /// <returns></returns>
+        /// <param name="data">Data.</param>
+        public static Message DeserialiseOrBust(this string data)
+        {
+            Contract.Ensures(Contract.Result<Message>() != null);
+
+            if (data[0].Equals('{'))
+                try
+                {
+                    var msg = JsonConvert.DeserializeObject<Message>(data);
+                    if (msg != null)
+                        return msg;
+                }
+                catch
+                {
+                    return new StringMessage(null, data);
+                }
+
+            return new StringMessage(null, data);
         }
     }
 }

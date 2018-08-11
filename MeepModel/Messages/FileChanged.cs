@@ -7,11 +7,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System.Threading.Tasks;
 
 namespace MeepLib.Messages
 {
     [DataContract]
-    public class FileChanged : Message
+    public class FileChanged : Message, IStreamMessage
     {
         /// <summary>
         /// Type of file change
@@ -40,5 +41,13 @@ namespace MeepLib.Messages
         /// <value>The size.</value>
         [DataMember, Index(IsUnique = false)]
         public long Size { get; set; }
+
+        public Task<Stream> Stream
+        {
+            get
+            {
+                return Task.Run<Stream>(() => File.OpenRead(FullPath));
+            }
+        }
     }
 }

@@ -71,5 +71,19 @@ namespace MeepLib
         {
             cfg = null;
         }
+
+        /// <summary>
+        /// Return the ToString value of the message
+        /// </summary>
+        /// <value>The contents.</value>
+        /// <remarks>For simple Smart.Format templates: {Contents} is better
+        /// than {msg.ToString()}</remarks>
+        public string Contents
+        {
+            get
+            {
+                return msg.ToString();
+            }
+        }
     }
 }

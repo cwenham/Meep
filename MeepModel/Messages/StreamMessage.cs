@@ -14,7 +14,7 @@ namespace MeepLib.Messages
     /// A System.IO stream
     /// </summary>
     [DataContract]
-    public class StreamMessage : Message
+    public class StreamMessage : Message, IStreamMessage
     {
         /// <summary>
         /// The stream
