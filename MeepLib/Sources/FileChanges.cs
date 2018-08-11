@@ -54,7 +54,7 @@ namespace MeepLib.Sources
                         Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(x => fsw.Changed += x, x => fsw.Changed -= x).Select(x => x.EventArgs),
                         Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(x => fsw.Created += x, x => fsw.Created -= x).Select(x => x.EventArgs),
                         Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(x => fsw.Deleted += x, x => fsw.Deleted -= x).Select(x => x.EventArgs)
-                    );
+                    ).Throttle(Throttle, TaskPoolScheduler.Default);
 
                     if (!DryStart)
                     {
@@ -71,14 +71,14 @@ namespace MeepLib.Sources
                         mergedEvents = mergedEvents.StartWith(initialList);
                     }
 
-                    _Pipeline = from fev in mergedEvents.Throttle(Throttle, TaskPoolScheduler.Default)
-                                let info = new FileInfo(fev.FullPath)
+                    _Pipeline = from fev in mergedEvents
+                                let info = fev.ChangeType != WatcherChangeTypes.Deleted ? new FileInfo(fev.FullPath) : null
                                 select new FileChanged
                                 {
                                     ChangeType = fev.ChangeType,
                                     FullPath = fev.FullPath,
                                     Modified = File.GetLastWriteTimeUtc(fev.FullPath),
-                                    Size = info.Length
+                                    Size = info != null ? info.Length : 0
                                 };
 
                     fsw.EnableRaisingEvents = true;

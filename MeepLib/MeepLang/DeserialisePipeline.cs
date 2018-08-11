@@ -30,10 +30,10 @@ namespace MeepLib.MeepLang
             XmlReader reader;
             if (msg is XMLMessage)
                 reader = ((XMLMessage)msg).GetReader();
-            else if (msg is StreamMessage)
-                reader = XmlReader.Create(await ((StreamMessage)msg).Stream);
-            else if (msg is StringMessage)
-                reader = XmlReader.Create(new StringReader(((StringMessage)msg).Value));
+            else if (msg is IStreamMessage)
+                reader = XmlReader.Create(await ((IStreamMessage)msg).Stream);
+            else if (msg is IStringMessage)
+                reader = XmlReader.Create(new StringReader(((IStringMessage)msg).Value));
             else
                 return null;
 

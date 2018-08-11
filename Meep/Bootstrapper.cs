@@ -103,6 +103,11 @@ namespace Meep
             {
                 Interval = recheckAfter
             });
+
+            DeserialisePipeline deserialiser = new DeserialisePipeline();
+            deserialiser.AddUpstream(getter);
+
+            _laces = deserialiser;
         }
 
         /// <summary>
@@ -140,7 +145,7 @@ namespace Meep
 
         public void Stop()
         {
-            _subscription.Dispose();
+            _subscription?.Dispose();
         }
 
         public void Dispose()
