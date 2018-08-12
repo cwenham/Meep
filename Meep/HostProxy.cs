@@ -59,7 +59,19 @@ namespace Meep
         /// <param name="pipelineFile">Pipeline file.</param>
         public override Process SelfInvoke(string pipelineFile)
         {
-            throw new NotImplementedException();
+            using (var currentProc = Process.GetCurrentProcess())
+            {
+                var process = new Process();
+                process.StartInfo.FileName = currentProc.MainModule.FileName;
+                process.StartInfo.ArgumentList.Add("-bson");
+                if (Multiplexer != null)
+                    process.StartInfo.ArgumentList.Add($"-redis={Multiplexer.Configuration}");
+                process.StartInfo.ArgumentList.Add(pipelineFile);
+                process.Start();
+
+                return process;
+            }
+
         }
 
         /// <summary>

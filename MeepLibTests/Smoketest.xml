@@ -33,8 +33,8 @@
     </Batch>-->  
 
 	<WriteLine From="{msg.Comment.AuthorName}; {msg.Comment.Body}">
-			<r:Comments Subreddit="/r/pics"/>
-			<r:Comments Subreddit="/r/aww"/>		
+		<r:Comments Subreddit="/r/pics"/>
+		<r:Comments Subreddit="/r/aww"/>		
 	</WriteLine>
 
 	<WriteLine From="[{msg.Post.SubredditName}] {msg.Post.Title} ({msg.Post.Url})">
