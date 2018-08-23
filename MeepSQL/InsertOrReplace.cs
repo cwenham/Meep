@@ -7,7 +7,7 @@ using System.Linq;
 
 using SmartFormat;
 using NLog;
-using Microsoft.Data.Sqlite;
+using System.Data.SQLite;
 
 using MeepLib;
 using MeepLib.MeepLang;
@@ -63,15 +63,8 @@ namespace MeepSQL
                     {
                         connection.Open();
 
-                        // Microsoft.Data.Sqlite doesn't support GetSchema, so we have to
-                        // wait for System.Data.SQLite 0.109 to be released, which does,
-                        // and will tell us if the table already exists.
-                        // In the mean time, we'll rely on CREATE TABLE IF NOT EXISTS
-                        // because it's not worth using the workaround just to throw
-                        // it away in a few days/weeks.
-                        //var tables = connection.GetSchema("Tables");
-                        //bool tableExists = tables.Rows.Contains(tableName);
-                        bool tableExists = false;
+                        var tables = connection.GetSchema("Tables");
+                        bool tableExists = tables.Rows.Contains(tableName);
 
                         // ToDo: develop something more flexible that supports user
                         // defined schemas. For now we'll just use the message's structure.

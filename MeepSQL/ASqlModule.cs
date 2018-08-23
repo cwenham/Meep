@@ -7,7 +7,7 @@ using System.Linq;
 
 using SmartFormat;
 using NLog;
-using Microsoft.Data.Sqlite;
+using System.Data.SQLite;
 
 using MeepLib;
 using MeepLib.MeepLang;

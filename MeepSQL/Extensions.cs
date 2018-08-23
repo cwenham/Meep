@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-using Microsoft.Data.Sqlite;
+using System.Data.SQLite;
 using SmartFormat;
 
 using MeepLib;
@@ -34,7 +34,7 @@ namespace MeepSQL
 
             // ToDo: Expand this to cover more database providers
 
-            return new SqliteConnection(connectionString);
+            return new SQLiteConnection(connectionString);
         }
 
         /// <summary>
