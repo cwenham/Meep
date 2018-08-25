@@ -143,7 +143,7 @@ namespace MeepLib
 
             try
             {
-                var cached = AHostProxy.Current.CachedStringGet(key);
+                var cached = AHostProxy.Current.Cache.StringGet(key);
                 if (cached == null)
                     return null;
 
@@ -171,7 +171,7 @@ namespace MeepLib
 
             try
             {
-                AHostProxy.Current.CachedStringSet(key, JsonConvert.SerializeObject(msg), CacheTTL);
+                AHostProxy.Current.Cache.StringSet(key, JsonConvert.SerializeObject(msg), CacheTTL);
             }
             catch (Exception)
             {

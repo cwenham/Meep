@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 
 using MeepLib;
+using MeepSQL;
 using StackExchange.Redis;
 
 namespace Meep
@@ -33,24 +34,22 @@ namespace Meep
             }
         }
 
-        /// <summary>
-        /// Network credentials from a secret store
-        /// </summary>
-        /// <value>The credentials.</value>
-        public override ICredentials GetCredential(string host, int port)
+        public override IPersistedCache Cache
         {
-            throw new NotImplementedException();
-        }
+            get
+            {
+                if (_cache == null)
+                {
+                    if (Multiplexer != null)
+                        return null; // ToDo: return RedisCache
+                    else
+                        _cache = new SQLitePersistedCache("Data Source=Meep.sqlite");
+                }
 
-        public override string CachedStringGet(string key)
-        {
-            return Multiplexer?.GetDatabase().StringGet(key);
+                return _cache;
+            }
         }
-
-        public override void CachedStringSet(string key, string value, TimeSpan ttl)
-        {
-            Multiplexer?.GetDatabase().StringSet(key, value, ttl);
-        }
+        private IPersistedCache _cache;
 
         /// <summary>
         /// Start a new process of ourselves with the provided pipeline file

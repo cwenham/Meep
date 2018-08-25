@@ -26,24 +26,10 @@ namespace MeepLib
         public abstract string BaseDirectory { get; }
 
         /// <summary>
-        /// Source of network credentials (usernames, passwords) kept in a secret store
+        /// Cache that's persisted to disk
         /// </summary>
-        public abstract ICredentials GetCredential(string host, int port);
-
-        /// <summary>
-        /// Fetch a cached string value by its key
-        /// </summary>
-        /// <returns>The cached string.</returns>
-        /// <param name="key">Key.</param>
-        public abstract string CachedStringGet(string key);
-
-        /// <summary>
-        /// Set a value in the cache, with a Time-to-Live (TTL)
-        /// </summary>
-        /// <param name="key">Key.</param>
-        /// <param name="value">Value.</param>
-        /// <param name="ttl">Ttl.</param>
-        public abstract void CachedStringSet(string key, string value, TimeSpan ttl);
+        /// <value>The cache.</value>
+        public abstract IPersistedCache Cache { get; }
 
         /// <summary>
         /// Start a new process of the host with the given pipeline definition file

@@ -61,7 +61,7 @@ namespace MeepLib.Outputs
                 using (SmtpClient client = new SmtpClient(server, port))
                 {
                     client.EnableSsl = SSL;
-                    client.Credentials = AHostProxy.Current?.GetCredential(server,port) as ICredentialsByHost;
+                    //client.Credentials = AHostProxy.Current?.GetCredential(server,port) as ICredentialsByHost;
 
                     MailMessage message = new MailMessage(from, to, subject, body);
                     await client.SendMailAsync(message);

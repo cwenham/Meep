@@ -5,11 +5,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace MeepLib.Messages
 {
     [DataContract]
-    public class StringMessage : Message, IStringMessage
+    public class StringMessage : Message, IStringMessage, ITokenisable
     {
         public StringMessage()
         { }
@@ -22,6 +23,14 @@ namespace MeepLib.Messages
 
         [DataMember]
         public string Value { get; set; }
+
+        public IEnumerable<string> Tokens
+        {
+            get
+            {
+                return Value.ExtractTokens();
+            }
+        }
 
         public override string ToString()
         {

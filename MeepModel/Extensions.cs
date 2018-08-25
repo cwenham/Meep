@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Serialization;
+using System.Text.RegularExpressions;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
@@ -112,6 +114,17 @@ namespace MeepLib.Messages
                 return ((Batch)msg).Messages;
             else
                 return new List<Message> { msg };
+        }
+
+        /// <summary>
+        /// Split into tokens (words)
+        /// </summary>
+        /// <returns>The tokens.</returns>
+        /// <param name="text">Text.</param>
+        public static IEnumerable<String> ExtractTokens(this String text)
+        {
+            foreach (var token in Regex.Replace(text, "\\p{P}+", "").Split(' '))
+                yield return token.ToLowerInvariant();
         }
     }
 }
