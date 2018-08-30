@@ -28,9 +28,8 @@ namespace MeepLib.MeepLang
                               from t in a.GetTypes()
                               let macro = t.GetMacro()
                               where macro != null
-                              && macro.Position == position
                               let xr = t.GetMeepNamespace()
-                              let ns = xr?.Namespace ?? ""
+                              let ns = xr?.Namespace ?? ANamable.DefaultNamespace
                               let keyname = $"{ns}:{macro.Name}"
                               select new { keyname, t, macro })
                         .ToDictionary(x => x.keyname, y => (y.t, y.macro));
@@ -40,7 +39,11 @@ namespace MeepLib.MeepLang
                 nspace = "";
             string key = $"{nspace}:{attribName}";
 
-            return Macros.ContainsKey(key) ? Macros[key] : (null, null);
+            var candidate = Macros.ContainsKey(key) ? Macros[key] : (null, null);
+            if (candidate.Item1 != null && candidate.Item2.Position == position)
+                return candidate;
+            else
+                return (null, null);
         }
     }
 }

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace MeepLib.Filters
 {
     /// <summary>
-    /// 'Where' condition using compiled NCalc expressions
+    /// 'Where' condition using compilable NCalc expressions
     /// </summary>
     [Macro(DefaultProperty = "Expr", Name = "Where", Position = MacroPosition.Upstream)]
     public class Where : AFilter

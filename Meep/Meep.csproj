@@ -10,7 +10,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>dotnet publish -r osx.10.13-x64</command>
+          <command>dotnet publish -r osx.10.12-x64</command>
         </Command>
       </CustomCommands>
     </CustomCommands>

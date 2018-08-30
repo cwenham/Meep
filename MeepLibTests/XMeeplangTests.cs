@@ -68,6 +68,50 @@ namespace MeepLibTests
             Assert.Equal(undoc.InnerXml, doc.InnerXml);
         }
 
+        public static string UnsweetenedDownstream = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Pipeline xmlns=""http://meep.example.com/Meep/V1""
+    xmlns:s=""http://meep.example.com/MeepSQL/V1"">
+    <Localise From=""One"">
+        <CheckSomethingOne Localise=""One""/>
+    </Localise>
+
+    <Unzip Path=""/tmp"">
+        <CleanSomething Unzip=""/tmp"">
+            <Localise From=""Two"">
+                <CheckSomethingTwo Localise=""Two"">
+                    <Foo/>
+                </CheckSomethingTwo>
+            </Localise>
+        </CleanSomething>
+    </Unzip>
+
+    <s:InsertOrReplace DBTable=""MyDB:Widgets"">
+        <FetchFromSomewhere s:Save=""MyDB:Widgets""/>
+    </s:InsertOrReplace>
+
+    <Foo/>
+    <Bar/>
+</Pipeline>        
+";
+
+        public static string SweetenedDownstream = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Pipeline xmlns=""http://meep.example.com/Meep/V1""
+    xmlns:s=""http://meep.example.com/MeepSQL/V1"">
+    <CheckSomethingOne Localise=""One""/>
+
+    <CleanSomething Unzip=""/tmp"">
+        <CheckSomethingTwo Localise=""Two"">
+            <Foo/>
+        </CheckSomethingTwo>
+    </CleanSomething>
+
+    <FetchFromSomewhere s:Save=""MyDB:Widgets""/>
+
+    <Foo/>
+    <Bar/>
+</Pipeline>
+";
+
         [Fact]
         public void DesweetenUpstream()
         {
@@ -88,6 +132,30 @@ namespace MeepLibTests
 
             Assert.Equal(undoc.InnerXml, doc.InnerXml);
         }
+
+        /// <summary>
+        /// Sample pipeline in MeepLang without any syntax sugar
+        /// </summary>
+        public static string UnsweetenedUpstream = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Pipeline xmlns=""http://meep.example.com/Meep/V1"">
+    <CheckSomething Where=""[Number] == 2"">
+        <Where Expr=""[Number] == 2"">
+            <Timer Interval=""00:00:30"" />
+        </Where>
+    </CheckSomething>
+</Pipeline>        
+";
+
+        /// <summary>
+        /// Sample pipeline in MeepLang with syntax sugar usage
+        /// </summary>
+        public static string SweetenedUpstream = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<Pipeline xmlns=""http://meep.example.com/Meep/V1"">
+    <CheckSomething Where=""[Number] == 2"">
+        <Timer Interval=""00:00:30"" />
+    </CheckSomething>
+</Pipeline>
+";
 
 
         [Fact]
@@ -123,71 +191,6 @@ namespace MeepLibTests
             string value = xmlReader.GetAttribute("sha256", "http://meep.example.com/MeepGit/V1");
             Assert.Equal("ABC123", value);
         }
-
-        /// <summary>
-        /// Sample pipeline in MeepLang without any syntax sugar
-        /// </summary>
-        public static string UnsweetenedUpstream = @"<?xml version=""1.0"" encoding=""UTF-8""?>
-<Pipeline xmlns=""http://meep.example.com/Meep/V1"">
-    <CheckSomething Interval=""00:00:30"">
-        <Timer Interval=""00:00:30"" />
-    </CheckSomething>
-</Pipeline>        
-";
-
-        /// <summary>
-        /// Sample pipeline in MeepLang with syntax sugar usage
-        /// </summary>
-        public static string SweetenedUpstream = @"<?xml version=""1.0"" encoding=""UTF-8""?>
-<Pipeline xmlns=""http://meep.example.com/Meep/V1"">
-    <CheckSomething Interval=""00:00:30"">
-    </CheckSomething>
-</Pipeline>
-";
-
-        public static string UnsweetenedDownstream = @"<?xml version=""1.0"" encoding=""UTF-8""?>
-<Pipeline xmlns=""http://meep.example.com/Meep/V1""
-    xmlns:s=""http://meep.example.com/MeepSQL/V1"">
-    <Localise From=""One"">
-        <CheckSomethingOne Localise=""One""/>
-    </Localise>
-
-    <Unzip Path=""/tmp"">
-        <CleanSomething Unzip=""/tmp"">
-            <Localise From=""Two"">
-                <CheckSomethingTwo Localise=""Two"">
-                    <Foo/>
-                </CheckSomethingTwo>
-            </Localise>
-        </CleanSomething>
-    </Unzip>
-
-    <s:Upsert DBTable=""MyDB:Widgets"">
-        <FetchFromSomewhere s:Save=""MyDB:Widgets""/>
-    </s:Upsert>
-
-    <Foo/>
-    <Bar/>
-</Pipeline>        
-";
-
-        public static string SweetenedDownstream = @"<?xml version=""1.0"" encoding=""UTF-8""?>
-<Pipeline xmlns=""http://meep.example.com/Meep/V1""
-    xmlns:s=""http://meep.example.com/MeepSQL/V1"">
-    <CheckSomethingOne Localise=""One""/>
-
-    <CleanSomething Unzip=""/tmp"">
-        <CheckSomethingTwo Localise=""Two"">
-            <Foo/>
-        </CheckSomethingTwo>
-    </CleanSomething>
-
-    <FetchFromSomewhere s:Save=""MyDB:Widgets""/>
-
-    <Foo/>
-    <Bar/>
-</Pipeline>
-";
 
 
         public static string WhereTimer = @"<?xml version=""1.0"" encoding=""UTF-8""?>

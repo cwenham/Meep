@@ -132,7 +132,7 @@ namespace MeepLib.MeepLang
                 {
                     string nspace = String.IsNullOrWhiteSpace(reader.NamespaceURI) ? elementNS : reader.NamespaceURI;
                     var (mtype, macro) = MacroFinder.GetMacro(nspace, reader.LocalName, position);
-                    if (macro != null && macro.Position == MacroPosition.Downstream)
+                    if (macro != null)
                     {
                         XmlReader substitute = MacroToReader(macro, mtype, reader);
                         macros.Add(new ReaderState
@@ -156,6 +156,8 @@ namespace MeepLib.MeepLang
         {
             var xmlr = type.GetXmlRoot();
             string ns = xmlr?.Namespace ?? current.NamespaceURI;
+            if (String.IsNullOrEmpty(ns))
+                ns = ANamable.DefaultNamespace;
 
             XmlDocument xdoc = new XmlDocument();
             XmlElement melement = xdoc.CreateElement(current.Prefix, type.Name, ns);

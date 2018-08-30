@@ -6,7 +6,7 @@ using System.Xml;
 namespace MeepLib.MeepLang
 {
     /// <summary>
-    /// Replace downstream macros
+    /// Expand downstream macros
     /// </summary>
     /// <remarks>Converts a MacroPosition.Downstream macro like "s:Save" here:
     /// 
@@ -14,7 +14,7 @@ namespace MeepLib.MeepLang
     ///     &lt;FetchSomething s:Save="Database:Table"/&gt;
     /// </code>
     /// 
-    /// into this:
+    /// <para>into this:</para>
     /// 
     /// <code>
     ///     &lt;Upsert DBTable="Database:Table"&gt;
@@ -27,18 +27,6 @@ namespace MeepLib.MeepLang
     /// 
     /// <para>This is a little tricky because we need to read the input a node
     /// ahead of what we output, so we use a stack-based state machine.</para>
-    /// 
-    /// <para>KNOWN BUG: XmlSerialiser doesn't like our macro expansions,
-    /// probably because we're Frankensteining document fragments together and
-    /// something is confusing it. It fires an UnknownElement event when it
-    /// encounters an expansion, but the LocalName and Namespace it found both
-    /// appear to be correct. Sensitive to Parent/Sibling nodes, perhaps?</para>
-    /// 
-    /// <para>Workaround is to read it into an XmlDocument before passing it to 
-    /// XmlSerialiser.Deserialise(), but this doesn't give us the memory
-    /// efficiency we wanted from making it an XmlReader subclass in the first
-    /// place.</para>
-    /// 
     /// </remarks>
     public class XDownstreamReader : XmlPassthroughReader
     {
