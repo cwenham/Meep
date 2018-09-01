@@ -26,7 +26,7 @@ namespace MeepSQL
     /// <para>Table will be created if it doesn't already exist.</para>
     /// </remarks>
     [MeepNamespace(ASqlModule.PluginNamespace)]
-    [Macro(Name = "Save", DefaultProperty = "DBTable", Position = MacroPosition.Downstream)]
+    [Macro(Name = "Store", DefaultProperty = "DBTable", Position = MacroPosition.Downstream)]
     public class InsertOrReplace : ASqlModule
     {
         public override async Task<Message> HandleMessage(Message msg)

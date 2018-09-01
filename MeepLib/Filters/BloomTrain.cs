@@ -14,7 +14,7 @@ using MeepLib.Messages;
 
 namespace MeepLib.Filters
 {
-    public class BloomSave : AMessageModule
+    public class BloomTrain : AMessageModule
     {
         /// <summary>
         /// Name of the bit array used for the filter, in {Smart.Format}
@@ -59,7 +59,7 @@ namespace MeepLib.Filters
 
                 if (newSincePersist >= PersistEvery)
                 {
-                    // ToDo: Persist sieve to disk
+                    // ToDo: Persist sieve to cache
                 }
 
                 return msg;

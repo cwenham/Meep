@@ -86,7 +86,7 @@ namespace MeepLibTests
     </Unzip>
 
     <s:InsertOrReplace DBTable=""MyDB:Widgets"">
-        <FetchFromSomewhere s:Save=""MyDB:Widgets""/>
+        <FetchFromSomewhere s:Store=""MyDB:Widgets""/>
     </s:InsertOrReplace>
 
     <Foo/>

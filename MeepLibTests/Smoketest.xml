@@ -26,7 +26,7 @@
 
 
     <!-- Ping a well known host and store the response times in a database. -->
-    <!--<Batch MaxSize="5" s:Save="Smoketest:Pings">
+    <!--<Batch MaxSize="5" s:Store="Smoketest:Pings">
         <Ping To="www.mit.edu">
             <Timer Interval="00:00:10"/>
         </Ping>

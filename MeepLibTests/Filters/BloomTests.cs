@@ -23,7 +23,7 @@ namespace MeepLibTests.Filters
         [Fact]
         public async void SaveAndFilter()
         {
-            BloomSave saver1 = new BloomSave
+            BloomTrain saver1 = new BloomTrain
             {
                 Sieve = "UnitTest1"
             };

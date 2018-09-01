@@ -10,6 +10,9 @@ using MeepLib.Messages;
 
 namespace MeepLib.Filters
 {
+    /// <summary>
+    /// Match on a Regular Expression
+    /// </summary>
     [Macro(DefaultProperty = "Expr", Name = "Pattern", Position = MacroPosition.Upstream)]
     public class Match : AFilter
     {
