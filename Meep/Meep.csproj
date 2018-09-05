@@ -10,7 +10,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>dotnet publish -r osx.10.12-x64</command>
+          <command>dotnet publish -r osx.10.13-x64</command>
         </Command>
       </CustomCommands>
     </CustomCommands>
@@ -23,12 +23,12 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="System.Reactive" Version="4.0.0" />
+    <PackageReference Include="System.Reactive" Version="4.1.0" />
     <PackageReference Include="Mono.Options" Version="5.3.0.1" />
     <PackageReference Include="Mvp.Xml.NetStandard" Version="1.0.0" />
     <PackageReference Include="System.Reflection" Version="4.3.0" />
     <PackageReference Include="System.IO.Pipelines" Version="4.5.0" />
-    <PackageReference Include="StackExchange.Redis" Version="2.0.0-alpha.205" />
+    <PackageReference Include="StackExchange.Redis" Version="2.0.495" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.109.1" />
   </ItemGroup>
   <ItemGroup>

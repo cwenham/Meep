@@ -21,15 +21,13 @@ namespace MeepLibTests
             Assert.Equal(CreateTableSQL1, create1);
         }
 
-        public static string CreateTableSQL1 = @"BEGIN;
-CREATE TABLE Messages (
+        public static string CreateTableSQL1 = @"CREATE TABLE Messages (
 ID varchar(36) NOT NULL PRIMARY KEY,
 DerivedFromID varchar(36) NOT NULL,
 CreatedTicks bigint NOT NULL
 );
 CREATE INDEX Messages_DerivedFromID_idx ON Messages (DerivedFromID);
 CREATE INDEX Messages_CreatedTicks_idx ON Messages (CreatedTicks);
-COMMIT;
 ";
     }
 }

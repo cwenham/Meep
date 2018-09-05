@@ -7,7 +7,6 @@ using System.Linq;
 
 using SmartFormat;
 using NLog;
-using System.Data.SQLite;
 
 using MeepLib;
 using MeepLib.MeepLang;
@@ -45,6 +44,7 @@ namespace MeepSQL
 
                 if (String.IsNullOrWhiteSpace(connectionString))
                 {
+                    // Default to a SQLite database if no connection string given
                     string dbPath = Path.Combine(AHostProxy.Current.BaseDirectory, "Databases");
                     if (!Directory.Exists(dbPath))
                         Directory.CreateDirectory(dbPath);
@@ -58,7 +58,6 @@ namespace MeepSQL
 
                 try
                 {
-                    // Warning: At the moment, .ToConnection() blindly assumes its always SQLite
                     using (DbConnection connection = connectionString.ToConnection())
                     {
                         connection.Open();
@@ -72,7 +71,7 @@ namespace MeepSQL
                         if (!tableExists)
                         {
                             var ctcmd = connection.CreateCommand();
-                            ctcmd.CommandText = sample.ToCreateTable(tableName);
+                            ctcmd.CommandText =  String.Format("BEGIN;\n{0}\nCOMMIT;", sample.ToCreateTable(tableName));
                             ctcmd.ExecuteScalar();
                         }
 

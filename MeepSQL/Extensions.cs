@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using System.Data.SqlClient;
 
 using System.Data.SQLite;
 using SmartFormat;
@@ -24,17 +25,17 @@ namespace MeepSQL
         /// </summary>
         /// <returns>The connection.</returns>
         /// <param name="connectionString">Connection string.</param>
-        public static DbConnection ToConnection(this string connectionString)
+        /// <param name="provider">Optional name of the DB provider</param>
+        /// <remarks>If provider isn't given, will try to guess by looking at
+        /// clues such as ".sqlite" in the data source.</remarks>
+        public static DbConnection ToConnection(this string connectionString, string provider = null)
         {
-            // For now we're just going to assume SQLite, and update this later
-            // when we have some other database instances to test with.
-            // There doesn't appear to be a simple and unfussy way of doing this,
-            // and I might end up using something like the solutions proposed here:
-            // https://stackoverflow.com/questions/185474/c-sharp-retrieving-correct-dbconnection-object-by-connection-string
+            // Cover dumb-n-simple cases, like if it's clearly SQLite
+            if (connectionString.Contains(".sqlite"))
+                return new SQLiteConnection(connectionString);
 
-            // ToDo: Expand this to cover more database providers
-
-            return new SQLiteConnection(connectionString);
+            // Otherwise, assume SQL Server and its siblings
+            return new SqlConnection(connectionString);
         }
 
         /// <summary>
@@ -80,19 +81,24 @@ namespace MeepSQL
             }
 
             StringBuilder transaction = new StringBuilder();
-            transaction.AppendLine("BEGIN;");
             transaction.AppendLine(String.Format(_createTableTemplate, tableName, String.Join(",\n", definitions)));
             transaction.AppendLine(String.Join('\n', indexes));
-            transaction.AppendLine("COMMIT;");
 
             return transaction.ToString();
         }
 
+        /// <summary>
+        /// Return INSERT OR REPLACE command with parameters set, ready to execute
+        /// </summary>
+        /// <returns>The insert or replace.</returns>
+        /// <param name="msg">Message.</param>
+        /// <param name="connection">Connection.</param>
+        /// <param name="tableName">Table name.</param>
         public static DbCommand ToInsertOrReplace(this Message msg, DbConnection connection, string tableName)
         {
             var cols = (from p in msg.GetType().GetProperties()
 
-                            // Ignore NotMapped properties
+                        // Ignore NotMapped properties
                         let nm = p.GetCustomAttributes(typeof(NotMappedAttribute), true)
                         where !nm.Any()
 
