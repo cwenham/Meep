@@ -34,12 +34,16 @@ namespace Meep
         static void Main(string[] args)
         {
             bool shouldShowHelp = false;
+            string gitRepo = null;
             string pipelineFile = Path.Combine(Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]), "Pipelines", "MasterPipeline.meep");
             string redisHost = "localhost";
+            TimeSpan recheck = TimeSpan.FromMinutes(30);
 
             var options = new OptionSet
             {
-                { "p|pipeline=", "Path to pipeline file", p => pipelineFile = p },
+                { "p|pipeline=", "Path or URL to pipeline file", p => pipelineFile = p },
+                { "g|git=", "Git repo address", g => gitRepo = g },
+                { "t|recheck=", "Time to recheck Git/Url for changes", t => recheck = TimeSpan.Parse(t) },
                 { "q|quiet", "No gutter serialisation", g => GutterSerialisation = GutterSerialisation.None },
                 { "x|xml", "Gutter serialisation in XML", g => GutterSerialisation = GutterSerialisation.XML },
                 { "b|bson", "Gutter serialisation in BSON", b => GutterSerialisation = GutterSerialisation.BSON },
@@ -54,8 +58,6 @@ namespace Meep
             }
             catch (OptionException e)
             {
-                // output some error message
-                Console.Write("meep: ");
                 Console.WriteLine(e.Message);
                 Console.WriteLine("Try `meep --help' for more information.");
                 return;
@@ -77,7 +79,11 @@ namespace Meep
             }
             var proxy = new HostProxy(multiplexer);
 
-            Bootstrapper = new Bootstrapper(pipelineFile);
+            if (String.IsNullOrWhiteSpace(gitRepo))
+                Bootstrapper = new Bootstrapper(pipelineFile);
+            else
+                Bootstrapper = new Bootstrapper(new Uri(gitRepo), pipelineFile, recheck);
+
             Bootstrapper.PipelineRefreshed += Bootstrapper_PipelineRefreshed;
             Bootstrapper.Start();
 

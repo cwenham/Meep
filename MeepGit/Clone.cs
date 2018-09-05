@@ -27,7 +27,7 @@ namespace MeepGit
         /// </summary>
         /// <value>The path.</value>
         /// <remarks>Leave empty or null to create one based on the repo address automatically.</remarks>
-        public string WorkingDir { get; set; }
+        public string WorkingDir { get; set; } = "";
 
         public override async Task<Message> HandleMessage(Message msg)
         {
@@ -35,19 +35,27 @@ namespace MeepGit
 
             return await Task.Run<Message>(() =>
             {
-                string repoURL = Smart.Format(Repo, context);
-                string workDir = Smart.Format(WorkingDir, context);
-                if (String.IsNullOrWhiteSpace(workDir))
-                    workDir = repoURL.ToWorkingDirectory();
-
-                Repository.Clone(repoURL, workDir);
-
-                return new LocalisedResource
+                try
                 {
-                    DerivedFrom = msg,
-                    URL = repoURL,
-                    Local = workDir
-                };
+                    string repoURL = Smart.Format(Repo, context);
+                    string workDir = Smart.Format(WorkingDir, context);
+                    if (String.IsNullOrWhiteSpace(workDir))
+                        workDir = repoURL.ToWorkingDirectory();
+
+                    Repository.Clone(repoURL, workDir);
+
+                    return new LocalisedResource
+                    {
+                        DerivedFrom = msg,
+                        URL = repoURL,
+                        Local = workDir
+                    };
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "{0} thrown when cloning repository: {1}", ex.GetType().Name, ex.Message);
+                    return null;
+                }
             });
         }
     }

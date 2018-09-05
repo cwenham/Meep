@@ -120,7 +120,6 @@ namespace Meep
         /// is received.</remarks>
         public Bootstrapper(PipeReader reader)
         {
-
         }
 
         /// <summary>
@@ -128,9 +127,34 @@ namespace Meep
         /// </summary>
         /// <param name="repository">Address of the repository</param>
         /// <param name="file">File in the repository to load</param>
-        public Bootstrapper(Uri repository, string file)
+        public Bootstrapper(Uri repository, string file, TimeSpan recheckAfter)
         {
+            string repoName = Path.GetFileName(repository.AbsoluteUri).Replace(".git", "");
 
+            Timer timer = new Timer
+            {
+                Interval = recheckAfter
+            };
+
+            Clone cloner = new Clone
+            {
+                Repo = repository.AbsoluteUri
+            };
+            cloner.AddUpstream(timer);
+
+            Fetch fetcher = new Fetch();
+            fetcher.AddUpstream(cloner);
+
+            Load loader = new Load
+            {
+                From = Path.Combine("{msg.Local}", file)
+            };
+            loader.AddUpstream(fetcher);
+
+            DeserialisePipeline deserialiser = new DeserialisePipeline();
+            deserialiser.AddUpstream(loader);
+
+            _laces = deserialiser;
         }
 
         public void Start()

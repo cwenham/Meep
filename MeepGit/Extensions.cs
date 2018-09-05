@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 
+using MeepLib;
+
 namespace MeepGit
 {
     /// <summary>
@@ -18,7 +20,7 @@ namespace MeepGit
             // For now, just use the bit between last slash and ".git"
             // ToDo: Improve me
             var dir = Path.GetFileName(repoUrl.TrimEnd('/')).Replace(".git", "");
-            return Path.Combine(System.Environment.CurrentDirectory, dir);
+            return Path.Combine(AHostProxy.Current.BaseDirectory,"Repositories", dir);
         }
     }
 }

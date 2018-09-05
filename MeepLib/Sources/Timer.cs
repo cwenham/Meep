@@ -30,15 +30,33 @@ namespace MeepLib.Sources
         /// <value>The payload.</value>
         public string Payload { get; set; } = "{msg.Number}";
 
+        /// <summary>
+        /// Start without firing an initial message
+        /// </summary>
+        /// <value>True to start without initial message</value>
+        /// <remarks>Most uses of this module are for trying something as soon
+        /// as Meep starts, then again after an interval. If the initial starting
+        /// message isn't wanted, set this to true. Defaults to false, which is
+        /// a "wet" start with an initial message fired as soon as the pipeline 
+        /// starts.</remarks>
+        public bool DryStart { get; set; } = false;
+
         public override IObservable<Message> Pipeline
         {
             get
             {
                 if (_Pipeline == null)
-                    _Pipeline = from seq in Observable.Interval(Interval)
+                {
+                    IObservable<long> source = Observable.Interval(Interval);
+
+                    if (!DryStart)
+                        source = source.StartWith(0);
+
+                    _Pipeline = from seq in source
                                 let message = IssueMessage(seq)
                                 where message != null
                                 select message;
+                }
 
                 return _Pipeline;
             }
