@@ -27,7 +27,7 @@ namespace MeepLib.Sources
         {
             return await Task.Run<Message>(() =>
             {
-                int pos = LastPosition++;
+                int pos = 0;
 
                 NumericMessage numeric = msg as NumericMessage;
                 if (numeric != null)
@@ -40,6 +40,9 @@ namespace MeepLib.Sources
                     if (int.TryParse(sfFrom, out int p))
                         pos = p;
                 }
+
+                if (pos == 0)
+                    pos = LastPosition++;
 
                 return new NumericMessage
                 {
