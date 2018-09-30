@@ -30,7 +30,7 @@
         <Ping To="www.mit.edu">
             <Timer Interval="00:00:10"/>
         </Ping>
-    </Batch> 
+    </Batch>
 
 	<!--<WriteLine From="{msg.Comment.AuthorName}; {msg.Comment.Body}">
 		<r:Comments Subreddit="/r/pics"/>

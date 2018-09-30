@@ -42,16 +42,25 @@ namespace MeepGit
                 string sfWorkingDir = Smart.Format(WorkingDir, context);
                 string sfLogMessage = Smart.Format(LogMessage, context);
 
-                using (var repo = new Repository(sfWorkingDir))
+                try
                 {
-                    foreach (Remote remote in repo.Network.Remotes)
+                    using (var repo = new Repository(sfWorkingDir))
                     {
-                        IEnumerable<string> refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
-                        Commands.Fetch(repo, remote.Name, refSpecs, null, sfLogMessage);
+                        foreach (Remote remote in repo.Network.Remotes)
+                        {
+                            IEnumerable<string> refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
+                            Commands.Fetch(repo, remote.Name, refSpecs, null, sfLogMessage);
+                        }
                     }
+
+                    return msg;
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "{0} thrown when fetching repository: {1}", ex.GetType().Name, ex.Message);
+                    return null;
                 }
 
-                return msg;
             });
         }
     }

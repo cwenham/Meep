@@ -42,7 +42,9 @@ namespace MeepGit
                     if (String.IsNullOrWhiteSpace(workDir))
                         workDir = repoURL.ToWorkingDirectory();
 
-                    Repository.Clone(repoURL, workDir);
+                    string existing = Repository.Discover(workDir);
+                    if (String.IsNullOrWhiteSpace(existing))
+                        Repository.Clone(repoURL, workDir);
 
                     return new LocalisedResource
                     {
