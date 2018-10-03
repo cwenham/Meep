@@ -22,22 +22,26 @@ namespace MeepLibTests
         [Fact]
         public void Clone()
         {
+            string testDir = Path.Combine(Path.GetTempPath(), "MeepTests");
+            if (Directory.Exists(testDir))
+                Directory.Delete(testDir);
+
             var cloner = new Clone
             {
                 Repo = "https://github.com/cwenham/{Value}.git",
-                WorkingDir = "/Users/cwenham/Documents/Meep/{Value}"
+                WorkingDir = Path.Combine(testDir,"{Value}")
             };
 
             var task = cloner.HandleMessage(new StringMessage
             {
-                Value = "Meep"
+                Value = "MeepCookbook"
             });
             task.Wait();
 
             Assert.IsType(typeof(LocalisedResource), task.Result);
             var localised = task.Result as LocalisedResource;
             Assert.Equal("https://github.com/cwenham/Meep.git", localised.URL);
-            Assert.Equal("/Users/cwenham/Documents/Meep/Meep", localised.Local);
+            Assert.Equal(Path.Combine(testDir,"Meep"), localised.Local);
         }
     }
 }

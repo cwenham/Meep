@@ -50,8 +50,8 @@ namespace MeepLib.Filters
                     else
                     {
                         MessageContext context = new MessageContext(msg, this);
-                        string expr = Smart.Format(Expr, context);
-                        var expression = new Expression(Expr);
+                        string sfExpr = Smart.Format(Expr, context);
+                        var expression = new Expression(sfExpr);
                         expression.Parameters.Add("msg", msg);
                         expression.Parameters.Add("mdl", this);
                         if ((bool)expression.Evaluate())

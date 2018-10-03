@@ -18,7 +18,7 @@ namespace MeepLib.Filters
         /// </summary>
         /// <value>Either "Pass" or "Block"</value>
         /// <remarks>Defaults to "Block".</remarks>
-        public string Polarity { get; set; } = "Block";
+        public string Polarity { get; set; } = "Pass";
 
         protected bool blockOnMatch
         {

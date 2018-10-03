@@ -13,11 +13,11 @@
     <Compile Remove="Budget.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.5.9" />
-    <PackageReference Include="System.Reactive" Version="4.1.0" />
+    <PackageReference Include="NLog" Version="4.5.10" />
+    <PackageReference Include="System.Reactive" Version="4.1.1" />
     <PackageReference Include="SmartFormat.NET" Version="2.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="CoreCLR-NCalc" Version="2.2.40" />
+    <PackageReference Include="CoreCLR-NCalc" Version="2.2.45" />
     <PackageReference Include="Mvp.Xml.NetStandard" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>

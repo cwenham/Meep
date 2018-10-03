@@ -41,7 +41,7 @@ namespace MeepGit
                     string workDir = Smart.Format(WorkingDir, context);
                     if (String.IsNullOrWhiteSpace(workDir))
                         workDir = repoURL.ToWorkingDirectory();
-
+                        
                     string existing = Repository.Discover(workDir);
                     if (String.IsNullOrWhiteSpace(existing))
                         Repository.Clone(repoURL, workDir);
