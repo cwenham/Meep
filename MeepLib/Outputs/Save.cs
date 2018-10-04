@@ -43,8 +43,7 @@ namespace MeepLib.Outputs
                     return new LocalisedResource
                     {
                         DerivedFrom = msg,
-                        Local = saveAs,
-                        Value = content
+                        Local = saveAs
                     }; 
                 }
                 catch (Exception ex)
