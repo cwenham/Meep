@@ -23,7 +23,7 @@ namespace Meep
 {
     class Program
     {
-        static Logger logger = LogManager.GetCurrentClassLogger();
+        static Logger logger = LogManager.LoadConfiguration("nlog.config").GetCurrentClassLogger();
 
         static IDisposable Subscription { get; set; }
 

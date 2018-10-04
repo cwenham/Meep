@@ -26,16 +26,16 @@
 
 
     <!-- Ping a well known host and store the response times in a database. -->
-    <Batch MaxSize="5" s:Store="Smoketest:Pings">
+    <!--<Batch MaxSize="5" s:Store="Smoketest:Pings">
         <Ping To="www.mit.edu">
             <Timer Interval="00:00:10"/>
         </Ping>
-    </Batch>
+    </Batch>-->
 
-	<!--<WriteLine From="{msg.Comment.AuthorName}; {msg.Comment.Body}">
+	<WriteLine From="{msg.Comment.AuthorName}; {msg.Comment.Body}">
 		<r:Comments Subreddit="/r/pics"/>
 		<r:Comments Subreddit="/r/aww"/>		
-	</WriteLine>-->
+	</WriteLine>
 
 	<!--<WriteLine From="[{msg.Post.SubredditName}] {msg.Post.Title} ({msg.Post.Url})">
 		<r:Unmoderated Subreddit="/r/pics"/>
