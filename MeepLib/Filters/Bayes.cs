@@ -21,11 +21,19 @@ namespace MeepLib.Filters
     public class Bayes : AMessageModule
     {
         /// <summary>
-        /// Class name, in {Smart.Format}
+        /// Classes to test, in comma separated {Smart.Format}
         /// </summary>
-        /// <value>The class.</value>
-        /// <remarks>Defaults to "Spam".</remarks>
-        public string Class { get; set; } = "Spam";
+        /// <value>Comma separated class names</value>
+        /// <remarks>Leave empty or null to check all known classes.</remarks>
+        public string Class { get; set; }
+
+        /// <summary>
+        /// Mimimum number of documents in training set to consider a class
+        /// </summary>
+        /// <value>The minimum training.</value>
+        /// <remarks>To eliminate classes that have not yet been trained adequately
+        /// and produce too many false positives. Defaults to 10.</remarks>
+        public int MinTraining { get; set; } = 10;
 
         public override async Task<Message> HandleMessage(Message msg)
         {
@@ -36,19 +44,28 @@ namespace MeepLib.Filters
             return await Task.Run<Message>(() =>
             {
                 MessageContext context = new MessageContext(msg, this);
-                string bclass = Smart.Format(Class, context);
+                string sfClass = Class != null ? Smart.Format(Class, context) : null;
 
-                if (!Classes.ContainsKey(bclass))
-                    return msg;
+                string[] classes = null;
+                if (!String.IsNullOrWhiteSpace(sfClass))
+                    classes = sfClass.Split(',');
 
-                var bindex = Classes[bclass];
+                if (classes is null || classes.Length == 0)
+                    classes = Classes.Keys.ToArray();
 
-                var msgTokens = bmsg.Tokens.ToList();
+                if (!(classes is null))
+                    foreach (var c in classes)
+                        if (Classes.ContainsKey(c) && Classes[c].DocumentCount >= MinTraining)
+                        {
+                            var bindex = Classes[c];
 
-                double likely = Prediction(msgTokens, bindex);
+                            var msgTokens = bmsg.Tokens.ToList();
 
-                if (likely > 0.5)
-                    Categories.AddToCategory(bclass, msg.ID);
+                            double likely = Prediction(msgTokens, bindex);
+
+                            if (likely > 0.5)
+                                Categories.AddToCategory(c, msg.ID);
+                        }
 
                 return msg;
             });

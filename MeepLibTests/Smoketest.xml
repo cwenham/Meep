@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Pipeline xmlns="http://meep.example.com/Meep/V1"
-    xmlns:xi="http://www.w3.org/2003/XInclude"
-    xmlns:s="http://meep.example.com/MeepSQL/V1"
-    xmlns:r="http://meep.example.com/MeepReddit/V1">
-
-	<!-- Load site-specific config and secrets you don't want in a repo -->
+<Pipeline xmlns="http://meep.example.com/Meep/V1" xmlns:xi="http://www.w3.org/2003/XInclude" xmlns:s="http://meep.example.com/MeepSQL/V1" xmlns:r="http://meep.example.com/MeepReddit/V1">
+    <!-- Load site-specific config and secrets you don't want in a repo -->
     <xi:include href="/users/cwenham/MeepSiteConfig.xml" />
 
     <!-- Get from our own Listen/Respond module pair further below -->
@@ -15,39 +11,50 @@
             <Timer Interval="00:00:05"/>
         </Random>
     </Get>-->
-
     <!-- Listen for the Gets generated above and Respond to them with a simple message -->
     <!--<Respond>
         <Text>A block of content</Text>
 
         <Listen Base="http://127.0.0.1:7780/"/>
     </Respond>-->
-
-
-
+    
     <!-- Ping a well known host and store the response times in a database. -->
     <!--<Batch MaxSize="5" s:Store="Smoketest:Pings">
         <Ping To="www.mit.edu">
             <Timer Interval="00:00:10"/>
         </Ping>
     </Batch>-->
-
-	<WriteLine From="{msg.Comment.AuthorName}; {msg.Comment.Body}">
-		<r:Comments Subreddit="/r/pics"/>
-		<r:Comments Subreddit="/r/aww"/>		
-	</WriteLine>
-
-	<!--<WriteLine From="[{msg.Post.SubredditName}] {msg.Post.Title} ({msg.Post.Url})">
-		<r:Unmoderated Subreddit="/r/pics"/>
-		<r:Unmoderated Subreddit="/r/aww"/>		
-	</WriteLine>-->
-
-	<!--<WriteLine>
-		<r:Modmail Subreddit="/r/pics"/>
-		<r:Modmail Subreddit="/r/aww"/>
-
-		<r:ModLog Subreddit="/r/pics"/>
-		<r:ModLog Subreddit="/r/aww"/>
-	</WriteLine>-->
-		
+    
+    <WriteLine From="[{msg.DerivedFrom.Comment.Subreddit}] {msg.DerivedFrom.Comment.AuthorName}; {msg.DerivedFrom.Comment.Body}">
+        <r:History Name="NewComments" Username="{msg.Comment.AuthorName}" Max="50">
+            <r:Comments Subreddit="/r/pics" />
+            <r:Comments Subreddit="/r/aww" />
+        </r:History>
+    </WriteLine>
+    
+    <WriteLine From="{msg.User.Name} {msg.Tokens:list:|,|,}">        
+        <r:History Name="NewPosts" Username="{msg.Post.AuthorName}" Max="50">
+            <r:Unmoderated Subreddit="/r/pics" />
+            <r:Unmoderated Subreddit="/r/aww" />
+        </r:History>
+    </WriteLine>
+    
+    <WriteLine From="{msg.User.Name} {msg.Tokens:list:|,|,}">
+        <r:History Name="ModeratedUsers" Username="{msg.Action.TargetAuthorName}" Max="75">
+            <WriteLine From="{msg.Action.SubredditName}: {msg.Action.ModeratorName} {msg.Action.Details} {msg.Action.TargetAuthorName}">
+                <r:ModLog Subreddit="/r/pics" />
+                <r:ModLog Subreddit="/r/aww" />
+            </WriteLine>
+        </r:History>
+    </WriteLine>
+    
+    <BayesTrain Class="{msg.DerivedFrom.Action.Details}">
+        <Tap From="ModeratedUsers"/>
+    </BayesTrain>
+    
+    <Bayes Name="ClassifiedPosts">
+        <Tap From="NewPosts"/>
+        <Tap From="NewComments"/>
+    </Bayes>
+    
 </Pipeline>
