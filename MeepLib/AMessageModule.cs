@@ -96,6 +96,17 @@ namespace MeepLib
         private IObservable<Message> _Pipeline;
 
         /// <summary>
+        /// Give an outbound message the same name as this module
+        /// </summary>
+        /// <returns>The christen.</returns>
+        /// <param name="msg">Message.</param>
+        protected Message Christen(Message msg)
+        {
+            msg.Name = this.Name;
+            return msg;
+        }
+
+        /// <summary>
         /// Handle a message, observing caching and timeouts as configured
         /// </summary>
         /// <returns></returns>
@@ -113,7 +124,7 @@ namespace MeepLib
                 task.Wait(Timeout);
 
                 SaveToCache(task.Result, msg.GetKey());
-                return task.Result;
+                return Christen(task.Result);
             }
             catch (Exception ex)
             {

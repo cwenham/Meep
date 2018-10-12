@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 using SmartFormat;
 
 using MeepLib.Messages;
+using MeepLib.MeepLang;
 
 namespace MeepLib.Outputs
 {
     /// <summary>
     /// Write to the console
     /// </summary>
+    [Macro(Name="WriteLine", DefaultProperty = "From", Position = MacroPosition.Downstream)]
     public class WriteLine : AMessageModule
     {
         /// <summary>

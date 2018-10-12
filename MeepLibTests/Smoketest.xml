@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Pipeline xmlns="http://meep.example.com/Meep/V1" xmlns:xi="http://www.w3.org/2003/XInclude" xmlns:s="http://meep.example.com/MeepSQL/V1" xmlns:r="http://meep.example.com/MeepReddit/V1">
+<Pipeline xmlns="http://meep.example.com/Meep/V1" xmlns:mp="http://meep.example.com/Meep/V1" xmlns:xi="http://www.w3.org/2003/XInclude" xmlns:s="http://meep.example.com/MeepSQL/V1" xmlns:r="http://meep.example.com/MeepReddit/V1">
     <!-- Load site-specific config and secrets you don't want in a repo -->
     <xi:include href="/users/cwenham/MeepSiteConfig.xml" />
 
@@ -25,28 +25,23 @@
         </Ping>
     </Batch>-->
     
-    <WriteLine From="[{msg.DerivedFrom.Comment.Subreddit}] {msg.DerivedFrom.Comment.AuthorName}; {msg.DerivedFrom.Comment.Body}">
-        <r:History Name="NewComments" Username="{msg.Comment.AuthorName}" Max="50">
-            <r:Comments Subreddit="/r/pics" />
-            <r:Comments Subreddit="/r/aww" />
-        </r:History>
-    </WriteLine>
+    <r:History Name="NewComments" Username="{msg.Comment.AuthorName}" Max="50"
+               mp:WriteLine="[{msg.DerivedFrom.Comment.Subreddit}] {msg.DerivedFrom.Comment.AuthorName}; {msg.DerivedFrom.Comment.Body}">
+        <r:Comments Subreddit="/r/pics" />
+        <r:Comments Subreddit="/r/aww" />
+    </r:History>
     
-    <WriteLine From="{msg.User.Name} {msg.Tokens:list:|,|,}">        
-        <r:History Name="NewPosts" Username="{msg.Post.AuthorName}" Max="50">
-            <r:Unmoderated Subreddit="/r/pics" />
-            <r:Unmoderated Subreddit="/r/aww" />
-        </r:History>
-    </WriteLine>
+    <r:History Name="NewPosts" Username="{msg.Post.AuthorName}" Max="50"
+               mp:WriteLine="{msg.User.Name} {msg.Tokens:list:|,|,}">
+        <r:Unmoderated Subreddit="/r/pics" />
+        <r:Unmoderated Subreddit="/r/aww" />
+    </r:History>
     
-    <WriteLine From="{msg.User.Name} {msg.Tokens:list:|,|,}">
-        <r:History Name="ModeratedUsers" Username="{msg.Action.TargetAuthorName}" Max="75">
-            <WriteLine From="{msg.Action.SubredditName}: {msg.Action.ModeratorName} {msg.Action.Details} {msg.Action.TargetAuthorName}">
-                <r:ModLog Subreddit="/r/pics" />
-                <r:ModLog Subreddit="/r/aww" />
-            </WriteLine>
-        </r:History>
-    </WriteLine>
+    <r:History Name="ModeratedUsers" Username="{msg.Action.TargetAuthorName}" Max="75"
+               mp:WriteLine="{msg.User.Name} {msg.Tokens:list:|,|,}">
+        <r:ModLog Subreddit="/r/pics" />
+        <r:ModLog Subreddit="/r/aww" />
+    </r:History>
     
     <BayesTrain Class="{msg.DerivedFrom.Action.Details}">
         <Tap From="ModeratedUsers"/>

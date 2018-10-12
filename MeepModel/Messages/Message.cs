@@ -26,6 +26,25 @@ namespace MeepLib.Messages
         public Guid ID { get; set; } = Guid.NewGuid();
 
         /// <summary>
+        /// Optional name of generating module or other unique reference
+        /// </summary>
+        /// <value>The name.</value>
+        [DataMember]
+        public string Name
+        {
+            get 
+            {
+                return _name ?? this.GetType().Name;
+            }
+            set 
+            {
+                _name = value;
+            }
+        }
+
+        private string _name;
+
+        /// <summary>
         /// Message that this was derived from
         /// </summary>
         /// <value>The derived from identifier.</value>

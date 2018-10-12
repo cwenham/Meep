@@ -20,10 +20,21 @@ namespace MeepLib
             msg = message;
             mdl = module;
 
+            // Populate config lookup
             _cfgMutex.WaitOne();
             if (cfg == null)
                 cfg = ANamable.InventoryByBase<ANamable>().ToDictionary(x => x.Name);
             _cfgMutex.ReleaseMutex();
+
+            // Populate fam lookup
+            fam = new Dictionary<string, Message>();
+            var current = message;
+            while (current != null)
+            {
+                if (!fam.ContainsKey(current.Name))
+                    fam.Add(current.Name, current);
+                current = current.DerivedFrom;
+            }
         }
 
         public MessageContext(Message message, AMessageModule module, Match match)
@@ -51,6 +62,12 @@ namespace MeepLib
         /// <remarks>For modules that use a regex on all or part of a message,
         /// the result of the Match can be made available here.</remarks>
         public Match rgx { get; set; }
+
+        /// <summary>
+        /// Ancestor messages, keyed by type name or generating module Name
+        /// </summary>
+        /// <value>The fam.</value>
+        public Dictionary<string, Message> fam { get; set; }
 
         /// <summary>
         /// Lookup on named modules
