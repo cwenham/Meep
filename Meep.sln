@@ -55,5 +55,6 @@ Global
 		$1.CommitMessageStyle = $2
 		$2.FileSeparator = ", "
 		$2.LineAlign = 0
+		version = 1.0-alpha
 	EndGlobalSection
 EndGlobal

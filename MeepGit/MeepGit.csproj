@@ -2,6 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <PackOnBuild>true</PackOnBuild>
+    <PackageId>Meep.MeepGit</PackageId>
+    <PackageVersion>1.0-alpha</PackageVersion>
+    <Authors>Chris Wenham</Authors>
+    <NeutralLanguage>en-GB</NeutralLanguage>
+    <Owners>Chris Wenham</Owners>
+    <PackageProjectUrl>https://github.com/cwenham/Meep</PackageProjectUrl>
+    <PackageReleaseNotes>Initial NuGet release.</PackageReleaseNotes>
+    <Summary>Git plugin for Meep</Summary>
+    <Title>MeepGit</Title>
+    <Description>Git plugin for Meep. Supports basic Git operations on any repository.</Description>
+    <ReleaseVersion>1.0-alpha</ReleaseVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,5 +25,6 @@
     <PackageReference Include="NLog" Version="4.5.10" />
     <PackageReference Include="SmartFormat.NET" Version="2.3.0" />
     <PackageReference Include="LibGit2Sharp" Version="0.25.2" />
+    <PackageReference Include="NuGet.Build.Packaging" Version="0.2.0" />
   </ItemGroup>
 </Project>

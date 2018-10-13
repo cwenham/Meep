@@ -2,6 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <PackOnBuild>true</PackOnBuild>
+    <PackageId>Meep.MeepSQL</PackageId>
+    <PackageVersion>1.0-alpha</PackageVersion>
+    <Authors>Chris Wenham</Authors>
+    <NeutralLanguage>en-GB</NeutralLanguage>
+    <Owners>Chris Wenham</Owners>
+    <PackageProjectUrl>https://github.com/cwenham/Meep</PackageProjectUrl>
+    <PackageReleaseNotes>Initial NuGet release.</PackageReleaseNotes>
+    <Summary>SQL plugin for Meep</Summary>
+    <Title>MeepSQL</Title>
+    <Description>SQL plugin for Meep. Read and write to SQL databases, with out-of-box/configuration-free support for SQLite.</Description>
+    <ReleaseVersion>1.0-alpha</ReleaseVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,6 +22,7 @@
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.109.2" />
+    <PackageReference Include="NuGet.Build.Packaging" Version="0.2.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MeepLib\MeepLib.csproj" />

@@ -2,6 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <PackageId>Meep.MeepLib</PackageId>
+    <PackageVersion>1.0-alpha</PackageVersion>
+    <Authors>Chris Wenham</Authors>
+    <NeutralLanguage>en-GB</NeutralLanguage>
+    <Owners>Chris Wenham</Owners>
+    <PackageProjectUrl>https://github.com/cwenham/Meep</PackageProjectUrl>
+    <PackageReleaseNotes>Initial NuGet release</PackageReleaseNotes>
+    <Summary>Message Pipelines set up with XML</Summary>
+    <Title>MeepLib</Title>
+    <Description>Message Pipelines; receive, filter, modify and output discrete messages with pipelines that are described and configured with an XML-based language. Supports realtime deadlines, plugins, and caching.
+
+Meep is System.Reactive + XML + Plugins.</Description>
+    <PackOnBuild>true</PackOnBuild>
+    <ReleaseVersion>1.0-alpha</ReleaseVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +33,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="CoreCLR-NCalc" Version="2.2.45" />
     <PackageReference Include="Mvp.Xml.NetStandard" Version="1.0.0" />
+    <PackageReference Include="NuGet.Build.Packaging" Version="0.2.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Sources\" />

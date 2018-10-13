@@ -66,7 +66,8 @@ namespace MeepLib
         /// <summary>
         /// Ancestor messages, keyed by type name or generating module Name
         /// </summary>
-        /// <value>The fam.</value>
+        /// <value></value>
+        /// <remarks>Makes it easier to refer to ancestry by name or type.</remarks>
         public Dictionary<string, Message> fam { get; set; }
 
         /// <summary>
