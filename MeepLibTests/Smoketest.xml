@@ -1,8 +1,16 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Pipeline xmlns="http://meep.example.com/Meep/V1" xmlns:mp="http://meep.example.com/Meep/V1" xmlns:xi="http://www.w3.org/2003/XInclude" xmlns:s="http://meep.example.com/MeepSQL/V1" xmlns:r="http://meep.example.com/MeepReddit/V1">
+<Pipeline xmlns="http://meep.example.com/Meep/V1" 
+          xmlns:mp="http://meep.example.com/Meep/V1" 
+          xmlns:xi="http://www.w3.org/2003/XInclude" 
+          xmlns:s="http://meep.example.com/MeepSQL/V1" 
+          xmlns:r="http://meep.example.com/MeepReddit/V1"
+          xmlns:im="http://meep.example.com/MeepMagick/V1">
+    
     <!-- Load site-specific config and secrets you don't want in a repo -->
     <xi:include href="/users/cwenham/MeepSiteConfig.xml" />
-
+    
+    <Plugin File="/Users/cwenham/Projects/MeepMagick/MeepMagick/bin/Debug/netstandard2.0/osx.10.10-x64/publish/MeepMagick.dll"/>
+    
     <!-- Get from our own Listen/Respond module pair further below -->
     <!--<Get URL="http://127.0.0.1:7780/{msg.Value}">
         <Header Name="Foo" Value="Bar"/>
@@ -31,12 +39,16 @@
         <r:Comments Subreddit="/r/aww" />
     </r:History>
     
-    <r:History Name="NewPosts" Username="{msg.Post.AuthorName}" Max="50"
-               mp:WriteLine="{msg.User.Name} {msg.Tokens:list:|,|,}">
-        <r:Unmoderated Subreddit="/r/pics" />
-        <r:Unmoderated Subreddit="/r/aww" />
-    </r:History>
-    
+    <im:Info>
+        <Localise From="{fam.PostMessage.Post.Url}" To="MEMORY">
+            <r:History Name="NewPosts" Username="{msg.Post.AuthorName}" Max="50"
+                       mp:WriteLine="{msg.User.Name} {msg.Tokens:list:|,|,}">
+                <r:Unmoderated Subreddit="/r/pics" />
+                <r:Unmoderated Subreddit="/r/aww" />
+            </r:History>    
+        </Localise>
+    </im:Info>
+        
     <r:History Name="ModeratedUsers" Username="{msg.Action.TargetAuthorName}" Max="75"
                mp:WriteLine="{msg.User.Name} {msg.Tokens:list:|,|,}">
         <r:ModLog Subreddit="/r/pics" />

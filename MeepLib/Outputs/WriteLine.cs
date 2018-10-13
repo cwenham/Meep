@@ -26,9 +26,9 @@ namespace MeepLib.Outputs
             return await Task.Run<Message>(() =>
             {
                 MessageContext context = new MessageContext(msg, this);
-                string line = Smart.Format(From, context);
+                string sfLine = Smart.Format(From, context);
 
-                Console.WriteLine(line);
+                Console.WriteLine(sfLine);
 
                 return msg;
             });
