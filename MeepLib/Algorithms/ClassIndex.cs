@@ -75,8 +75,8 @@ namespace MeepLib.Algorithms
             if (!int.TryParse(sDocCount, out int docCount))
                 throw new ArgumentException("Invalid format");
 
-            var tokens = from p in data.Substring(10).Split("&")
-                         let pieces = p.Split("=")
+            var tokens = from p in data.Substring(10).Split('&')
+                         let pieces = p.Split('=')
                          let token = System.Web.HttpUtility.UrlDecode(pieces[0])
                          let count = int.Parse(pieces[1])
                          select new { token, count };

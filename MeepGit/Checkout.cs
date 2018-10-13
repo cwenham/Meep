@@ -45,29 +45,32 @@ namespace MeepGit
 
         public override async Task<Message> HandleMessage(Message msg)
         {
-            MessageContext context = new MessageContext(msg, this);
-
-            string repoURL = Smart.Format(Repository, context);
-            string branch = Smart.Format(Branch, context);
-            string commit = Smart.Format(Commit, context);
-            string workDir = Smart.Format(WorkingDir, context);
-            if (String.IsNullOrWhiteSpace(workDir))
-                workDir = repoURL.ToWorkingDirectory();
-                
-            try
+            return await Task.Run<Message>(() =>
             {
-                using (Repository repo = new Repository(workDir))
+                MessageContext context = new MessageContext(msg, this);
+
+                string repoURL = Smart.Format(Repository, context);
+                string branch = Smart.Format(Branch, context);
+                string commit = Smart.Format(Commit, context);
+                string workDir = Smart.Format(WorkingDir, context);
+                if (String.IsNullOrWhiteSpace(workDir))
+                    workDir = repoURL.ToWorkingDirectory();
+
+                try
                 {
-                    //ToDo: implement me
+                    using (Repository repo = new Repository(workDir))
+                    {
+                        //ToDo: implement me
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "{0} thrown when checking out: {1}", ex.GetType().Name, ex.Message);
-                return null;
-            }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "{0} thrown when checking out: {1}", ex.GetType().Name, ex.Message);
+                    return null;
+                }
 
-            return msg;
+                return msg;
+            });
         }
     }
 }
