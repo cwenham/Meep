@@ -4,6 +4,11 @@ using System.Collections.Generic;
 
 namespace MeepLib
 {
+    public interface IParent
+    {
+        void AddChildren(IEnumerable<ANamable> children);
+    }
+
     public abstract class ANamable
     {
         public static string DefaultNamespace = "http://meep.example.com/Meep/V1";
@@ -35,24 +40,28 @@ namespace MeepLib
                 // Maintain the directory of named modules.
                 // This is used by modules that address other modules, such
                 // as Tap.
-                if (_Phonebook.ContainsKey(value))
-                    _Phonebook.Remove(value);
+                if (Phonebook.ContainsKey(value))
+                    Phonebook.Remove(value);
 
                 _Name = value;
 
-                _Phonebook.Add(_Name, this);
+                Phonebook.Add(_Name, this);
             }
         }
         private string _Name;
 
-        internal static IEnumerable<T> InventoryByBase<T>() where T : ANamable
+        public T ByName<T>(string name) where T : ANamable
         {
-            return from e in _Phonebook.Values
-                   let test = e as T
-                   where test != null
-                   select test;
+            if (Phonebook.ContainsKey(name))
+                return Phonebook[name] as T;
+            return null;
         }
 
-        protected static Dictionary<string, ANamable> _Phonebook { get; set; } = new Dictionary<string, ANamable>();
+        public static IEnumerable<T> InventoryByBase<T>() where T : ANamable
+        {
+            return Phonebook.Values.OfType<T>();
+        }
+
+        protected static Dictionary<string, ANamable> Phonebook { get; set; } = new Dictionary<string, ANamable>();
     }
 }

@@ -8,8 +8,8 @@ namespace MeepLib.Config
     {
         public T FindConfig<T>(string name) where T : AConfig
         {
-            if (_Phonebook.ContainsKey(name))
-                return _Phonebook[name] as T;
+            if (Phonebook.ContainsKey(name))
+                return Phonebook[name] as T;
             else
                 return null;
         }

@@ -39,94 +39,188 @@ namespace MeepSQL
         }
 
         /// <summary>
-        /// Return SQL DDL ("CREATE TABLE") for a Message class
+        /// Convert a message to a table definition
         /// </summary>
-        /// <returns>The "CREATE TABLE" statement.</returns>
+        /// <returns>The table def.</returns>
         /// <param name="msg">Message.</param>
-        /// <remarks>Observes System.ComponentModel.DataAnnotations. If no
-        /// [Key] is specified, ID is used.</remarks>
-        public static string ToCreateTable(this Message msg, string tableName)
+        /// <param name="tableName">Table name.</param>
+        public static Config.Table ToTableDef(this Message msg, string tableName)
         {
             var cols = from p in msg.GetType().GetProperties()
-
-                           // Ignore NotMapped properties
+                       // Ignore NotMapped properties
                        let nm = p.GetCustomAttributes(typeof(NotMappedAttribute), true)
                        where !nm.Any()
 
                        let length = p.GetCustomAttributes(typeof(MaxLengthAttribute), true).Cast<MaxLengthAttribute>()
                        let key = p.GetCustomAttributes(typeof(KeyAttribute), true).Cast<KeyAttribute>()
                        let index = p.GetCustomAttributes(typeof(IndexAttribute), true).Cast<IndexAttribute>()
-                       let sType = Smart.Format(p.PropertyType.ToSQLType(), length.FirstOrDefault()?.Length.ToString() ?? int.MaxValue.ToString())
+                       let sType = p.PropertyType.ToSQLType()
 
-                       select new
+                       select new Config.Column
                        {
                            Name = p.Name,
-                           Definition = String.Format("{0} {1}", p.Name, sType),
-                           Key = key,
-                           Index = index
+                           Type = sType,
+                           Index = PickIndexType(key, index),
+                           Nullable = !p.PropertyType.IsValueType,
+                           From = $"{{{p.Name}}}"
                        };
+
+            return new Config.Table
+            {
+                Name = tableName,
+                Columns = cols.ToList()
+            };
+        }
+
+        private static Config.IndexType PickIndexType(IEnumerable<KeyAttribute> keys, IEnumerable<IndexAttribute> indecies)
+        {
+            if (keys.Any())
+                return Config.IndexType.PrimaryKey;
+
+            if (indecies is null || indecies.FirstOrDefault() is null)
+                return Config.IndexType.None;
+
+            if (indecies.FirstOrDefault().IsUnique)
+                return Config.IndexType.Unique;
+
+            return Config.IndexType.NotUnique;
+        }
+
+        /// <summary>
+        /// Return CREATE TABLE DDL from a table definition
+        /// </summary>
+        /// <returns>The CREATE TABLE statement.</returns>
+        /// <param name="table">Table definition.</param>
+        public static string ToCreateTable(this Config.Table table)
+        {
+            if (!(table.Create is null))
+                return table.Create.Content;
 
             List<string> definitions = new List<string>();
             List<string> indexes = new List<string>();
-            foreach (var c in cols)
+
+            foreach (var col in table.Columns)
             {
-                string def = c.Definition;
-                if (c.Key.Any())
-                    def = String.Format("{0} PRIMARY KEY", def);
+                definitions.Add(col.ToSQLColumnDefinition());
 
-                definitions.Add(def);
+                switch (col.Index)
+                {
+                    case Config.IndexType.NotUnique:
+                        indexes.Add(Smart.Format(CreateIndexTemplate, table.Name, col.Name));
+                        break;
+                    case Config.IndexType.PrimaryKey:
+                    case Config.IndexType.Unique:
+                        indexes.Add(Smart.Format(CreateUniqueTemplate, table.Name, col.Name));
+                        break;
+                    default:
+                        break;
+                }
 
-                if (c.Index.Any() && !c.Key.Any())
-                    indexes.Add(String.Format(_createIndexTemplate, tableName, c.Name));
             }
 
             StringBuilder transaction = new StringBuilder();
-            transaction.AppendLine(String.Format(_createTableTemplate, tableName, String.Join(",\n", definitions)));
+            transaction.AppendLine(String.Format(CreateTableTemplate, table.Name, String.Join(",\n", definitions)));
             transaction.AppendLine(String.Join('\n', indexes));
 
             return transaction.ToString();
         }
 
         /// <summary>
-        /// Return INSERT OR REPLACE command with parameters set, ready to execute
+        /// Return full column definition ready to include in CREATE TABLE DDL
         /// </summary>
-        /// <returns>The insert or replace.</returns>
-        /// <param name="msg">Message.</param>
-        /// <param name="connection">Connection.</param>
-        /// <param name="tableName">Table name.</param>
-        public static DbCommand ToInsertOrReplace(this Message msg, DbConnection connection, string tableName)
+        /// <returns>The SQL Column definition.</returns>
+        /// <param name="column">Column.</param>
+        public static string ToSQLColumnDefinition(this Config.Column column)
         {
-            var cols = (from p in msg.GetType().GetProperties()
+            if (!String.IsNullOrWhiteSpace(column.SQL))
+                return column.SQL;
 
-                        // Ignore NotMapped properties
-                        let nm = p.GetCustomAttributes(typeof(NotMappedAttribute), true)
-                        where !nm.Any()
+            if (!SqlShortMap.ContainsKey(column.Type))
+                throw new ArgumentException($"Unknown SQL type {column.Type}");
 
-                        select new
-                        {
-                            p.Name,
-                            Value = p.GetValue(msg)
-                        }).ToList();
+            string type = Smart.Format(SqlShortMap[column.Type], column.Length.ToString());
+            string def = Smart.Format("{0} {1}", column.Name, type);
 
+            if (!column.Nullable)
+                def = Smart.Format("{0} NOT NULL", def);
+
+            if (column.Index == Config.IndexType.PrimaryKey)
+                def = Smart.Format("{0} PRIMARY KEY", def);
+
+            return def;
+        }
+
+        /// <summary>
+        /// Return a parameterised INSERT command
+        /// </summary>
+        /// <returns>DbCommand ready to populate parameters</returns>
+        /// <param name="table">Table definition</param>
+        /// <param name="template">INSERT template, defaults to a regular 
+        /// INSERT, but could be substituted for an "INSERT OR REPLACE" or 
+        /// UPSERT.</param>
+        public static DbCommand ToInsertCmd(this Config.Table table, DbConnection connection, string template = InsertTemplate)
+        {
             DbCommand cmd = connection.CreateCommand();
-            cmd.CommandText = String.Format(_insertOrReplaceTemplate, tableName,
-                                            String.Join(',', cols.Select(x => x.Name)),
-                                            String.Join(',', cols.Select(x => $"@{x.Name}")));
+            cmd.CommandText = Smart.Format(InsertTemplate, table.Name,
+                                          String.Join(',', table.Columns.Select(x => x.Name)),
+                                          String.Join(',', table.Columns.Select(x => $"@{x.Name}")));
 
-            foreach (var c in cols)
+            cmd.Prepare();
+            return cmd;
+        }
+
+        /// <summary>
+        /// Set the named parameters of a DbCommand with the values in a message
+        /// </summary>
+        /// <returns>The parameters.</returns>
+        /// <param name="cmd">The prepared DbCommand from something like ToInsertCmd()</param>
+        /// <param name="table">The table definition</param>
+        /// <param name="context">The message and its context wrapped in a SmartObjects</param>
+        public static DbCommand SetParameters(this DbCommand cmd, Config.Table table, MessageContext context)
+        {
+            cmd.Parameters.Clear();
+            foreach (var c in table.Columns)
             {
                 DbParameter param = cmd.CreateParameter();
                 param.ParameterName = $"@{c.Name}";
-                param.Value = c.Value ?? DBNull.Value;
+                param.Value = Smart.Format(c.From, context);
                 cmd.Parameters.Add(param);
             }
 
             return cmd;
         }
 
-        private static string _createTableTemplate = "CREATE TABLE IF NOT EXISTS {0} (\n{1}\n);";
-        private static string _createIndexTemplate = "CREATE INDEX IF NOT EXISTS {0}_{1}_idx ON {0} ({1});";
-        private static string _insertOrReplaceTemplate = "INSERT OR REPLACE INTO {0}({1}) VALUES ({2});";
+        /// <summary>
+        /// Template for CREATE TABLE
+        /// </summary>
+        public const string CreateTableTemplate = "CREATE TABLE IF NOT EXISTS {0} (\n{1}\n);";
+
+        /// <summary>
+        /// Template for CREATE INDEX
+        /// </summary>
+        public const string CreateIndexTemplate = "CREATE INDEX IF NOT EXISTS {0}_{1}_idx ON {0} ({1});";
+
+        /// <summary>
+        /// Template for CREATE UNIQUE INDEX
+        /// </summary>
+        public const string CreateUniqueTemplate = "CREATE UNIQUE INDEX IF NOT EXISTS {0}_{1}_idx ON {0} ({1});";
+
+        /// <summary>
+        /// Template for INSERT
+        /// </summary>
+        public const string InsertTemplate = "INSERT INTO {0} ({1}) VALUES ({2});";
+
+        /// <summary>
+        /// Template for INSERT OR REPLACE
+        /// </summary>
+        /// <remarks>Typically interchangable with INSERT for databases that
+        /// support it, such as SQLite.
+        /// 
+        /// <para>For other databases, you might prefer UPSERT, which SQLite
+        /// does not support. The two are not the same concept in databases,
+        /// however, since UPSERT will usually not overwrite unspecified columns
+        /// with NULL the way INSERT OR REPLACE will.</para></remarks>
+        public const string InsertOrReplaceTemplate = "INSERT OR REPLACE INTO {0}({1}) VALUES ({2});";
 
         public static string ToSQLType(this Type type)
         {
@@ -144,6 +238,9 @@ namespace MeepSQL
             return sqlType;
         }
 
+        /// <summary>
+        /// Map .Net data types to SQL types
+        /// </summary>
         private static Dictionary<Type, string> SqlTypeMap = new Dictionary<Type, string>
         {
             // Store GUIDs as a formatted string. According to tests done by others
@@ -159,6 +256,47 @@ namespace MeepSQL
             { typeof(int), "int" },
             { typeof(long), "bigint" },
             { typeof(decimal), "decimal" }
+        };
+
+        /// <summary>
+        /// Map shorthand type names and aliases to SQL types
+        /// </summary>
+        /// <remarks>Short type names are for users to define columns. Their
+        /// purpose is to make it "just do what I want" when they don't RTFM, 
+        /// so this lookup table should cover types that people are likely 
+        /// to think of from top-of-the-head as well as reasonable picks from 
+        /// those who know SQL and other programming languages.</remarks>
+        private static Dictionary<string, string> SqlShortMap = new Dictionary<string, string>
+        {
+            { "id", "varchar(36)" },
+            { "guid", "varchar(36)" },
+            { "text", "varchar({0})" },
+            { "string", "varchar({0})" },
+            { "varchar", "varchar({0})" },
+            { "date", "datetime" },
+            { "time", "datetime" },
+            { "datetime", "datetime" },
+            { "byte", "tinyint" },
+            { "tinyint", "tinyint" },
+            { "short", "smallint" },
+            { "smallint", "smallint" },
+            { "int2", "smallint" },
+            { "int", "int" },
+            { "integer", "int" },
+            { "int32", "int" },
+            { "int4", "int" },
+            { "long", "bigint" },
+            { "bigint", "bigint" },
+            { "int64", "bigint" },
+            { "int8", "bigint" },
+            { "decimal", "decimal" },
+            { "number", "decimal" },
+            { "money", "decimal" },
+            { "currency", "decimal" },
+            { "float", "real" },
+            { "real", "real" },
+            { "double", "real" },
+            { "blob", "blob" }
         };
     }
 }

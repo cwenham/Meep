@@ -141,6 +141,73 @@ and their messages flow down through as many dishes as you want before emptying
 into the gutter. The dishes are modules that filter, modify or act on the 
 messages as they flow down (left).
 
+## Or no XML
+
+The XML is used as an Object Instantiation Language, but you can use Meep without
+it. This is how Meep loads its own pipelines:
+
+    public Bootstrapper(string filename)
+    {
+        FileChanges changes = new FileChanges
+        {
+            Path = Path.GetDirectoryName(filename),
+            Filter = Path.GetFileName(filename)
+        };
+
+        Load load = new Load
+        {
+            From = "{msg.FullPath}"
+        };
+        load.AddUpstream(changes);
+
+        DeserialisePipeline deserialiser = new DeserialisePipeline();
+        deserialiser.AddUpstream(load);
+
+        _laces = deserialiser;
+    }
+    
+`FileChanges`, `Load` and `DeserialisePipeline` are all pipeline modules. You 
+can connect them together with `.AddUpstream()`.
+    
+In the above, Meep is using its own modules for loading and deserialising 
+pipelines and automatically reloading them when the file changes.
+
+The Boostrapper class also has constructors for reading pipelines from a URL
+or Git repository, and set themselves up with a Timer to reload changes. Both of
+those are also hard-coded pipelines.
+
+You can move between XML and hard-coded pipelines for experiment, prototyping, 
+unit testing and debugging with tools like LinqPad, then deploy to production in 
+either form.
+
+## Namespaces
+
+Meep uses reflection to discover all the modules in your plugin's DLL, so the
+name you use in the XML is the same as the class name in code.
+    
+We recommend that you think very carefully about the name of your module so it
+makes sense and won't conflict with others, but we recommend using namespaces 
+even more. To put your module in a custom namespace, just use a code attribute 
+like this:
+
+    [MeepNamespace("http://meep.example.com/ExamplePlugin/V1")]
+    public class Reverse : AMessageModule
+    {
+        ...
+        
+Then you'd declare it in the XML header and use it like this:
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <Pipeline xmlns="http://meep.example.com/Meep/V1"
+              xmlns:ep="http://meep.example.com/ExamplePlugin/V1">
+              
+        <ep:Reverse>
+            ...
+            
+                  
+You can use more than one namespace per plugin, or no namespace at all if you're
+careful.       
+               
 ## Built-In Modules
 
 Timers are just one kind of fountainhead, or _source_. Here are some others
@@ -162,30 +229,27 @@ that can trigger its action, but they are interchangable. In the examples above
 we've used Timer to trigger Get, but you could also use FileChanges to trigger a 
 Get, or Load the file that changed, and so-on.
 
-## Namespaces
+### Built-In Filters
 
-Meep uses reflection to discover all the modules in your plugin's DLL, so the
-name you use in the XML is the same as the class name in code.
-    
-We recommend that you think very carefully about the name of your module so it
-won't conflict with others, but we recommend using namespaces even more. To
-put your module in a custom namespace, just use a code attribute like this:
+   * **Bayes** categorisation and training, with a native implementation
+   * **Bloom**
+   * **Where** using [NCalc](https://github.com/sklose/NCalc2) expressions
+   * **Pattern** using regular expressions (regex)
+   
+The output message of **Pattern** includes the Match object, which you can
+inspect downstream in {Smart.Format} expressions.
+   
+### Built-In Outputs and Modifiers
 
-    [MeepNamespace("http://meep.example.com/ExamplePlugin/V1")]
-    public class Reverse : AMessageModule
-    {
-        ...
-        
-Then you'd declare it in the XML header and use it like this:
-
-    <?xml version="1.0" encoding="UTF-8"?>
-    <Pipeline xmlns="http://meep.example.com/Meep/V1"
-              xmlns:ep="http://meep.example.com/ExamplePlugin/V1">
-              
-        <ep:Reverse>
-            ...
-            
-            
+   * **Delete** HTTP
+   * **Email**
+   * **Post** HTTP
+   * **Put** HTTP
+   * **Recombine** genomes defined in XML, for making basic genetic algorithms
+   * **Save** to file
+   * **Unzip** files
+   * **WriteLine* to console 
+           
 ## Meep's Bundled Plugins
             
 MeepLib only supports a few modules on its own so its base NuGet package can 

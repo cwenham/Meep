@@ -11,6 +11,21 @@
     
     <Plugin File="/Users/cwenham/Projects/MeepMagick/MeepMagick/bin/Debug/netstandard2.0/osx.10.10-x64/publish/MeepMagick.dll"/>
     
+    <Config>
+        <s:Table Name="ImagePosts">
+            <s:Column Name="ID" Type="guid" From="{fam.PostMessage.ID}" Index="PrimaryKey"/>
+            <s:Column Name="FullName" Type="varchar" Length="20" From="{fam.PostMessage.Post.FullName}" Index="Unique"/>
+            <s:Column Name="Created" Type="datetime" From="{fam.PostMessage.Post.CreatedUTC}" Index="NotUnique"/>
+            <s:Column Name="Author" Type="varchar" Length="20" From="{fam.PostMessage.Post.AuthorName}" Index="NotUnique"/>
+            <s:Column Name="Title" Type="text" From="{fam.PostMessage.Post.Title}"/>
+            <s:Column Name="Subreddit" Type="varchar" Length="20" From="{fam.PostMessage.Post.SubredditName}" Index="NotUnique"/>
+            <s:Column Name="Permalink" Type="varchar" Length="1024" From="{fam.PostMessage.Post.Permalink}" Index="NotUnique"/>
+            <s:Column Name="Url" Type="varchar" Length="1024" From="{fam.PostMessage.Post.Url}" Index="NotUnique"/>
+            <s:Column Name="PHash" From="{msg.PHashString}"/>
+        </s:Table>
+    </Config>
+    
+    
     <!-- Get from our own Listen/Respond module pair further below -->
     <!--<Get URL="http://127.0.0.1:7780/{msg.Value}">
         <Header Name="Foo" Value="Bar"/>
@@ -38,8 +53,8 @@
         <r:Comments Subreddit="/r/pics" />
         <r:Comments Subreddit="/r/aww" />
     </r:History>
-    
-    <im:Info>
+        
+    <im:Info Name="PHashed">
         <Localise From="{fam.PostMessage.Post.Url}" To="MEMORY">
             <r:History Name="NewPosts" Username="{msg.Post.AuthorName}" Max="50"
                        mp:WriteLine="{msg.User.Name} {msg.Tokens:list:|,|,}">
@@ -63,5 +78,11 @@
         <Tap From="NewPosts"/>
         <Tap From="NewComments"/>
     </Bayes>
+    
+    <s:InsertOrReplace Database="Reddit" Table="ImagePosts">
+        <Tap From="PHashed"/>
+    </s:InsertOrReplace>
+    
+    
     
 </Pipeline>

@@ -11,13 +11,16 @@ namespace MeepLibTests.Sources
     {
         public override async Task<Message> HandleMessage(Message msg)
         {
-            string reversedText = new string(msg.ToString().Reverse().ToArray());
-
-            return new StringMessage
+            return await Task.Run<Message>(() =>
             {
-                DerivedFrom = msg,
-                Value = reversedText
-            };
+                string reversedText = new string(msg.ToString().Reverse().ToArray());
+
+                return new StringMessage
+                {
+                    DerivedFrom = msg,
+                    Value = reversedText
+                };
+            });
         }
     }
 }

@@ -71,16 +71,17 @@ namespace Meep
         /// <param name="filename">Filename.</param>
         public Bootstrapper(string filename)
         {
+            FileChanges changes = new FileChanges
+            {
+                Path = Path.GetDirectoryName(filename),
+                Filter = Path.GetFileName(filename)
+            };
+
             Load load = new Load
             {
                 From = "{msg.FullPath}"
             };
-
-            load.AddUpstream(new FileChanges
-            {
-                Path = Path.GetDirectoryName(filename),
-                Filter = Path.GetFileName(filename)
-            });
+            load.AddUpstream(changes);
 
             DeserialisePipeline deserialiser = new DeserialisePipeline();
             deserialiser.AddUpstream(load);

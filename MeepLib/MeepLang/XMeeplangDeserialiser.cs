@@ -73,13 +73,9 @@ namespace MeepLib.MeepLang
                         {
                             modules.Add(newModule);
 
-                            var newMessageModule = newModule as AMessageModule;
-                            if (!reader.IsEmptyElement && newMessageModule != null)
-                            {
-                                IEnumerable<ANamable> children = DeserialiseRecursive(reader);
-                                newMessageModule.Upstreams.AddRange(children.ModulesByType<AMessageModule>());
-                                newMessageModule.Config.AddRange(children.ModulesByType<AConfig>());
-                            }
+                            var newParent = newModule as IParent;
+                            if (!reader.IsEmptyElement && newParent != null)
+                                newParent.AddChildren(DeserialiseRecursive(reader));
                         }
                         else
                             throw new UnknownElementException(fullName);
@@ -171,17 +167,6 @@ namespace MeepLib.MeepLang
         public UnknownElementException(string element)
         {
             Element = element;
-        }
-    }
-
-    public static class Extensions
-    {
-        public static IEnumerable<T> ModulesByType<T>(this IEnumerable<ANamable> children) where T : ANamable
-        {
-            return from c in children
-                   let ct = c as T
-                   where ct != null
-                   select ct;
         }
     }
 }

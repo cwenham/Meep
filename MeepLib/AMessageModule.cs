@@ -17,7 +17,7 @@ using MeepLib.Config;
 
 namespace MeepLib
 {
-    public abstract class AMessageModule : ANamable
+    public abstract class AMessageModule : ANamable, IParent
     {
         protected Logger logger
         {
@@ -232,6 +232,12 @@ namespace MeepLib
 
                 return temp;
             }
+        }
+
+        public void AddChildren(IEnumerable<ANamable> children)
+        {
+            Upstreams.AddRange(children.OfType<AMessageModule>());
+            Config.AddRange(children.OfType<AConfig>());
         }
     }
 }

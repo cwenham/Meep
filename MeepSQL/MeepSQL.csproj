@@ -28,4 +28,7 @@
     <ProjectReference Include="..\MeepLib\MeepLib.csproj" />
     <ProjectReference Include="..\MeepModel\MeepModel.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Config\" />
+  </ItemGroup>
 </Project>

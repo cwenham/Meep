@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
+using System.Data;
 
 using SmartFormat;
 using NLog;
@@ -18,7 +19,9 @@ namespace MeepSQL
     /// Insert or update rows in a database
     /// </summary>
     /// <remarks>One message = one row. To populate many rows from a chunk of data like
-    /// a CSV you'll need a splitter module upstream.
+    /// a CSV you'll need to split them upstream. 
+    /// 
+    /// Messages can be gathered into Batch messages to make inserts more efficient.
     /// 
     /// <para>Properties of the Message type should match the columns of the table.</para>
     /// 
@@ -28,8 +31,12 @@ namespace MeepSQL
     [Macro(Name = "Store", DefaultProperty = "DBTable", Position = MacroPosition.Downstream)]
     public class InsertOrReplace : ASqlModule
     {
+   
         public override async Task<Message> HandleMessage(Message msg)
         {
+            // Handle a mix of message types by rebatching them into groups.
+            // We'll only let the database and table vary by the type, not
+            // individual messages.
             var byType = msg.AsEnumerable().GroupBy(x => x.GetType());
 
             foreach (var group in byType)
@@ -58,26 +65,35 @@ namespace MeepSQL
 
                 try
                 {
+                    Config.Table table = ByName<Config.Table>(tableName);
+                    if (table is null)
+                        table = sample.ToTableDef(tableName);
+
                     using (DbConnection connection = connectionString.ToConnection())
                     {
                         connection.Open();
 
                         var tables = connection.GetSchema("Tables");
-                        bool tableExists = tables.Rows.Contains(tableName);
-
-                        // ToDo: develop something more flexible that supports user
-                        // defined schemas. For now we'll just use the message's structure.
+                        bool tableExists = false;
+                        foreach (DataRow t in tables.Rows)
+                            if (t.ItemArray[2].ToString() == tableName)
+                        {
+                                tableExists = true;
+                                break;
+                        }
 
                         if (!tableExists)
                         {
                             var ctcmd = connection.CreateCommand();
-                            ctcmd.CommandText =  String.Format("BEGIN;\n{0}\nCOMMIT;", sample.ToCreateTable(tableName));
+                            ctcmd.CommandText =  String.Format("BEGIN;\n{0}\nCOMMIT;", table.ToCreateTable());
                             ctcmd.ExecuteScalar();
                         }
 
+                        DbCommand cmd = table.ToInsertCmd(connection, Extensions.InsertOrReplaceTemplate);
                         foreach (var m in group)
                         {
-                            DbCommand cmd = m.ToInsertOrReplace(connection, tableName);
+                            MessageContext mContext = new MessageContext(sample, this);
+                            cmd = cmd.SetParameters(table, mContext);
                             await cmd.ExecuteNonQueryAsync();
                         }
                     }
