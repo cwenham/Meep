@@ -16,7 +16,7 @@ namespace MeepLib.Messages
     [DataContract]
     public class Batch : Message
     {
-        [DataMember, XmlElement]
+        [DataMember, XmlElement, NotMapped]
         public IEnumerable<Message> Messages { get; set; }
     }
 }

@@ -29,7 +29,7 @@ namespace MeepLib.Messages
         /// Optional name of generating module or other unique reference
         /// </summary>
         /// <value>The name.</value>
-        [DataMember]
+        [DataMember, NotMapped]
         public string Name
         {
             get 
