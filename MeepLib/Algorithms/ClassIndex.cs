@@ -1,32 +1,71 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Concurrent;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading.Tasks;
+
+using Newtonsoft.Json;
+
+using MeepLib.Messages;
 
 namespace MeepLib.Algorithms
 {
     /// <summary>
     /// Token index for a Bayes classifier
     /// </summary>
-    public class ClassIndex
+    [DataContract]
+    public class ClassIndex : Message
     {
         /// <summary>
         /// Last time this index was used
         /// </summary>
         /// <value>The last used.</value>
         /// <remarks>For expiring caches</remarks>
+        [XmlIgnore, JsonIgnore, NotMapped]
         public DateTime LastUsed { get; private set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Number of documents used to train this index
         /// </summary>
         /// <value>The document count.</value>
+        [DataMember, Index(IsUnique = false)]
         public int DocumentCount = 0;
 
         /// <summary>
         /// Token counts
         /// </summary>
         /// <value>The tokens.</value>
+        [XmlIgnore, JsonIgnore, NotMapped]
         public ConcurrentDictionary<string, int> Tokens { get; protected set; } = new ConcurrentDictionary<string, int>();
+
+        /// <summary>
+        /// Serialise/Deserialise Tokens to URL encoded string
+        /// </summary>
+        /// <value>The tokens string.</value>
+        [DataMember, XmlElement(ElementName = "Tokens"), JsonProperty(PropertyName = "Tokens"), Column("Tokens")]
+        public string TokensString
+        {
+            get 
+            {
+                var pairs = from k in Tokens.Keys
+                            select String.Format("{0}={1}", System.Web.HttpUtility.UrlEncode(k), TokenCount(k));
+
+                return String.Join("&", pairs);
+            }
+            set {
+                var tokens = from p in value.Split('&')
+                             let pieces = p.Split('=')
+                             let token = System.Web.HttpUtility.UrlDecode(pieces[0])
+                             let count = int.Parse(pieces[1])
+                             select new { token, count };
+
+                foreach (var p in tokens)
+                    Tokens.AddOrUpdate(p.token, p.count, (t, val) => p.count);
+            }
+        }
 
         public void IncDocumentCount()
         {
@@ -63,28 +102,25 @@ namespace MeepLib.Algorithms
             // URLencode all tokens and delimit with "&". First 10 chars
             // are zero-padded document count
 
-            var pairs = from k in Tokens.Keys
-                        select String.Format("{0}={1}", System.Web.HttpUtility.UrlEncode(k), TokenCount(k));
-
-            return String.Format("{0:0000000000}{1}", DocumentCount, String.Join("&", pairs));
+            return String.Format("{0:0000000000}{1}", DocumentCount, TokensString);
         }
 
+        /// <summary>
+        /// Parse a ClassIndex serialised with ToSerialised()
+        /// </summary>
+        /// <returns>The parse.</returns>
+        /// <param name="data">Data.</param>
         public static ClassIndex Parse(string data)
         {
             string sDocCount = data.Substring(0, 10);
             if (!int.TryParse(sDocCount, out int docCount))
                 throw new ArgumentException("Invalid format");
 
-            var tokens = from p in data.Substring(10).Split('&')
-                         let pieces = p.Split('=')
-                         let token = System.Web.HttpUtility.UrlDecode(pieces[0])
-                         let count = int.Parse(pieces[1])
-                         select new { token, count };
+            string encodedTokens = data.Substring(10);
 
             ClassIndex index = new ClassIndex();
             index.DocumentCount = docCount;
-            foreach (var p in tokens)
-                index.Tokens.AddOrUpdate(p.token, p.count, (t, val) => p.count);
+            index.TokensString = encodedTokens;
 
             return index;
         }

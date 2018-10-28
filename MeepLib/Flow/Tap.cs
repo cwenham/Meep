@@ -11,21 +11,27 @@ namespace MeepLib.Flow
     [Macro(Name = "Tap", DefaultProperty = "From", Position = MacroPosition.Child)]
     public class Tap : AMessageModule
     {
-        public string From
-        {
-            get => _From;
-            set
-            {
-                _From = value;
-                if (Phonebook.ContainsKey(_From))
-                    Source = Phonebook[_From] as AMessageModule;
+        /// <summary>
+        /// Named module elsewhere in the pipeline. Does NOT support Smart.Format
+        /// </summary>
+        /// <value></value>
+        public string From { get; set; }
 
+        public AMessageModule Source 
+        {
+            get {
+                if (_Source == null)
+                    if (Phonebook.ContainsKey(From))
+                        _Source = Phonebook[From] as AMessageModule;
+
+                if (_Source is null)
+                    throw new ArgumentException($"Tap could not find: {From}", nameof(From));
+
+                return _Source;
             }
         }
-        public string _From;
+        private AMessageModule _Source;
 
-        public AMessageModule Source { get; private set; }
-
-        public override IObservable<Message> Pipeline { get => Source.Pipeline; protected set => base.Pipeline = value; }
+        public override IObservable<Message> Pipeline { get => Source.Pipeline; protected set => throw new InvalidOperationException("Cannot set a Tap's pipeline directly."); }
     }
 }

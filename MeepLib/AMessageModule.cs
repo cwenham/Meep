@@ -123,8 +123,11 @@ namespace MeepLib
                 var task = HandleMessage(msg);
                 task.Wait(Timeout);
 
-                SaveToCache(task.Result, msg.GetKey());
-                return Christen(task.Result);
+                if (task.Result != null)
+                {
+                    SaveToCache(task.Result, msg.GetKey());
+                    return Christen(task.Result);
+                }
             }
             catch (Exception ex)
             {
