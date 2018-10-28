@@ -40,7 +40,7 @@ namespace MeepSQL
         /// </summary>
         /// <value>The table.</value>
         /// <remarks>Defaults to name of database, meant for one-table stores and "just dump it somewhere" usage.</remarks>
-        public string Table { get; set; }
+        public string Table { get; set; } = "";
 
         /// <summary>
         /// Compound Database:Table name
@@ -59,6 +59,25 @@ namespace MeepSQL
                 Database = parts[0];
                 Table = parts[1];
             }
+        }
+
+        protected DbConnection NewConnection(MessageContext context)
+        {
+            string sfConnectionString = Connection != null ? Smart.Format(Connection, context) : null;
+            string sfDatabase = Smart.Format(Database, context);
+
+            if (String.IsNullOrWhiteSpace(sfConnectionString))
+            {
+                // Default to a SQLite database if no connection string given
+                string dbPath = Path.Combine(AHostProxy.Current.BaseDirectory, "Databases");
+                if (!Directory.Exists(dbPath))
+                    Directory.CreateDirectory(dbPath);
+
+                string dbFile = Path.Combine(dbPath, sfDatabase);
+                sfConnectionString = String.Format(_defaultConnection, dbFile);
+            }
+
+            return sfConnectionString.ToConnection();
         }
     }
 }

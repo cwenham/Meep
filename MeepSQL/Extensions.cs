@@ -39,6 +39,46 @@ namespace MeepSQL
         }
 
         /// <summary>
+        /// Get Message's preferred table name
+        /// </summary>
+        /// <returns>The name.</returns>
+        /// <param name="msg">Message.</param>
+        /// <remarks>Used when the name isn't specified any other way, such as
+        /// in the Table attribute of ASqlModule.</remarks>
+        public static string TableName(this Message msg)
+        {
+            TableAttribute tableAttrib = msg.GetType().GetCustomAttributes(typeof(TableAttribute), true).FirstOrDefault() as TableAttribute;
+            if (!(tableAttrib is null))
+                return tableAttrib.Name;
+
+            return msg.GetType().Name;
+        }
+
+        /// <summary>
+        /// Fetch maximum byte/character length either set by the MaxLength 
+        /// attribute or appropriate for the type
+        /// </summary>
+        /// <returns>The length.</returns>
+        /// <param name="type">Type.</param>
+        /// <remarks>Intended to be used with SQL scalar types with user 
+        /// definable sizes, eg: varchar(n)</remarks>
+        public static int TypeLength(this Type type)
+        {
+            MaxLengthAttribute lengthAttrib = type.GetCustomAttributes(typeof(MaxLengthAttribute), true)
+                                                  .FirstOrDefault() as MaxLengthAttribute;
+            if (lengthAttrib != null)
+                return lengthAttrib.Length;
+
+            if (type == typeof(string))
+                return 256;     // Any larger and it's better to use "text"
+
+            if (type == typeof(decimal))
+                return 18;      // Default decimal precision of most databases
+
+            return 1;
+        }
+
+        /// <summary>
         /// Convert a message to a table definition
         /// </summary>
         /// <returns>The table def.</returns>
@@ -46,29 +86,48 @@ namespace MeepSQL
         /// <param name="tableName">Table name.</param>
         public static Config.Table ToTableDef(this Message msg, string tableName)
         {
-            var cols = from p in msg.GetType().GetProperties()
-                       // Ignore NotMapped properties
-                       let nm = p.GetCustomAttributes(typeof(NotMappedAttribute), true)
-                       where !nm.Any()
+            var cols = (from p in msg.GetType().GetProperties()
+                            // Ignore NotMapped properties
+                        let nm = p.GetCustomAttributes(typeof(NotMappedAttribute), true)
+                        where !nm.Any()
 
-                       let length = p.GetCustomAttributes(typeof(MaxLengthAttribute), true).Cast<MaxLengthAttribute>()
-                       let key = p.GetCustomAttributes(typeof(KeyAttribute), true).Cast<KeyAttribute>()
-                       let index = p.GetCustomAttributes(typeof(IndexAttribute), true).Cast<IndexAttribute>()
-                       let sType = p.PropertyType.ToSQLType()
+                        let length = p.PropertyType.TypeLength()
+                        let key = p.GetCustomAttributes(typeof(KeyAttribute), true).Cast<KeyAttribute>()
+                        let index = p.GetCustomAttributes(typeof(IndexAttribute), true).Cast<IndexAttribute>()
 
-                       select new Config.Column
-                       {
-                           Name = p.Name,
-                           Type = sType,
-                           Index = PickIndexType(key, index),
-                           Nullable = !p.PropertyType.IsValueType,
-                           From = $"{{{p.Name}}}"
-                       };
+                        select new Config.Column
+                        {
+                            Name = p.Name,
+                            Type = p.PropertyType.Name,
+                            Length = length,
+                            Index = PickIndexType(key, index),
+                            Nullable = !p.PropertyType.IsValueType,
+                            From = $"{{msg.{p.Name}}}"
+                        }).ToList();
+
+            var ownKey = (from p in msg.GetType().GetProperties()
+                              // Ignore NotMapped properties
+                          let nm = p.GetCustomAttributes(typeof(NotMappedAttribute), true)
+                          where !nm.Any()
+
+                          let key = p.GetCustomAttributes(typeof(KeyAttribute), false).Cast<KeyAttribute>()
+                          where key != null
+                          select new { p.Name, key }).ToList();
+
+            // Subclass primary keys override inherited keys
+            if (ownKey.Any())
+            {
+                foreach (var c in cols.Where(x => x.Index == Config.IndexType.PrimaryKey))
+                    c.Index = Config.IndexType.Unique;
+
+                cols.First(x => x.Name == ownKey.First().Name)
+                    .Index = Config.IndexType.PrimaryKey;
+            }
 
             return new Config.Table
             {
                 Name = tableName,
-                Columns = cols.ToList()
+                Columns = cols
             };
         }
 
@@ -135,10 +194,12 @@ namespace MeepSQL
             if (!String.IsNullOrWhiteSpace(column.SQL))
                 return column.SQL;
 
-            if (!SqlShortMap.ContainsKey(column.Type))
+            string findType = column.Type.ToLower();
+
+            if (!SqlShortMap.ContainsKey(findType))
                 throw new ArgumentException($"Unknown SQL type {column.Type}");
 
-            string type = Smart.Format(SqlShortMap[column.Type], column.Length.ToString());
+            string type = Smart.Format(SqlShortMap[findType], column.Length.ToString());
             string def = Smart.Format("{0} {1}", column.Name, type);
 
             if (!column.Nullable)
@@ -161,7 +222,7 @@ namespace MeepSQL
         public static DbCommand ToInsertCmd(this Config.Table table, DbConnection connection, string template = InsertTemplate)
         {
             DbCommand cmd = connection.CreateCommand();
-            cmd.CommandText = Smart.Format(InsertTemplate, table.Name,
+            cmd.CommandText = Smart.Format(template, table.Name,
                                           String.Join(',', table.Columns.Select(x => x.Name)),
                                           String.Join(',', table.Columns.Select(x => $"@{x.Name}")));
 
@@ -184,6 +245,11 @@ namespace MeepSQL
                 DbParameter param = cmd.CreateParameter();
                 param.ParameterName = $"@{c.Name}";
                 param.Value = Smart.Format(c.From, context);
+
+                // Convert datetimes to ISO 8601
+                if (c.Type.ToLower().Equals("datetime"))
+                    param.Value = DateTime.Parse((string)param.Value).ToString("yyyy-MM-dd HH:mm:ss");
+
                 cmd.Parameters.Add(param);
             }
 
@@ -255,7 +321,8 @@ namespace MeepSQL
             { typeof(short), "smallint" },
             { typeof(int), "int" },
             { typeof(long), "bigint" },
-            { typeof(decimal), "decimal" }
+            { typeof(decimal), "decimal" },
+            { typeof(Uri), "text" }
         };
 
         /// <summary>
@@ -273,6 +340,7 @@ namespace MeepSQL
             { "text", "varchar({0})" },
             { "string", "varchar({0})" },
             { "varchar", "varchar({0})" },
+            { "varchar({0})", "varchar({0})" },
             { "date", "datetime" },
             { "time", "datetime" },
             { "datetime", "datetime" },
@@ -296,7 +364,10 @@ namespace MeepSQL
             { "float", "real" },
             { "real", "real" },
             { "double", "real" },
-            { "blob", "blob" }
+            { "blob", "blob" },
+            { "bool", "bool" },
+            { "boolean", "bool" },
+            { "uri", "text" }
         };
     }
 }

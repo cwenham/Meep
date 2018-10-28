@@ -10,6 +10,7 @@ namespace MeepSQL.Config
     /// User-defined SQL
     /// </summary>
     /// <remarks>For the user that wants to override automatic SQL generation.</remarks>
+    [MeepNamespace(ASqlModule.PluginNamespace)]
     public class SQL: ANamable, IMeepDeserialisable
     {
         public string Content { get; set; }

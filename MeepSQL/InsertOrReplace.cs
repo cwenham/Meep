@@ -31,13 +31,26 @@ namespace MeepSQL
     [Macro(Name = "Store", DefaultProperty = "DBTable", Position = MacroPosition.Downstream)]
     public class InsertOrReplace : ASqlModule
     {
+        /// <summary>
+        /// Unpack Batch messages and insert each child message separately
+        /// </summary>
+        /// <value></value>
+        /// <remarks>Set to false if you're saving details about the batch
+        /// itself rather than its contents, such as statistical information.</remarks>
+        public bool Unbatch { get; set; } = true;
    
         public override async Task<Message> HandleMessage(Message msg)
         {
             // Handle a mix of message types by rebatching them into groups.
             // We'll only let the database and table vary by the type, not
             // individual messages.
-            var byType = msg.AsEnumerable().GroupBy(x => x.GetType());
+            IEnumerable<Message> messages = null;
+            if (Unbatch)
+                messages = msg.AsEnumerable();
+            else
+                messages = new List<Message> { msg };
+
+            var byType = messages.GroupBy(x => x.GetType());
 
             foreach (var group in byType)
             {
@@ -61,7 +74,7 @@ namespace MeepSQL
                 }
 
                 if (String.IsNullOrWhiteSpace(tableName))
-                    tableName = dbName;
+                    tableName = sample.TableName();
 
                 try
                 {
