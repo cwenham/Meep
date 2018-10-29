@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
@@ -38,7 +39,7 @@ namespace MeepSQL
         /// <remarks>Set to false if you're saving details about the batch
         /// itself rather than its contents, such as statistical information.</remarks>
         public bool Unbatch { get; set; } = true;
-   
+
         public override async Task<Message> HandleMessage(Message msg)
         {
             // Handle a mix of message types by rebatching them into groups.
@@ -76,6 +77,7 @@ namespace MeepSQL
                 if (String.IsNullOrWhiteSpace(tableName))
                     tableName = sample.TableName();
 
+                WriteMutex.WaitOne();
                 try
                 {
                     Config.Table table = ByName<Config.Table>(tableName);
@@ -90,34 +92,40 @@ namespace MeepSQL
                         bool tableExists = false;
                         foreach (DataRow t in tables.Rows)
                             if (t.ItemArray[2].ToString() == tableName)
-                        {
+                            {
                                 tableExists = true;
                                 break;
-                        }
+                            }
 
                         if (!tableExists)
                         {
                             var ctcmd = connection.CreateCommand();
-                            ctcmd.CommandText =  String.Format("BEGIN;\n{0}\nCOMMIT;", table.ToCreateTable());
+                            ctcmd.CommandText = String.Format("BEGIN;\n{0}\nCOMMIT;", table.ToCreateTable());
                             ctcmd.ExecuteScalar();
                         }
 
-                        DbCommand cmd = table.ToInsertCmd(connection, Extensions.InsertOrReplaceTemplate);
-                        foreach (var m in group)
-                        {
-                            MessageContext mContext = new MessageContext(sample, this);
-                            cmd = cmd.SetParameters(table, mContext);
-                            await cmd.ExecuteNonQueryAsync();
-                        }
+                        using (DbCommand cmd = table.ToInsertCmd(connection, Extensions.InsertOrReplaceTemplate))
+                            foreach (var m in group)
+                            {
+                                MessageContext mContext = new MessageContext(sample, this);
+                                cmd.SetParameters(table, mContext);
+                                await cmd.ExecuteNonQueryAsync();
+                            }
                     }
                 }
                 catch (Exception ex)
                 {
                     logger.Error(ex, "Error saving to DB");
                 }
+                finally
+                {
+                    WriteMutex.ReleaseMutex();
+                }
             }
 
             return msg;
         }
+
+        private static Mutex WriteMutex = new Mutex();
     }
 }

@@ -20,9 +20,21 @@ namespace MeepSQL
     /// <summary>
     /// Select rows from database, returning a batch message
     /// </summary>
+    /// <remarks>Use the individual clause attributes to specify the columns,
+    /// table, where clause, etc., or a &lt;SQL&gt; block for the whole query.
+    /// 
+    /// <para>The main reason for separating the clauses of the query is to 
+    /// make it easier to read and arrange in XML, especially when using 
+    /// Smart.Format templates. Otherwise, just use &lt;SQL&gt;.</para></remarks>
     [MeepNamespace(ASqlModule.PluginNamespace)]
     public class Select : ASqlModule
     {
+        /// <summary>
+        /// Limit the number of results, if Order is specified
+        /// </summary>
+        /// <value></value>
+        public int Top { get; set; }
+
         /// <summary>
         /// Specific columns to select
         /// </summary>
@@ -34,13 +46,19 @@ namespace MeepSQL
         /// Name of the table in {Smart.Format}
         /// </summary>
         /// <value>From.</value>
-        public string From { get; set; }
+        public string From { get; set; } = "";
 
         /// <summary>
         /// Where clause in {Smart.Format}
         /// </summary>
         /// <value>The where.</value>
-        public string Where { get; set; }
+        public string Where { get; set; } = "";
+
+        /// <summary>
+        /// Order By clause
+        /// </summary>
+        /// <value>The order.</value>
+        public string Order { get; set; } = "";
 
         /// <summary>
         /// Which named query to use, if any are defined
@@ -66,6 +84,9 @@ namespace MeepSQL
             MessageContext context = new MessageContext(msg, this);
 
             string sfTable = Smart.Format(Table, context);
+            string sfColumn = Smart.Format(Columns, context);
+            string sfWhere = Smart.Format(Where, context);
+            string sfOrder = Smart.Format(Order, context);
             string sfQueryName = Smart.Format(Query, context);
             string sfSql = null;
 
@@ -75,10 +96,12 @@ namespace MeepSQL
                 if (namedQuery != null)
                     sfSql = Smart.Format(namedQuery.Content, context);
                 else
-                    sfSql = Smart.Format("SELECT {0} FROM {1} WHERE {2}",
-                                         Smart.Format(Columns, context),
+                    sfSql = Smart.Format("SELECT {0} FROM {1} WHERE {2} {3} {4}",
+                                         sfColumn,
                                          sfTable,
-                                         Smart.Format(Where, context)
+                                         sfWhere,
+                                         !String.IsNullOrWhiteSpace(sfOrder) ? $"ORDER BY {sfOrder}" : "",
+                                         Top > 0 ? $"LIMIT {Top}" : ""
                                         );
 
                 using (DbConnection connection = NewConnection(context))
