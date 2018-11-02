@@ -19,12 +19,25 @@ namespace MeepLib.Algorithms
     [DataContract]
     public class ClassIndex : Message
     {
+        [MaxLength(64), Key]
+        public string ClassName
+        {
+            get
+            {
+                return Name;
+            }
+            set
+            {
+                Name = value;
+            }
+        }
+
         /// <summary>
         /// Last time this index was used
         /// </summary>
         /// <value>The last used.</value>
         /// <remarks>For expiring caches</remarks>
-        [XmlIgnore, JsonIgnore, NotMapped]
+        [Index(IsUnique = false)]
         public DateTime LastUsed { get; private set; } = DateTime.UtcNow;
 
         /// <summary>
@@ -32,7 +45,18 @@ namespace MeepLib.Algorithms
         /// </summary>
         /// <value>The document count.</value>
         [DataMember, Index(IsUnique = false)]
-        public int DocumentCount = 0;
+        public int DocumentCount 
+        {
+            get
+            {
+                return _documentCount;
+            }
+            set
+            {
+                _documentCount = value;
+            }
+        }
+        private int _documentCount = 0;
 
         /// <summary>
         /// Token counts
@@ -45,7 +69,7 @@ namespace MeepLib.Algorithms
         /// Serialise/Deserialise Tokens to URL encoded string
         /// </summary>
         /// <value>The tokens string.</value>
-        [DataMember, XmlElement(ElementName = "Tokens"), JsonProperty(PropertyName = "Tokens"), Column("Tokens")]
+        [DataMember, XmlElement(ElementName = "Tokens"), JsonProperty(PropertyName = "Tokens"), MaxLength(1024 * 1024), Column("Tokens")]
         public string TokensString
         {
             get 
@@ -70,7 +94,7 @@ namespace MeepLib.Algorithms
         public void IncDocumentCount()
         {
             LastUsed = DateTime.UtcNow;
-            System.Threading.Interlocked.Increment(ref DocumentCount);
+            System.Threading.Interlocked.Increment(ref _documentCount);
         }
 
         /// <summary>

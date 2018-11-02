@@ -32,7 +32,7 @@ namespace MeepLib.Filters
                 string bclass = Smart.Format(Class, context);
 
                 if (!Bayes.Classes.ContainsKey(bclass))
-                    Bayes.Classes.Add(bclass, new ClassIndex());
+                    Bayes.Classes.Add(bclass, new ClassIndex { Name = bclass });
                 var cindex = Bayes.Classes[bclass];
                 cindex.IncDocumentCount();
 
