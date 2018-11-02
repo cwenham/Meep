@@ -107,9 +107,12 @@ namespace MeepSQL
                         using (DbCommand cmd = table.ToInsertCmd(connection, Extensions.InsertOrReplaceTemplate))
                             foreach (var m in group)
                             {
-                                MessageContext mContext = new MessageContext(sample, this);
+                                cmd.Parameters.Clear();
+                                MessageContext mContext = new MessageContext(m, this);
                                 cmd.SetParameters(table, mContext);
-                                await cmd.ExecuteNonQueryAsync();
+                                int written = await cmd.ExecuteNonQueryAsync();
+                                if (written == 0)
+                                    logger.Warn("Failed to insert to {0}", dbName);
                             }
                     }
                 }
