@@ -13,8 +13,6 @@ using MeepLib;
 using MeepLib.MeepLang;
 using MeepLib.Messages;
 
-using MeepSQL.Messages;
-
 namespace MeepSQL
 {
     /// <summary>
@@ -122,7 +120,7 @@ namespace MeepSQL
                             DerivedFrom = msg,
                             Name = this.Name,
                             Messages = (from IDataRecord r in result
-                                        select new DataRecordMessage
+                                        select new RecordMessage
                                         {
                                             DerivedFrom = msg,
                                             Name = this.Name,

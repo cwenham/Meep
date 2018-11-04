@@ -38,4 +38,7 @@
     <Folder Include="Config\" />
     <Folder Include="Messages\" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Messages\DataRecordMessage.cs" />
+  </ItemGroup>
 </Project>
