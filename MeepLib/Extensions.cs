@@ -133,6 +133,10 @@ namespace MeepLib
         /// </summary>
         /// <returns></returns>
         /// <param name="data">Data.</param>
+        /// <remarks>Intended for bridging pipelines across IPC or networks
+        /// where we don't want to burden the user to write explicit syntax
+        /// that it's going to carry Meep Messages, we just want Meep to listen
+        /// and go "oh okay, it's a Message".</remarks>
         public static Message DeserialiseOrBust(this string data)
         {
             Contract.Ensures(Contract.Result<Message>() != null);
