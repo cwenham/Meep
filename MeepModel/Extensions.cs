@@ -126,5 +126,43 @@ namespace MeepLib.Messages
             foreach (var token in Regex.Replace(text, "\\p{P}+", "").Split(' '))
                 yield return token.ToLowerInvariant();
         }
+
+        /// <summary>
+        /// Attempt to parse a string value to a more specific type
+        /// </summary>
+        /// <returns>The best type.</returns>
+        /// <param name="value">Value.</param>
+        /// <remarks>For when it would be nice to have a proper type such as
+        /// DateTime instead of a serialised datetime, etc. This is for
+        /// circumstances where we don't want to burden the user with writing
+        /// syntax that explicitly maps a type to column or other source of
+        /// values.
+        /// 
+        /// <para>For better performance on tables, use this to identify
+        /// the likely type for each column by testing a sample row, then
+        /// use TypeConverter.</para>
+        /// </remarks>
+        public static object ToBestType(this string value)
+        {
+            if (int.TryParse(value, out var i))
+                return i;
+
+            if (long.TryParse(value, out long l))
+                return l;
+
+            if (Decimal.TryParse(value, out var dec))
+                return dec;
+
+            if (Double.TryParse(value, out var db))
+                return db;
+
+            if (TimeSpan.TryParse(value, out var ts))
+                return ts;
+
+            if (DateTime.TryParse(value, out var dt))
+                return dt;
+                                
+            return value;
+        }
     }
 }
