@@ -38,8 +38,6 @@ namespace MeepLib.Filters
             return catBag.Contains(messageID);
         }
 
-        // ToDo: serialise this to AHostProxy.Cache, which will take care of
-        // persisting it.
         private static ConcurrentDictionary<string, ConcurrentBag<Guid>> _categories = new ConcurrentDictionary<string, ConcurrentBag<Guid>>();
     }
 }

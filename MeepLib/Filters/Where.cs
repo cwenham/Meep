@@ -16,19 +16,34 @@ namespace MeepLib.Filters
     [Macro(DefaultProperty = "Expr", Name = "Where", Position = MacroPosition.Upstream)]
     public class Where : AFilter
     {
-        public bool Compile { get; set; } = false;
-
         /// <summary>
-        /// Expression in [NCalc] format
+        /// Boolean expression in {Smart.Format} and NCalc format
         /// </summary>
         /// <value>The expr.</value>
+        /// <remarks>The expression should be supported by NCalc, but can contain
+        /// Smart.Format placeholders because they'll be converted into NCalc
+        /// parameters and passed in separately. E.G.:
+        /// 
+        /// <code>{msg.Number} > 256</code>
+        /// 
+        /// <para>Or:</para>
+        /// 
+        /// <code>{msg.FirstName} = 'Sally'</code>
+        /// 
+        /// </remarks>
         public string Expr { get; set; }
 
         /// <summary>
         /// Compiled version of the expression
         /// </summary>
-        /// <value>The lambda.</value>
+        /// <value></value>
+        /// <remarks>Unused for now. Need to develop a good way of getting
+        /// {Smart.Formatted} parameters passed in properly.</remarks>
         private Func<Message, bool> _lambda { get; set; }
+
+        private Expression expression = null;
+
+        private string[] parameterised = null;
 
         public override async Task<Message> HandleMessage(Message msg)
         {
@@ -36,29 +51,22 @@ namespace MeepLib.Filters
             {
                 try
                 {
-                    if (_lambda == null && Compile)
+                    if (parameterised == null)
                     {
-                        var expression = new Expression(Expr);
-                        _lambda = expression.ToLambda<Message, bool>();
+                        parameterised = Expr.ToSmartParameterised("[arg{0}]");
+                        expression = new Expression(parameterised[0]);
+                        // _lambda = expression.ToLambda<Message, Boolean>();
                     }
 
-                    if (_lambda != null)
-                    {
-                        if (_lambda(msg))
-                            return ThisPassedTheTest(msg);
-                    }
+                    MessageContext context = new MessageContext(msg, this);
+                    expression.Parameters.Clear();
+                    for (int i = 1; i <= parameterised.Length - 1; i++)
+                        expression.Parameters.Add($"arg{i}", Smart.Format(parameterised[i], context).ToBestType());
+
+                    if ((bool)expression.Evaluate())
+                        return ThisPassedTheTest(msg);
                     else
-                    {
-                        MessageContext context = new MessageContext(msg, this);
-                        string sfExpr = Smart.Format(Expr, context);
-                        var expression = new Expression(sfExpr);
-                        expression.Parameters.Add("msg", msg);
-                        expression.Parameters.Add("mdl", this);
-                        if ((bool)expression.Evaluate())
-                            return ThisPassedTheTest(msg);
-                    }
-
-                    return ThisFailedTheTest(msg);
+                        return ThisFailedTheTest(msg);
                 }
                 catch (Exception ex)
                 {

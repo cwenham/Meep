@@ -13,16 +13,23 @@ namespace MeepLib.Flow
     /// Break a Batch message out into individual messages
     /// </summary>
     /// <remarks>Often book-ended with the Batch module to pass on to modules
-    /// that don't know how to work with batches.</remarks>
+    /// that don't know how to work with batches.
+    /// 
+    /// <para>This can also be used to break-out the DerivedFrom hierarchy by 
+    /// setting Family="True".</para>
+    /// </remarks>
     public class Unbatch : AMessageModule
     {
         /// <summary>
-        /// Un-batch the DerivedFrom chain if the incoming message isn't a formal Batch
+        /// Treat the family of "DerivedFrom" messages as the batch
         /// </summary>
         /// <value></value>
-        /// <remarks>If true, we'll walk the DerivedFrom chain and emit them as 
-        /// separate messages again if we're not given a message of type Batch. 
-        /// Defaults to false.</remarks>
+        /// <remarks>Usually, a batch is the Message type Batch or one of its
+        /// subclasses, which is a collection of messages in an enumerable of 
+        /// some sort. But another kind of batch is the ancestory or family of 
+        /// messages that are linked together by the DerivedFrom field. Set
+        /// this to True to treat a message and its ancestors as the batch,
+        /// instead.</remarks>
         public bool Family { get; set; } = false;
 
         public override IObservable<MM.Message> Pipeline

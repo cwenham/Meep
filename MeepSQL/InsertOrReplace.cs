@@ -32,14 +32,6 @@ namespace MeepSQL
     [Macro(Name = "Store", DefaultProperty = "DBTable", Position = MacroPosition.Downstream)]
     public class InsertOrReplace : ASqlModule
     {
-        /// <summary>
-        /// Unpack Batch messages and insert each child message separately
-        /// </summary>
-        /// <value></value>
-        /// <remarks>Set to false if you're saving details about the batch
-        /// itself rather than its contents, such as statistical information.</remarks>
-        public bool Unbatch { get; set; } = true;
-
         public override async Task<Message> HandleMessage(Message msg)
         {
             // Handle a mix of message types by rebatching them into groups.
@@ -128,7 +120,5 @@ namespace MeepSQL
 
             return msg;
         }
-
-        private static Mutex WriteMutex = new Mutex();
     }
 }

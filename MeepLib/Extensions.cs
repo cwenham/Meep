@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.IO;
 
 using SmartFormat;
+using SmartFormat.Core.Parsing;
 using Newtonsoft.Json;
 
 using MeepLib.Config;
@@ -154,6 +155,58 @@ namespace MeepLib
                 }
 
             return new StringMessage(null, data);
+        }
+
+        /// <summary>
+        /// Convert a {Smart.Format} template to a @Parameterised template and
+        /// arguments
+        /// </summary>
+        /// <returns>Parameterised template followed by Smart.Format placeholders.</returns>
+        /// <param name="template">Template.</param>
+        /// <param name="argName">Function for returning the name of each argument, given the placeholder string.</param>
+        /// <remarks>For SQL queries and NCalc expressions that use their own
+        /// parameter syntax, but a template in {Smart.Format} is desired instead.
+        /// 
+        /// <para>E.G.: "UPDATE foo SET bar = {msg.bar} WHERE baz = {msg.baz}"
+        /// is the input template, this function will convert it to:</para>
+        /// 
+        /// <code>UPDATE foo SET bar = @arg1 WHERE baz = @arg2</code>
+        /// 
+        /// <para>Followed by a collection of strings that consist of "{msg.bar}"
+        /// and "{msg.baz}" that can be Smart.Formatted separately and passed
+        /// as SQL or NCalc command parameters.</para> 
+        /// </remarks>
+        public static string[] ToSmartParameterised(this string template, Func<string,string> argName)
+        {
+            var format = Smart.Default.Parser.ParseFormat(template, null);
+            var pieces = (from f in format.Items
+                          let isPlaceholder = f is Placeholder
+                          select new
+                          {
+                              isPlaceholder,
+                              Raw = f.RawText,
+                              Text = isPlaceholder
+                                     ? argName(f.RawText)
+                                     : f.RawText
+                          }).ToList();
+
+            var placeHolders = pieces.Where(x => x.isPlaceholder)
+                                     .Select(y => y.Raw)
+                                     .ToArray();
+
+            string[] results = new string[placeHolders.Length + 1];
+            results[0] = String.Join("", pieces.Select(x => x.Text).ToArray());
+            placeHolders.CopyTo(results, 1);
+
+            return results;
+        }
+
+        public static string[] ToSmartParameterised(this string template, string argPrefix = "@arg{0}")
+        {
+            int argCounter = 1;
+            Func<string,string> nextArgName = (x) => String.Format(argPrefix, argCounter++);
+
+            return ToSmartParameterised(template, nextArgName);
         }
     }
 }

@@ -96,18 +96,17 @@ namespace MeepLib.Modifiers
                     {
                         DerivedFrom = msg,
                         Name = this.Name,
-                        Messages = from line in lines
-                                   where line.Length == columns.Length
-                                   select new RecordMessage
-                                   {
-                                       DerivedFrom = msg,
-                                       Record = (from i in Enumerable.Range(0, line.Length)
-                                                 select new
-                                                 {
-                                                     k = columns[i],
-                                                     v = converters[i].ConvertFromString(line[i])
-                                                 }).ToDictionary(x => x.k, y => y.v)
-                                   }
+                        Messages = (from line in lines
+                                    select new RecordMessage
+                                    {
+                                        DerivedFrom = msg,
+                                        Record = (from i in Enumerable.Range(0, Math.Min(columns.Length, line.Length))
+                                                  select new
+                                                  {
+                                                      k = columns[i],
+                                                      v = converters[i].ConvertFromString(line[i])
+                                                  }).ToDictionary(x => x.k, y => y.v)
+                                    }).ToList()
                     };
                 }
                 catch (Exception ex)

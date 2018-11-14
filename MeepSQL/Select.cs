@@ -88,6 +88,10 @@ namespace MeepSQL
             string sfQueryName = Smart.Format(Query, context);
             string sfSql = null;
 
+            // Empty Where
+            if (String.IsNullOrWhiteSpace(sfWhere))
+                sfWhere = "1 = 1";
+
             try
             {
                 var namedQuery = Queries?.Where(x => x.Name.Equals(sfQueryName)).FirstOrDefault();

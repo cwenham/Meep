@@ -3,7 +3,8 @@
 (Short for Message Pipeline) 
 
 Use XML to create realtime message processing pipelines that receive, filter, 
-modify, act upon, and output discrete messages.
+modify, act upon, and output discrete messages. **Meep is System.Reactive + XML
++ Plugins**.
 
 E.G.: Every 10 seconds ping a host, then--in batches of 5 at a time--store the
 responses in a table called "Pings" in a database called "Example".
@@ -15,8 +16,8 @@ responses in a table called "Pings" in a database called "Example".
     </Batch>
     
 If you don't bother to specify the database, Meep will default to creating a 
-SQLite database and a table based on the output of &lt;Ping&gt;, which is already
-marked up to use appropriate SQL data types, indexes and keys.
+SQLite database and a table based on the output of &lt;Ping&gt;, which is 
+already marked up to use appropriate SQL data types, indexes and keys.
 
 ## Command-Line, .Net-Standard Library, And Plugins
 
@@ -232,7 +233,7 @@ Get, or Load the file that changed, and so-on.
 ### Built-In Filters
 
    * **Bayes** categorisation and training, with a native implementation
-   * **Bloom**
+   * **Bloom** for managing cache hits
    * **Where** using [NCalc](https://github.com/sklose/NCalc2) expressions
    * **Pattern** using regular expressions (regex)
    
@@ -248,7 +249,7 @@ inspect downstream in {Smart.Format} expressions.
    * **Recombine** genomes defined in XML, for making basic genetic algorithms
    * **Save** to file
    * **Unzip** files
-   * **WriteLine* to console 
+   * **WriteLine** to console 
            
 ## Meep's Bundled Plugins
             
@@ -259,9 +260,9 @@ MeepGit and MeepSQL.
 
 MeepGit supports Git operations like Clone, Pull, Fetch, and Checkout. In
 addition to exposing these functions as modules you can use, Meep uses them
-itself so it can load pipelines from any repository. It combines Pull with a
-Timer, so if you've distributed the work of a resource-intensive pipeline across 
-many machines it's easy to update them all with a single Push.
+itself so it can load pipelines from any repository. If you've distributed the 
+work of a resource-intensive pipeline across many machines it's easy to update 
+them all with a single Push.
 
 MeepSQL connects to databases and does what it says on the tin: all CRUD
 operations, arbitrary SQL queries, plus some convenience functions. You can use 

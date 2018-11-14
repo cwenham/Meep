@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 using SmartFormat;
 using NLog;
@@ -24,7 +25,7 @@ namespace MeepSQL
         /// </summary>
         /// <value>The connection.</value>
         /// <remarks>Defaults to SQLite</remarks>
-        public string Connection { get; set; }
+        public string Connection { get; set; } = "";
 
         protected static string _defaultConnection = "Data Source={0}.sqlite";
 
@@ -33,7 +34,7 @@ namespace MeepSQL
         /// </summary>
         /// <value>The database.</value>
         /// Use instead of a connection string to default to SQLite
-        public string Database { get; set; }
+        public string Database { get; set; } = "";
 
         /// <summary>
         /// Name of table in {Smart.Format} to insert|update
@@ -60,6 +61,16 @@ namespace MeepSQL
                 Table = parts[1];
             }
         }
+
+        /// <summary>
+        /// Unpack Batch messages and treat each child message separately
+        /// </summary>
+        /// <value></value>
+        /// <remarks>Set to false if you're saving details about the batch
+        /// itself rather than its contents, such as statistical information.</remarks>
+        public bool Unbatch { get; set; } = true;
+
+        protected static Mutex WriteMutex = new Mutex();
 
         protected DbConnection NewConnection(MessageContext context)
         {

@@ -29,5 +29,18 @@ namespace MeepLibTests
 
             Assert.Equal("Tarquin Fintin Limbim", formatted1);
         }
+
+        [Fact]
+        public void ParameterisedQuery()
+        {
+            string template = "UPDATE foo SET bar = {msg.bar}, baz = {msg.child.baz} WHERE fnord = {msg.record.fnord}";
+
+            string[] parameterised = template.ToSmartParameterised();
+            Assert.Equal("UPDATE foo SET bar = @arg1, baz = @arg2 WHERE fnord = @arg3", parameterised[0]);
+            Assert.Equal("{msg.bar}", parameterised[1]);
+            Assert.Equal("{msg.child.baz}", parameterised[2]);
+            Assert.Equal("{msg.record.fnord}", parameterised[3]);
+            Assert.Equal(4, parameterised.Length);
+        }
     }
 }

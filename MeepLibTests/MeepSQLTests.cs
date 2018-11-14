@@ -16,7 +16,7 @@ namespace MeepLibTests
             {
             };
 
-            string create1 = msg.ToCreateTable("Messages");
+            string create1 = msg.ToTableDef("Messages").ToCreateTable();
 
             Assert.Equal(CreateTableSQL1, create1);
         }
