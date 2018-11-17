@@ -95,7 +95,7 @@ namespace MeepLib.Messages
 
         public static void ToBSONStream(this object obj, Stream output)
         {
-            using (BsonWriter writer = new BsonWriter(output))
+            using (BsonDataWriter writer = new BsonDataWriter(output))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Serialize(writer, obj);
