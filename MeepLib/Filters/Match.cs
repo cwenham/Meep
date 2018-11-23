@@ -13,7 +13,7 @@ namespace MeepLib.Filters
     /// <summary>
     /// Match on a Regular Expression
     /// </summary>
-    [Macro(DefaultProperty = "Expr", Name = "Pattern", Position = MacroPosition.Upstream)]
+    [Macro(DefaultProperty = "Expr", Name = "Match", Position = MacroPosition.Upstream)]
     public class Match : AFilter
     {
         /// <summary>
