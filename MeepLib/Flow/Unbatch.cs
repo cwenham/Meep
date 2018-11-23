@@ -18,6 +18,7 @@ namespace MeepLib.Flow
     /// <para>This can also be used to break-out the DerivedFrom hierarchy by 
     /// setting Family="True".</para>
     /// </remarks>
+    [Macro(Name = "Unbatch", DefaultProperty = "Mode", Position = MacroPosition.Upstream)]
     public class Unbatch : AMessageModule
     {
         /// <summary>
@@ -31,6 +32,38 @@ namespace MeepLib.Flow
         /// this to True to treat a message and its ancestors as the batch,
         /// instead.</remarks>
         public bool Family { get; set; } = false;
+
+        /// <summary>
+        /// Mode of unbatching, alternative to "Family"
+        /// </summary>
+        /// <value>"Family" or "Children"</value>
+        /// <remarks>Makes it more intuitive to read when used as a macro, eg:
+        /// Unbatch="Family" or Unbatch="Children".</remarks>
+        public string Mode
+        {
+            get 
+            {
+                if (Family)
+                    return "Family";
+                else
+                    return "Children";
+            }
+            set
+            {
+                switch (value.ToLower())
+                {
+                    case "family":
+                        Family = true;
+                        break;
+                    case "children":
+                        Family = false;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
 
         public override IObservable<MM.Message> Pipeline
         {
