@@ -102,7 +102,8 @@ namespace MeepLib
         /// <param name="msg">Message.</param>
         protected Message Christen(Message msg)
         {
-            msg.Name = this.Name;
+            if (String.IsNullOrWhiteSpace(msg.Name))
+                msg.Name = this.Name;
             return msg;
         }
 

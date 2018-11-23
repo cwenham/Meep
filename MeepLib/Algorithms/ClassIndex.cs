@@ -20,15 +20,15 @@ namespace MeepLib.Algorithms
     public class ClassIndex : Message
     {
         [MaxLength(64), Key]
-        public string ClassName
+        public override string Name
         {
             get
             {
-                return Name;
+                return base.Name;
             }
             set
             {
-                Name = value;
+                base.Name = value;
             }
         }
 

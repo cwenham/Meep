@@ -47,15 +47,11 @@ namespace MeepLib.Filters
             string sfFrom = Smart.Format(From, context);
 
             if (!String.IsNullOrWhiteSpace(sfFrom))
-                if (Bayes.Classes.ContainsKey(sfFrom))
-                    return Bayes.Classes[sfFrom];
-                else
-                    return null;
+                return Bayes.GetClass(sfFrom);
 
-            var allClasses = from k in Bayes.Classes.Keys
+            var allClasses = from k in Bayes.ClassNames
                              where !String.IsNullOrWhiteSpace(k)
-                                && !String.IsNullOrWhiteSpace(Bayes.Classes[k].Name)
-                             select Bayes.Classes[k];
+                             select Bayes.GetClass(k);
 
             return new Batch
             {
@@ -72,8 +68,8 @@ namespace MeepLib.Filters
             if (record is null)
                 return null;
 
-            if (!record.Record.ContainsKey("ClassName"))
-                return null;               
+            if (!record.Record.ContainsKey("Name"))
+                return null;
 
             if (!record.Record.ContainsKey("DocumentCount"))
                 return null;
@@ -86,12 +82,12 @@ namespace MeepLib.Filters
             {
                 ClassIndex newClass = new ClassIndex
                 {
-                    Name = record.Record["ClassName"] as string,
+                    Name = record.Record["Name"] as string,
                     DocumentCount = (int)record.Record["DocumentCount"],
                     TokensString = record.Record["TokensString"] as string
                 };
 
-                Bayes.Classes.Add(newClass.Name, newClass);
+                Bayes.AddClass(newClass);
 
                 return newClass;
             }

@@ -30,7 +30,7 @@ namespace MeepLib.Messages
         /// </summary>
         /// <value>The name.</value>
         [DataMember, NotMapped]
-        public string Name
+        public virtual string Name
         {
             get 
             {

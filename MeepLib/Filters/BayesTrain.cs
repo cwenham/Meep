@@ -31,9 +31,13 @@ namespace MeepLib.Filters
                 MessageContext context = new MessageContext(msg, this);
                 string bclass = Smart.Format(Class, context);
 
-                if (!Bayes.Classes.ContainsKey(bclass))
-                    Bayes.Classes.Add(bclass, new ClassIndex { Name = bclass });
-                var cindex = Bayes.Classes[bclass];
+                ClassIndex cindex = Bayes.GetClass(bclass);
+                if (cindex == null)
+                {
+                    cindex = new ClassIndex { Name = bclass };
+                    Bayes.AddClass(cindex);
+                }
+
                 cindex.IncDocumentCount();
 
                 foreach (string token in tmsg.Tokens)

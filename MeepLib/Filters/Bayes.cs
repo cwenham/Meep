@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 using SmartFormat;
@@ -46,48 +47,84 @@ namespace MeepLib.Filters
                 MessageContext context = new MessageContext(msg, this);
                 string sfClass = Class != null ? Smart.Format(Class, context) : null;
 
-                string[] classes = null;
+                string[] peerNames = null;
                 if (!String.IsNullOrWhiteSpace(sfClass))
-                    classes = sfClass.Split(',');
+                    peerNames = sfClass.Split(',');
 
-                if (classes is null || classes.Length == 0)
-                    classes = Classes.Keys.ToArray();
+                if (peerNames is null || peerNames.Length == 0)
+                    peerNames = Classes.Keys.ToArray();
 
-                if (!(classes is null))
-                    foreach (var c in classes)
-                        if (Classes.ContainsKey(c) && Classes[c].DocumentCount >= MinTraining)
-                        {
-                            var bindex = Classes[c];
+                var peers = (from k in peerNames
+                             where Classes.ContainsKey(k)
+                             select Classes[k]).ToArray();
 
-                            var msgTokens = bmsg.Tokens.ToList();
+                if (!(peers is null))
+                    foreach (var peer in peers)
+                    {
+                        var msgTokens = bmsg.Tokens.ToList();
 
-                            double likely = Prediction(msgTokens, bindex);
+                        double likely = Prediction(msgTokens, peer, peers);
 
-                            if (likely > 0.5)
-                                Categories.AddToCategory(c, msg.ID);
-                        }
+                        if (likely > 0.5)
+                            Categories.AddToCategory(peer.Name, msg.ID);
+                    }
 
                 return msg;
             });
         }
 
-        public static double Prediction(IEnumerable<string> tokens, string @class)
+        public static double Prediction(IEnumerable<string> tokens, string @class, IEnumerable<ClassIndex> peers)
         {
             if (Classes.ContainsKey(@class))
-                return Prediction(tokens, Classes[@class]);
+                return Prediction(tokens, Classes[@class], peers);
             return 0;
         }
 
-        public static double Prediction(IEnumerable<string> tokens, ClassIndex index)
+        public static double Prediction(IEnumerable<string> tokens, ClassIndex index, IEnumerable<ClassIndex> peers)
         {
-            var tokenPosteriori = from t in tokens
-                                  let classOccurences = index.TokenCount(t)
-                                  where classOccurences > 0
-                                  select (double)classOccurences / index.DocumentCount;
+            double allDocsCount = (double)peers.Select(x => x.DocumentCount).Sum();
+            double allUniqueTokens = (double)peers.Select(x => x.Tokens.Count()).Sum();
+            double allWordsInClass = (double)index.Tokens.Values.Sum();
 
-            return tokenPosteriori.Aggregate(1.0, (current, item) => current * item);
+            var classProbability = Math.Log((double)index.DocumentCount / allDocsCount);
+            var score = classProbability + tokens.Sum(x => Math.Log(((double)index.TokenCount(x) + 1) / (allUniqueTokens + allWordsInClass)));
+
+            return Math.Pow(Math.E, score);
         }
 
-        internal static Dictionary<string, ClassIndex> Classes = new Dictionary<string, ClassIndex>();
+        /// <summary>
+        /// Adds a class to the static dictionary
+        /// </summary>
+        /// <param name="class">Class.</param>
+        public static void AddClass(ClassIndex @class)
+        {
+            Classes.TryAdd(@class.Name, @class);
+        }
+
+        /// <summary>
+        /// Fetch a class from the static dictionary
+        /// </summary>
+        /// <returns>The class.</returns>
+        /// <param name="name">Name.</param>
+        public static ClassIndex GetClass(string name)
+        {
+            if (Classes.TryGetValue(name, out var @class))
+                return @class;
+            else
+                return null;
+        }
+
+        public static string[] ClassNames 
+        {
+            get 
+            {
+                return Classes.Keys.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Static dictionary of Bayesian classes, used systemwide
+        /// </summary>
+        private static ConcurrentDictionary<string, ClassIndex> Classes = new ConcurrentDictionary<string, ClassIndex>();
     }
 }

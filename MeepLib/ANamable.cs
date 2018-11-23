@@ -25,7 +25,7 @@ namespace MeepLib
         /// <value>The name.</value>
         /// <remarks>This should be unique if it's to be addressed elsewhere in 
         /// the pipeline, such as with the Tap module.</remarks>
-        public string Name
+        public virtual string Name
         {
             get
             {
@@ -37,15 +37,13 @@ namespace MeepLib
 
             set
             {
+                _Name = value;
+
                 // Maintain the directory of named modules.
                 // This is used by modules that address other modules, such
                 // as Tap.
-                if (Phonebook.ContainsKey(value))
-                    Phonebook.Remove(value);
-
-                _Name = value;
-
-                Phonebook.Add(_Name, this);
+                if (!Phonebook.ContainsKey(_Name))
+                    Phonebook.Add(_Name, this);
             }
         }
         private string _Name;
