@@ -11,7 +11,6 @@ using System.Xml.Serialization;
 using NLog;
 using Mono.Options;
 using Newtonsoft.Json;
-using StackExchange.Redis;
 
 using MeepLib;
 using MeepLib.MeepLang;
@@ -36,7 +35,6 @@ namespace Meep
             bool shouldShowHelp = false;
             string gitRepo = null;
             string pipelineFile = Path.Combine(Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]), "Pipelines", "MasterPipeline.meep");
-            string redisHost = "localhost";
             TimeSpan recheck = TimeSpan.FromMinutes(30);
 
             var options = new OptionSet
@@ -47,7 +45,6 @@ namespace Meep
                 { "q|quiet", "No gutter serialisation", g => GutterSerialisation = GutterSerialisation.None },
                 { "x|xml", "Gutter serialisation in XML", g => GutterSerialisation = GutterSerialisation.XML },
                 { "b|bson", "Gutter serialisation in BSON", b => GutterSerialisation = GutterSerialisation.BSON },
-                { "r|redis=", "Redis server hostname[:port]", r => redisHost = r },
                 { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
             };
 
@@ -68,16 +65,7 @@ namespace Meep
 
             LoadBasePlugins();
 
-            IConnectionMultiplexer multiplexer = null;
-            try
-            {
-                multiplexer = ConnectionMultiplexer.Connect(redisHost);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("{0} thrown connecting to Redis. Continuing without. ({1})", ex.GetType().Name, ex.Message);
-            }
-            var proxy = new HostProxy(multiplexer);
+            var proxy = new HostProxy();
 
             if (String.IsNullOrWhiteSpace(gitRepo))
                 Bootstrapper = new Bootstrapper(pipelineFile);

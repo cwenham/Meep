@@ -41,12 +41,6 @@ namespace MeepSQL
         public string Columns { get; set; } = "*";
 
         /// <summary>
-        /// Name of the table in {Smart.Format}
-        /// </summary>
-        /// <value>From.</value>
-        public string From { get; set; } = "";
-
-        /// <summary>
         /// Where clause in {Smart.Format}
         /// </summary>
         /// <value>The where.</value>

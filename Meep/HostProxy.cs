@@ -5,7 +5,6 @@ using System.Net;
 
 using MeepLib;
 using MeepSQL;
-using StackExchange.Redis;
 
 namespace Meep
 {
@@ -14,17 +13,10 @@ namespace Meep
     /// </summary>
     public class HostProxy : AHostProxy
     {
-        public HostProxy(IConnectionMultiplexer multiplexer)
+        public HostProxy()
         {
             Current = this;
-            Multiplexer = multiplexer;
         }
-
-        /// <summary>
-        /// Redis multiplexer
-        /// </summary>
-        /// <value>The multiplexer.</value>
-        private IConnectionMultiplexer Multiplexer { get; set; }
 
         public override string BaseDirectory
         {
@@ -33,23 +25,6 @@ namespace Meep
                 return Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
             }
         }
-
-        public override IPersistedCache Cache
-        {
-            get
-            {
-                if (_cache == null)
-                {
-                    if (Multiplexer != null)
-                        return null; // ToDo: return RedisCache
-                    else
-                        _cache = new SQLitePersistedCache("Data Source=Meep.sqlite");
-                }
-
-                return _cache;
-            }
-        }
-        private IPersistedCache _cache;
 
         /// <summary>
         /// Start a new process of ourselves with the provided pipeline file
@@ -63,8 +38,6 @@ namespace Meep
                 var process = new Process();
                 process.StartInfo.FileName = currentProc.MainModule.FileName;
                 process.StartInfo.ArgumentList.Add("-bson");
-                if (Multiplexer != null)
-                    process.StartInfo.ArgumentList.Add($"-redis={Multiplexer.Configuration}");
                 process.StartInfo.ArgumentList.Add(pipelineFile);
                 process.Start();
 

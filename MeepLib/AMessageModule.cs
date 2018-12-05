@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
 using System.Diagnostics;
@@ -30,6 +31,11 @@ namespace MeepLib
             }
         }
         private Logger _logger;
+
+        /// <summary>
+        /// Cache of messages from idempotent modules
+        /// </summary>
+        private static ConcurrentDictionary<string, Message> _messageCache = new ConcurrentDictionary<string, Message>();
 
         /// <summary>
         /// True if the module manages the cache itself
@@ -158,14 +164,12 @@ namespace MeepLib
 
             try
             {
-                var cached = AHostProxy.Current.Cache.StringGet(key);
-                if (cached == null)
-                    return null;
+                _messageCache.TryGetValue(key, out var cached);
 
-                Message result = JsonConvert.DeserializeObject<Message>(cached);
-                result.DerivedFrom = msg;
+                if (cached.Created > DateTime.Now - CacheTTL)
+                    return cached;
 
-                return result;
+                return null;
             }
             catch (Exception)
             {
@@ -186,7 +190,7 @@ namespace MeepLib
 
             try
             {
-                AHostProxy.Current.Cache.StringSet(key, JsonConvert.SerializeObject(msg), CacheTTL);
+                _messageCache.TryAdd(key, msg);
             }
             catch (Exception)
             {
@@ -195,6 +199,8 @@ namespace MeepLib
 
             return msg;
         }
+
+
 
         /// <summary>
         /// Returns the path to a directory for storing resources for a module

@@ -29,6 +29,12 @@ namespace MeepLib.Filters
         public string Class { get; set; }
 
         /// <summary>
+        /// Classes to compare against (ham)
+        /// </summary>
+        /// <value>The against.</value>
+        public string Against { get; set; }
+
+        /// <summary>
         /// Mimimum number of documents in training set to consider a class
         /// </summary>
         /// <value>The minimum training.</value>
@@ -46,6 +52,7 @@ namespace MeepLib.Filters
             {
                 MessageContext context = new MessageContext(msg, this);
                 string sfClass = Class != null ? Smart.Format(Class, context) : null;
+                string sfAgainst = Against != null ? Smart.Format(Against, context) : null;
 
                 string[] peerNames = null;
                 if (!String.IsNullOrWhiteSpace(sfClass))
@@ -57,6 +64,14 @@ namespace MeepLib.Filters
                 var peers = (from k in peerNames
                              where Classes.ContainsKey(k)
                              select Classes[k]).ToArray();
+
+                string[] againstNames = null;
+                if (!String.IsNullOrWhiteSpace(sfAgainst))
+                    againstNames = sfAgainst.Split(',');
+
+                var against = (from k in againstNames
+                               where Classes.ContainsKey(k)
+                               select Classes[k]).ToArray();
 
                 if (!(peers is null))
                     foreach (var peer in peers)

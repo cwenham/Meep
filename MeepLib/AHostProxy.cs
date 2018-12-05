@@ -26,12 +26,6 @@ namespace MeepLib
         public abstract string BaseDirectory { get; }
 
         /// <summary>
-        /// Cache that's persisted to disk
-        /// </summary>
-        /// <value>The cache.</value>
-        public abstract IPersistedCache Cache { get; }
-
-        /// <summary>
         /// Start a new process of the host with the given pipeline definition file
         /// </summary>
         /// <returns>The invoke.</returns>

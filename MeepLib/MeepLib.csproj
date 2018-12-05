@@ -25,13 +25,14 @@ Meep is System.Reactive + XML + Plugins.</Description>
     <Compile Remove="MeepLang\XMeeplangDownstreamReader.cs" />
     <Compile Remove="Config.cs" />
     <Compile Remove="Budget.cs" />
+    <Compile Remove="IPersistedCache.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.5.10" />
+    <PackageReference Include="NLog" Version="4.5.11" />
     <PackageReference Include="System.Reactive" Version="4.1.2" />
-    <PackageReference Include="SmartFormat.NET" Version="2.3.0" />
+    <PackageReference Include="SmartFormat.NET" Version="2.3.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="CoreCLR-NCalc" Version="2.2.45" />
+    <PackageReference Include="CoreCLR-NCalc" Version="2.2.51" />
     <PackageReference Include="Mvp.Xml.NetStandard" Version="1.0.0" />
     <PackageReference Include="NuGet.Build.Packaging" Version="0.2.2" />
   </ItemGroup>
