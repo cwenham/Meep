@@ -14,24 +14,22 @@ namespace MeepLib.Filters
     /// <summary>
     /// Filter messages that match a named class trained with BayesTrain
     /// </summary>
-    /// <remarks>Uses portions from https://gist.github.com/hodzanassredin/4514157
-    /// 
-    /// <para>May change to tagging rather than filtering so we can use shared
-    /// pipelines and still know what to do with the messages on the other side.</para>
+    /// <remarks>Tests for one or more classes (spam) in comparison to another 
+    /// collection of classes (ham).
     /// </remarks>
     public class Bayes : AMessageModule
     {
         /// <summary>
-        /// Classes to test, in comma separated {Smart.Format}
+        /// Classes to test (spam), in comma-separated {Smart.Format}
         /// </summary>
-        /// <value>Comma separated class names</value>
-        /// <remarks>Leave empty or null to check all known classes.</remarks>
+        /// <value>Smart.Formatted string that evaluates to comma-separated class names</value>
+        /// <remarks>Defaults to all trained classes minus Against classes if null or empty.</remarks>
         public string Class { get; set; }
 
         /// <summary>
-        /// Classes to compare against (ham)
+        /// Classes to compare against (ham), in comma-separated {Smart.Format}
         /// </summary>
-        /// <value>The against.</value>
+        /// <value>Smart.Formatted string that evaluates to comma-separated class names</value>
         public string Against { get; set; }
 
         /// <summary>
@@ -48,6 +46,9 @@ namespace MeepLib.Filters
             if (bmsg == null)
                 return msg;
 
+            if (String.IsNullOrWhiteSpace(Against))
+                throw new ArgumentException("Must specify 'ham' classes to test Against", nameof(Against));
+
             return await Task.Run<Message>(() =>
             {
                 MessageContext context = new MessageContext(msg, this);
@@ -61,13 +62,15 @@ namespace MeepLib.Filters
                 if (peerNames is null || peerNames.Length == 0)
                     peerNames = Classes.Keys.ToArray();
 
-                var peers = (from k in peerNames
-                             where Classes.ContainsKey(k)
-                             select Classes[k]).ToArray();
-
                 string[] againstNames = null;
                 if (!String.IsNullOrWhiteSpace(sfAgainst))
                     againstNames = sfAgainst.Split(',');
+
+                peerNames = peerNames.Except(againstNames).ToArray();
+
+                var peers = (from k in peerNames
+                             where Classes.ContainsKey(k)
+                             select Classes[k]).ToArray();
 
                 var against = (from k in againstNames
                                where Classes.ContainsKey(k)
@@ -78,7 +81,7 @@ namespace MeepLib.Filters
                     {
                         var msgTokens = bmsg.Tokens.ToList();
 
-                        double likely = Prediction(msgTokens, peer, peers);
+                        double likely = Prediction(msgTokens, peer, against);
 
                         if (likely > 0.5)
                             Categories.AddToCategory(peer.Name, msg.ID);
@@ -97,8 +100,8 @@ namespace MeepLib.Filters
 
         public static double Prediction(IEnumerable<string> tokens, ClassIndex index, IEnumerable<ClassIndex> peers)
         {
-            double allDocsCount = (double)peers.Select(x => x.DocumentCount).Sum();
-            double allUniqueTokens = (double)peers.Select(x => x.Tokens.Count()).Sum();
+            double allDocsCount = (double)peers.Select(x => x.DocumentCount).Sum() + index.DocumentCount;
+            double allUniqueTokens = (double)peers.Select(x => x.Tokens.Count()).Sum() + index.Tokens.Count();
             double allWordsInClass = (double)index.Tokens.Values.Sum();
 
             var classProbability = Math.Log((double)index.DocumentCount / allDocsCount);
