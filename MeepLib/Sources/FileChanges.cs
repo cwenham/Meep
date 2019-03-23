@@ -48,6 +48,9 @@ namespace MeepLib.Sources
             {
                 if (_Pipeline == null)
                 {
+                    if (!Directory.Exists(Path))
+                        throw new InvalidOperationException("Path to pipeline definitions does not exist.");
+
                     var fsw = new FileSystemWatcher(Path, Filter);
 
                     var mergedEvents = Observable.Merge(
