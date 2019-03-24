@@ -68,17 +68,7 @@ namespace Meep
             var proxy = new HostProxy();
 
             if (String.IsNullOrWhiteSpace(gitRepo))
-            {
-                if (File.Exists(pipelineFile))
-                    Bootstrapper = new Bootstrapper(pipelineFile);
-                else
-                {
-                    Console.WriteLine("Couldn't find a pipeline definition at {0}", pipelineFile);
-                    Console.WriteLine("Either create one at the default location (Pipelines/MasterPipeline.meep) or specify it with -p path/to/pipeline.meep");
-                    Console.WriteLine("Try `meep --help' for more information.");
-                    return;
-                }
-            }
+                Bootstrapper = new Bootstrapper(pipelineFile);
             else
                 Bootstrapper = new Bootstrapper(new Uri(gitRepo), pipelineFile, recheck);
 
