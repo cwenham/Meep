@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -19,7 +19,6 @@ Meep is System.Reactive + XML + Plugins.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Class1.cs" />
     <Compile Remove="XmlPreprocessor.cs" />
     <Compile Remove="AHTTPModule.cs" />
     <Compile Remove="MeepLang\XMeeplangDownstreamReader.cs" />
@@ -28,10 +27,10 @@ Meep is System.Reactive + XML + Plugins.</Description>
     <Compile Remove="IPersistedCache.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.6.0" />
-    <PackageReference Include="System.Reactive" Version="4.1.3" />
+    <PackageReference Include="NLog" Version="4.6.2" />
+    <PackageReference Include="System.Reactive" Version="4.2.0-preview.102" />
     <PackageReference Include="SmartFormat.NET" Version="2.4.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="CoreCLR-NCalc" Version="2.2.51" />
     <PackageReference Include="Mvp.Xml.NetStandard" Version="1.0.0" />
     <PackageReference Include="NuGet.Build.Packaging" Version="0.2.2" />

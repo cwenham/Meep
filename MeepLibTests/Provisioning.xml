@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ProvisioningPlan
+  name="World Cluster">
+  
+  <ProvisioningPlan name="Europe">
+    <Cluster name="UK">
+      <Server name="uk1" address="uk1.fnergle.example.com" pipeline="http://www.github.com/cwenham/MeepCookbook.git"/>      
+      <Server name="uk2" address="uk2.fnergle.example.com" pipeline="http://www.github.com/cwenham/MeepCookbook.git"/>      
+    </Cluster>
+    <Server name="eu1" address="eu1.fnergle.example.com" pipeline="http://www.github.com/cwenham/MeepCookbook.git"/>  
+  </ProvisioningPlan>
+
+  
+  <ProvisioningPlan name="Americas">
+    <Server name="us1" address="us1.fnergle.example.com" pipeline="http://www.github.com/cwenham/MeepCookbook.git"/>  
+  </ProvisioningPlan>
+
+  
+  <ProvisioningPlan name="Asia">
+    <Server name="jp1" address="jp1.fnergle.example.com" pipeline="http://www.github.com/cwenham/MeepCookbook.git"/>  
+  </ProvisioningPlan>
+
+</ProvisioningPlan>

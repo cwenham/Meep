@@ -37,7 +37,7 @@ namespace MeepLib.Sources
         /// </summary>
         /// <value>True to start without initial listing</value>
         /// <remarks>Most uses for this module want it to be "directory listing
-        /// with updates", so that's the default behaviour and it will start by
+        /// plus updates", so that's the default behaviour and it will start by
         /// emitting a message for every matching file before settling down for
         /// updates. If you strictly want updates only, set DryStart to true.</remarks>
         public bool DryStart { get; set; } = false;

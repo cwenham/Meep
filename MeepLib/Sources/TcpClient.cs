@@ -3,7 +3,6 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Reactive.Concurrency;
-using System.Reactive.Subjects;
 using System.Reactive.Linq;
 
 using MeepLib.Messages;

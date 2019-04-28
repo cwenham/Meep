@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO.Pipelines;
+//using System.IO.Pipelines;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using System.ComponentModel.DataAnnotations;
@@ -12,7 +12,7 @@ namespace MeepLib.Messages
     [DataContract]
     public class PipeReaderMessage : Message
     {
-        [XmlIgnore, JsonIgnore, NotMapped]
-        public PipeReader Reader { get; set; }
+        //[XmlIgnore, JsonIgnore, NotMapped]
+        //public PipeReader Reader { get; set; }
     }
 }
