@@ -80,14 +80,24 @@ namespace Meep
             else
                 Bootstrapper = new Bootstrapper(new Uri(gitRepo), pipelineFile, recheck);
 
-            Bootstrapper.PipelineRefreshed += Bootstrapper_PipelineRefreshed;
-            Bootstrapper.Start();
+            try
+            {
+                Bootstrapper.PipelineRefreshed += Bootstrapper_PipelineRefreshed;
+                Bootstrapper.Start();
 
-            System.Threading.ManualResetEvent resetEvent = new System.Threading.ManualResetEvent(false);
-            resetEvent.WaitOne();
+                System.Threading.ManualResetEvent resetEvent = new System.Threading.ManualResetEvent(false);
+                resetEvent.WaitOne();
 
-            Bootstrapper.Stop();
-            Subscription?.Dispose();
+                Bootstrapper.Stop();
+                Subscription?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                if (System.Environment.UserInteractive)
+                    Console.ReadKey();
+                throw;
+            }
         }
 
         static void ShowHelp()
@@ -114,7 +124,7 @@ namespace Meep
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                logger.Error(ex, "{0} thrown when running pipeline: {1}", ex.GetType().Name, ex.Message);
             }
         }
 
