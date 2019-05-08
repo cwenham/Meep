@@ -129,7 +129,7 @@ namespace MeepLib
         public async Task<Message> Select(Message msg, AMessageModule module = null)
         {
             Task<string> contentTask = null;
-            StreamMessage streamMsg = msg as StreamMessage;
+            IStreamMessage streamMsg = msg as IStreamMessage;
             if (streamMsg != null)
                 contentTask = streamMsg.ReadAllText();
 

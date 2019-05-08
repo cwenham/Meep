@@ -14,12 +14,17 @@ namespace MeepLibTests.Outputs
         [Fact]
         public void FSWTest()
         {
+            System.Random rand = new System.Random();
+
             string tempDir = Path.GetTempPath();
-            string file1 = Path.Combine(tempDir, "test1.meeptest");
+            string file1 = Path.Combine(tempDir, String.Format("test{0}.meeptest", rand.Next(1000)));
+            if (File.Exists(file1))
+                File.Delete(file1);
 
             var Watcher = new FileChanges
             {
                 Path = tempDir,
+                DryStart = true,
                 Filter = "*.meeptest"
             };
 
@@ -31,7 +36,8 @@ namespace MeepLibTests.Outputs
                     ex => lastEx = ex,
                     () => Console.WriteLine("Pipeline completed")))
             {
-                File.Create(file1);
+                var fstream = File.Create(file1);
+                fstream.Close();
                 System.Threading.Thread.Sleep(300);
                 Assert.NotNull(lastReceived);
                 Assert.Null(lastEx);

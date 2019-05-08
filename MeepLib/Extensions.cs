@@ -216,7 +216,7 @@ namespace MeepLib
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        public static async Task<string> ReadAllText(this StreamMessage msg)
+        public static async Task<string> ReadAllText(this IStreamMessage msg)
         {
             if (msg is null)
                 return null;
