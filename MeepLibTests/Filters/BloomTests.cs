@@ -30,7 +30,8 @@ namespace MeepLibTests.Filters
 
             Bloom bloom1 = new Bloom
             {
-                Sieve = "UnitTest1"
+                Sieve = "UnitTest1",
+                Polarity = "Block"
             };
 
             StringMessage msg1 = new StringMessage(null, "Rhubarb");
