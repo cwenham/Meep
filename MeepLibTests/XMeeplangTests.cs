@@ -105,7 +105,7 @@ namespace MeepLibTests
         </CheckSomethingTwo>
     </CleanSomething>
 
-    <FetchFromSomewhere s:Save=""MyDB:Widgets""/>
+    <FetchFromSomewhere s:Store=""MyDB:Widgets""/>
 
     <Foo/>
     <Bar/>
@@ -152,7 +152,7 @@ namespace MeepLibTests
         public static string SweetenedUpstream = @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <Pipeline xmlns=""http://meep.example.com/Meep/V1"">
     <CheckSomething Where=""[Number] == 2"">
-        <Timer Interval=""00:00:30"" />
+        <Timer Interval=""00:00:30""/>
     </CheckSomething>
 </Pipeline>
 ";

@@ -15,7 +15,7 @@ namespace MeepLib.Sources
     // ToDo: Set MacroPosition to Child once we can support that, since we want
     // to support multiple Timers for the same parent, plus Timers mixed with
     // other sources.
-    [Macro(Name = "Interval", DefaultProperty = "Interval", Position = MacroPosition.Upstream)]
+    [Macro(Name = "Timer", DefaultProperty = "Interval", Position = MacroPosition.Upstream)]
     public class Timer : AMessageModule
     {
         /// <summary>
