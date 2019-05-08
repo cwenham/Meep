@@ -12,6 +12,7 @@ namespace MeepLib.Modifiers
     /// <summary>
     /// Split CSV data or other delimited tabular data
     /// </summary>
+    /// <remarks>For XPath, JSON Path, Regex or {Smart.Format} see <see cref="Extract"/>.</remarks>
     public class Split : AMessageModule
     {
         /// <summary>

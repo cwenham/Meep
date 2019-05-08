@@ -2,7 +2,7 @@
   "profiles": {
     "Meep": {
       "commandName": "Project",
-      "commandLineArgs": "-p C:\\Users\\cwenham\\source\\repos\\MeepCookbook\\PingHistory.meep"
+      "commandLineArgs": "-p C:\\Users\\cwenham\\source\\repos\\MeepCookbook\\Radio6.meep -q"
     }
   }
 }

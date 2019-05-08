@@ -5,6 +5,8 @@ using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.IO;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 using SmartFormat;
 using SmartFormat.Core.Parsing;
@@ -208,5 +210,262 @@ namespace MeepLib
 
             return ToSmartParameterised(template, nextArgName);
         }
+
+        /// <summary>
+        /// Read all the text from a StreamMessage
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public static async Task<string> ReadAllText(this StreamMessage msg)
+        {
+            if (msg is null)
+                return null;
+
+            if (msg.Stream is null)
+                return null;
+
+            var reader = new StreamReader(await msg.Stream);
+            return await reader.ReadToEndAsync();
+        }
+
+        /// <summary>
+        /// Identify the likely syntax type (scent) of a string, and strip any type prefixes
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <remarks>E.G.: if passed "JPATH:packages.richtracks[0]" it'll identify the syntax as JPath and return
+        /// "packages.richtracks[0]" as the stripped value. If passed "/(some|regex)/" it'll identify it as RegEx and
+        /// return "(some|regex)" as the value.
+        /// 
+        /// <para>The 'options' return value is for any meta-options detected, such as Regex options, JSON deserialiser
+        /// options, etc.</para></remarks>
+        public static (DataScent scent, string value, object options) IdentifyAndStrip(this string value)
+        {
+            DataScent scent = value.SmellsLike();
+            string stripped = value;
+            object options = null;
+
+            int prefixPos = -1;
+            switch (scent)
+            {
+                case DataScent.Unknown:
+                    break;
+                case DataScent.URL:
+                    stripped = value.TrimStart("URL:");
+                    break;
+                case DataScent.JSON:
+                    stripped = value.TrimStart("JSON:");
+                    break;
+                case DataScent.XML:
+                    break;
+                case DataScent.Integer:
+                    break;
+                case DataScent.Decimal:
+                    break;
+                case DataScent.XPath:
+                    stripped = value.TrimStart("XPath:");
+                    break;
+                case DataScent.JsonPath:
+                    stripped = value.TrimStart("JPath:");
+                    break;
+                case DataScent.Regex:
+                    stripped = value.TrimStart('/').TrimEnd('/');
+                    break;
+                case DataScent.SmartFormat:
+                    stripped = value.TrimStart("SF:");
+                    break;
+                case DataScent.CLang:
+                    break;
+                case DataScent.SQLang:
+                    stripped = value.TrimStart("SQL:");
+                    break;
+                case DataScent.UnixPath:
+                    break;
+                case DataScent.WinPath:
+                    break;
+                default:
+                    break;
+            }
+
+            return (scent, stripped, options);
+        }
+
+        /// <summary>
+        /// Removes leading occurence of a string from the current <see cref="string"/> object
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="trimString"></param>
+        /// <returns></returns>
+        /// <remarks>Supplements the existing TrimStart() methods that only take chars. This will only remove from the beginning of a string.</remarks>
+        public static string TrimStart(this string value, string trimString)
+        {
+            if (value.IndexOf(trimString) == 0)
+                return value.Substring(trimString.Length);
+
+            return value;
+        }
+
+        /// <summary>
+        /// What syntax data appears to be coded in, based on convention and cursory exam
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <remarks>Programs like Meep that try to avoid forcing the user to identify the input type need a function 
+        /// like this one to look at the input and give an educated guess of its type. Then we know how to parse or 
+        /// query it intelligently. When that's not enough, we want to support some standard conventions (like /Regex 
+        /// slashes/) and some of our own to positively resolve the syntax in question.
+        /// 
+        /// <para>A typical use case is in a pipeline definition, the user may be expecting text and wants to extract
+        /// fragments with a regex, so they just type &lt;Extract From="/(some|regex)/" ...&gt;. We want to just handle
+        /// that the way the user expected, as well as the next time when they expect XML and use an XPath, or JSON and
+        /// give us a JPath.</para>
+        /// 
+        /// <para>Meep also tries to be as fast as it can, so we're not going to try parsing a whole document as JSON 
+        /// or XML just to find out if it's well formed. If it's not, then we're going to let that fall back to the 
+        /// user to watch the logs and tweak the conventions/parameters to give us the hints we need.</para></remarks>
+        public static DataScent SmellsLike(this string value)
+        {
+            // Go from fastest to slowest. Minimize RegEx and other slow pattern matchers, if they're even used at all
+
+            if (String.IsNullOrWhiteSpace(value))
+                return DataScent.Unknown;
+
+            // Meep's global type prefixes, useful when there's ambiguity
+            if (value.StartsWith("JPath:"))
+                return DataScent.JsonPath;
+
+            if (value.StartsWith("XPath:"))
+                return DataScent.XPath;
+
+            if (value.StartsWith("URL:"))   // For relative URLs. We will recognise 'scheme://' on its own
+                return DataScent.URL;
+
+            if (value.StartsWith("SF:"))
+                return DataScent.SmartFormat;
+
+            if (value.StartsWith("SQL:"))
+                return DataScent.SQLang;
+
+            // Do a scan to pick out telltale characters, or the lack of them
+            bool couldBeNumber = true;
+            int newlines = 0;
+
+            // Index of interesting character counts:
+            // 0 = .
+            // / = 1
+            // () = 2,3
+            // [] = 4,5
+            // {} = 6,7
+            // <> = 8,9
+            // '" = 10,11
+            string interestingChars = "./()[]{}<>'\"";
+            int[] interestingCount = new int[interestingChars.Length];
+
+            foreach (char c in value)
+            {
+                if (c == '\n')
+                {
+                    newlines++;
+                    continue;
+                }
+
+                if (c != '.')
+                    if (!((byte)c >= 48 && (byte)c <= 57))
+                        couldBeNumber = false;
+
+                for (int i = 0; i < interestingChars.Length; i++)
+                    if (c == interestingChars[i])
+                        interestingCount[i]++;
+            }
+
+            // Easy numbers
+            if (couldBeNumber && interestingCount[0] == 1)
+                return DataScent.Decimal;
+
+            if (couldBeNumber)
+                return DataScent.Integer;
+
+            // The easy ones that begin with forward slashes
+            if (value[0] == '/')
+            {
+                // Easy XPath that begins with "//"
+                if (value[1] == '/' && newlines == 0)
+                    return DataScent.XPath;
+
+                // Regex by unqualified /slash convention/
+                if (value.Length > 2 && value[value.Length - 1] == '/')
+                    return DataScent.Regex;
+            }
+
+            // Easy ones beginning with '$'
+            if (value[0] == '$')
+            {
+                // JPath doesn't use forward slashes and doesn't support double-quote chars
+                if (interestingCount[0] > 0 && interestingCount[1] == 0 && interestingCount[11] == 0)
+                    return DataScent.JsonPath;
+            }
+
+            // Easy WinPath with drive letter
+            if ((byte)value[0] >= 65 && (byte)value[0] <= 90 && value.Substring(1, 2).Equals(":/"))
+                return DataScent.WinPath;
+
+            // Is it easily XML?
+            if (value.Substring(0, 5).Equals("<?xml", StringComparison.OrdinalIgnoreCase))
+                return DataScent.XML;
+
+            // Is it easily JSON?
+            if (value[0] == '{' && value[value.Length - 1] == '}' && (interestingCount[4] > 0 && interestingCount[4] == interestingCount[5]))
+                return DataScent.JSON;
+
+            if (value[0] == '[' && value[value.Length - 1] == ']' && (interestingCount[6] > 0 && interestingCount[6] == interestingCount[7]))
+                return DataScent.JSON;
+
+            // Is it slowly identifiable as XML?
+            if (r_SlowIsXML.IsMatch(value))
+                return DataScent.XML;
+
+            return DataScent.Unknown;
+        }
+
+        // Match on XML without a <?xml> declaration, since we're testing that separately
+        private static Regex r_SlowIsXML = new Regex(@"<([\w]+)>((.|\n)*)<\/\1>$", RegexOptions.Compiled);
+    }
+
+    /// <summary>
+    /// What data "smells" like, based on cursory exam for characteristics and deliberate syntax
+    /// </summary>
+    public enum DataScent
+    {
+        Unknown,
+
+        URL,
+
+        JSON,
+
+        XML,
+
+        Integer,
+
+        Decimal,
+
+        XPath,
+        
+        JsonPath,
+
+        Regex,
+
+        SmartFormat,
+
+        // C-like language (curly braces, etc.)
+        CLang,
+
+        // SQL-like language (SELECT, UPDATE, INSERT, DELETEs, etc.)
+        SQLang,
+
+        // Forward-slash path, relative or absolute
+        UnixPath,
+
+        // Windows style backward-slash path with/without drive letters
+        WinPath
     }
 }

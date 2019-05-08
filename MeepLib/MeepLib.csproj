@@ -39,7 +39,6 @@ Meep is System.Reactive + XML + Plugins.</Description>
     <Folder Include="Outputs\" />
     <Folder Include="MeepLang\" />
     <Folder Include="Flow\" />
-    <Folder Include="Modifiers\" />
     <Folder Include="Config\" />
     <Folder Include="Algorithms\" />
   </ItemGroup>

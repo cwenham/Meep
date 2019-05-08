@@ -33,6 +33,7 @@ namespace Meep
         static void Main(string[] args)
         {
             bool shouldShowHelp = false;
+            bool shouldShowTypePrefixes = false;
             string gitRepo = null;
             string pipelineFile = Path.Combine(Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]), "Pipelines", "MasterPipeline.meep");
             TimeSpan recheck = TimeSpan.FromMinutes(30);
@@ -45,6 +46,7 @@ namespace Meep
                 { "q|quiet", "No gutter serialisation", g => GutterSerialisation = GutterSerialisation.None },
                 { "x|xml", "Gutter serialisation in XML", g => GutterSerialisation = GutterSerialisation.XML },
                 { "b|bson", "Gutter serialisation in BSON", b => GutterSerialisation = GutterSerialisation.BSON },
+                { "tp|typePrefixes", "Display a list of type prefixes (if Meep is misidentifying parameter types)", tp => shouldShowTypePrefixes = tp != null },
                 { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
             };
 
@@ -62,6 +64,9 @@ namespace Meep
 
             if (shouldShowHelp)
                 ShowHelp();
+
+            if (shouldShowTypePrefixes)
+                ShowTypePrefixes();
 
             LoadBasePlugins();
 
@@ -103,6 +108,21 @@ namespace Meep
         static void ShowHelp()
         {
             Console.WriteLine("E.G.: meep -b evilplan.meep");
+        }
+
+        static void ShowTypePrefixes()
+        {
+            Console.WriteLine("Type Prefixes and conventions. Meep will try to guess the type by what it looks like, but if that's not working then these prefixes and conventions tell Meep specifically how to handle arguments in pipeline definitions.");
+            Console.WriteLine("  /Regex Slashes/      - Regular expression between the slashes.");
+            Console.WriteLine("  $.JSONPath           - Begin absolute JSON Paths (JPaths) with '$'.");
+            Console.WriteLine("  JPath:.path[0]       - Relative JSON Paths with the 'JPath:' prefix.");
+            Console.WriteLine("  XPath:Element/Path   - Relative XPaths with the 'XPath:' prefix.");
+            Console.WriteLine("  //Element/XPath      - Extra prefix not needed if the XPath begins with '//'.");
+            Console.WriteLine("  SF:{Smart.Format}    - Smart.Format templates with the 'SF:' prefix.");
+            Console.WriteLine("  ./Path/To/File       - On Unix or Windows, specify relative paths with the './' prefix and forward slashes.");
+            Console.WriteLine("  URL:/relative/url    - Specify relative URLs with the 'URL:' prefix.");
+            Console.WriteLine("  http://example.com/  - Absolute URLs do not need an extra prefix. Meep knows the 'scheme://' pattern.");
+            Console.WriteLine("  <?xml?>              - Begin XML with a standard declaration (include version and encoding optionally) if Meep doesn't guess from the matching root element tags.");
         }
 
         static void Bootstrapper_PipelineRefreshed(object sender, PipelineRefreshEventArgs e)

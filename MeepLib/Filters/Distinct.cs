@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -21,9 +22,10 @@ namespace MeepLib.Filters
     public class Distinct : AMessageModule
     {
         /// <summary>
-        /// The value to check, in {Smart.Format}
+        /// XPath, JSON Path, RegEx or {Smart.Format}, chosen according to the inbound message type
         /// </summary>
-        public string From { get; set; } = "{msg.AsJSON()}";
+        /// <remarks>Recognises Meep conventions and type prefixes.</remarks>
+        public DataSelector From { get; set; } = "{msg.Value}";
 
         /// <summary>
         /// Fish the distinctable value from each message according to the From template
@@ -34,8 +36,15 @@ namespace MeepLib.Filters
         {
             try
             {
-                MessageContext context = new MessageContext(msg, this);
-                return Smart.Format(From, context);
+                var selection = From.Select(msg, this);
+                selection.Wait();
+                if (selection.Result != null)
+                    if (selection.Result is Batch)
+                        return ((Batch)selection.Result).Messages.FirstOrDefault()?.ToString();
+                    else
+                        return selection.Result.ToString();
+
+                return null;
             }
             catch (Exception ex)
             {

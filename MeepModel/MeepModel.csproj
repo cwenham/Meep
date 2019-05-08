@@ -16,10 +16,6 @@
     <Description>Message class family for Meep. Can be used on its own for projects that need to serialise to/from Meep messages without requiring all of MeepLib.</Description>
     <ReleaseVersion>1.0-alpha</ReleaseVersion>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Messages\" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Remove="Class1.cs" />
   </ItemGroup>

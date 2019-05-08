@@ -15,23 +15,22 @@ namespace MeepLib.Outputs
     public class WriteLine : AMessageModule
     {
         /// <summary>
-        /// String data to write, in {Smart.Format}
+        /// XPath, JSON Path, RegEx or {Smart.Format}, chosen according to the inbound message type
         /// </summary>
-        /// <value></value>
-        /// <remarks>Defaults to message serialised as JSON.</remarks>
-        public string From { get; set; } = "{msg.AsJSON}";
+        /// <remarks>Recognises Meep conventions and type prefixes.</remarks>
+        public DataSelector From { get; set; } = "{msg.AsJSON}";
 
         public override async Task<Message> HandleMessage(Message msg)
         {
-            return await Task.Run<Message>(() =>
-            {
-                MessageContext context = new MessageContext(msg, this);
-                string sfLine = Smart.Format(From, context);
+            var selection = await From.Select(msg, this);
+            if (selection != null)
+                if (selection is Batch)
+                    foreach (var s in ((Batch)selection).Messages)
+                        Console.WriteLine(s.ToString());
+                else
+                    Console.WriteLine(selection.ToString());
 
-                Console.WriteLine(sfLine);
-
-                return msg;
-            });
+            return msg;
         }
     }
 }
