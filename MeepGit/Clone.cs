@@ -38,7 +38,7 @@ namespace MeepGit
                 try
                 {
                     string repoURL = Smart.Format(Repo, context);
-                    string workDir = Smart.Format(WorkingDir, context);
+                    string workDir = Smart.Format(WorkingDir.Replace(@"\",@"\\"), context);
                     if (String.IsNullOrWhiteSpace(workDir))
                         workDir = repoURL.ToWorkingDirectory();
                         

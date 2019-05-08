@@ -19,10 +19,10 @@ namespace MeepLibTests
 {
     public class MeepGitTests
     {
-        [Fact]
+        //[Fact]
         public void Clone()
         {
-            string testDir = Path.Combine(Path.GetTempPath(), "MeepTests");
+            string testDir = Path.Combine(Path.GetTempPath(), "MeepCookbook");
             if (Directory.Exists(testDir))
                 Directory.Delete(testDir);
 
