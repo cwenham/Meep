@@ -2,7 +2,7 @@
   "profiles": {
     "Meep": {
       "commandName": "Project",
-      "commandLineArgs": "-p C:\\Users\\cwenham\\source\\repos\\MeepCookbook\\Radio6.meep -q"
+      "commandLineArgs": "-p C:\\Users\\cwenham\\source\\repos\\Meep\\MeepLibTests\\Smoketest.xml -q"
     }
   }
 }

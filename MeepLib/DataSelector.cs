@@ -72,7 +72,7 @@ namespace MeepLib
         /// <remarks>If the input had to be parsed first, the extracted fragments will be re-serialised back to
         /// strings. If you want them to stay in their parsed format (JObjects and XElements, for example) then
         /// use Select(Message) instead and unwrap the results.</remarks>
-        public IEnumerable<string> Select(string input, AMessageModule module = null)
+        public IEnumerable<string> Select(string input, object smartFormatParameter = null)
         {
             switch (Scent)
             {
@@ -106,13 +106,7 @@ namespace MeepLib
                 case DataScent.UnixPath:
                 case DataScent.WinPath:
                 default:
-                    // Create a proxy StringMessage
-                    StringMessage proxy = new StringMessage
-                    {
-                        Value = input
-                    };
-                    MessageContext context = new MessageContext(proxy, module);
-                    yield return Smart.Format(Value, context);
+                    yield return Smart.Format(Value, smartFormatParameter);
                     break;
             }
             yield break;

@@ -7,6 +7,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MeepLib.Messages
 {
+    /// <summary>
+    /// Hold a record, such as a DB row, as a String=Object dictionary
+    /// </summary>
     [DataContract]
     public class RecordMessage : Message
     {

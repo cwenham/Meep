@@ -7,9 +7,15 @@
           xmlns:im="http://meep.example.com/MeepMagick/V1">
     
     <!-- Load site-specific config and secrets you don't want in a repo -->
-    <xi:include href="/users/cwenham/MeepSiteConfig.xml" />
-    
-    <Plugin File="/Users/cwenham/Projects/MeepMagick/MeepMagick/bin/Debug/netstandard2.0/osx.10.10-x64/publish/MeepMagick.dll"/>
+  <xi:include href="/users/cwenham/MeepSiteConfig.xml">
+    <xi:failback href="Z:\MeepSiteConfig.xml"/>
+  </xi:include>
+
+  <!--
+  <Plugin File="/Users/cwenham/Projects/MeepMagick/MeepMagick/bin/Debug/netstandard2.0/osx.10.10-x64/publish/MeepMagick.dll">
+    <Failback File=""/>
+  </Plugin>
+  -->
     
     <Config>
         <s:Table Name="ImagePosts">
@@ -48,12 +54,15 @@
         </Ping>
     </Batch>-->
     
+    <!--
     <r:History Name="NewComments" Username="{msg.Comment.AuthorName}" Max="50"
                mp:WriteLine="[{msg.DerivedFrom.Comment.Subreddit}] {msg.DerivedFrom.Comment.AuthorName}; {msg.DerivedFrom.Comment.Body}">
         <r:Comments Subreddit="/r/pics" />
         <r:Comments Subreddit="/r/aww" />
     </r:History>
-        
+    -->
+       
+    <!--
     <im:Info Name="PHashed">
         <Localise From="{fam.PostMessage.Post.Url}" To="MEMORY">
             <r:History Name="NewPosts" Username="{msg.Post.AuthorName}" Max="50"
@@ -63,26 +72,34 @@
             </r:History>    
         </Localise>
     </im:Info>
-        
+    -->
+     
+    <!--
     <r:History Name="ModeratedUsers" Username="{msg.Action.TargetAuthorName}" Max="75"
                mp:WriteLine="{msg.User.Name} {msg.Tokens:list:|,|,}">
         <r:ModLog Subreddit="/r/pics" />
         <r:ModLog Subreddit="/r/aww" />
     </r:History>
+    -->
     
+    <!--
     <BayesTrain Class="{msg.DerivedFrom.Action.Details}">
         <Tap From="ModeratedUsers"/>
     </BayesTrain>
+    -->
     
+    <!--
     <Bayes Name="ClassifiedPosts">
         <Tap From="NewPosts"/>
         <Tap From="NewComments"/>
     </Bayes>
+    -->
     
+    <!--
     <s:InsertOrReplace Database="Reddit" Table="ImagePosts">
         <Tap From="PHashed"/>
     </s:InsertOrReplace>
-    
+    -->
     
     
 </Pipeline>

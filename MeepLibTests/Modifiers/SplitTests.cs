@@ -37,8 +37,7 @@ namespace MeepLibTests.Modifiers
             Assert.IsType(typeof(int), movie1.Record["Rating"]);
         }
 
-        public static string SampleCSV1 = @"
-Title,Director,Runtime,Released,Rating,Review
+        public static string SampleCSV1 = @"Title,Director,Runtime,Released,Rating,Review
 Sunshine,Danny Boyle,01:47:33,2007-4-6 12:00:00,2,Emos in space
 Fargo,Joel and Ethan Coen,01:38:14,1996-3-8 14:30:00,3,I just think I'm gonna barf
 2001: A Space Odyssey,Stanley Kubrick,02:22:00,1968-4-2 13:00:00,1,Nice screensaver";
