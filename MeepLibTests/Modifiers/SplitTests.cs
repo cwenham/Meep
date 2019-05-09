@@ -25,19 +25,20 @@ namespace MeepLibTests.Modifiers
             });
 
             Assert.NotNull(result);
-            Assert.IsType(typeof(Batch), result);
+            Assert.IsType<Batch>(result);
 
             Batch movies = result as Batch;
             Assert.Equal(3, movies.Messages.Count());
-            Assert.IsType(typeof(RecordMessage), movies.Messages.First());
+            Assert.IsType<RecordMessage>(movies.Messages.First());
 
             RecordMessage movie1 = movies.Messages.First() as RecordMessage;
-            Assert.IsType(typeof(TimeSpan), movie1.Record["Runtime"]);
-            Assert.IsType(typeof(DateTime), movie1.Record["Released"]);
-            Assert.IsType(typeof(int), movie1.Record["Rating"]);
+            Assert.IsType<TimeSpan>(movie1.Record["Runtime"]);
+            Assert.IsType<DateTime>(movie1.Record["Released"]);
+            Assert.IsType<int>(movie1.Record["Rating"]);
         }
 
-        public static string SampleCSV1 = @"Title,Director,Runtime,Released,Rating,Review
+        public static string SampleCSV1 = @"
+Title,Director,Runtime,Released,Rating,Review
 Sunshine,Danny Boyle,01:47:33,2007-4-6 12:00:00,2,Emos in space
 Fargo,Joel and Ethan Coen,01:38:14,1996-3-8 14:30:00,3,I just think I'm gonna barf
 2001: A Space Odyssey,Stanley Kubrick,02:22:00,1968-4-2 13:00:00,1,Nice screensaver";

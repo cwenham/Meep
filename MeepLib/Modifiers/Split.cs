@@ -58,7 +58,7 @@ namespace MeepLib.Modifiers
                     //ToDo: Support a streaming version for very large CSVs
 
                     // First the basic splitting into lines and columns
-                    string[] rawLines = msg.ToString().Split(new string[] { sfWith },
+                    string[] rawLines = msg.ToString().Trim().Split(new string[] { sfWith },
                                         StringSplitOptions.RemoveEmptyEntries);
 
                     var lines = from r in rawLines
