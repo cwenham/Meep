@@ -90,6 +90,7 @@ namespace MeepLib.Filters
         private Func<Message, bool> _lambda { get; set; }
 
         private Expression expression = null;
+        private object expressionLock = new object();
 
         private string[] parameterised = null;
 
@@ -108,9 +109,12 @@ namespace MeepLib.Filters
                     }
 
                     MessageContext context = new MessageContext(msg, this);
-                    expression.Parameters.Clear();
-                    for (int i = 1; i <= parameterised.Length - 1; i++)
-                        expression.Parameters.Add($"arg{i}", Smart.Format(parameterised[i], context).ToBestType());
+                    lock (expressionLock)
+                    {
+                        expression.Parameters.Clear();
+                        for (int i = 1; i <= parameterised.Length - 1; i++)
+                            expression.Parameters.Add($"arg{i}", Smart.Format(parameterised[i], context).ToBestType());
+                    }
 
                     if ((bool)expression.Evaluate())
                         return ThisPassedTheTest(msg);
