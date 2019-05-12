@@ -144,20 +144,23 @@ namespace MeepLib
             if (msg is StringMessage)
                 return HandleMessage((StringMessage)msg);
 
-            await contentTask;
-            if (!String.IsNullOrWhiteSpace(contentTask.Result))
+            if (contentTask != null)
             {
-                // Create a proxy StringMessage
-                StringMessage smsg = new StringMessage
+                await contentTask;
+                if (!String.IsNullOrWhiteSpace(contentTask?.Result))
                 {
-                    DerivedFrom = msg.DerivedFrom,
-                    ID = msg.ID,
-                    Value = contentTask.Result
-                };
-                return HandleMessage(smsg);
+                    // Create a proxy StringMessage
+                    StringMessage smsg = new StringMessage
+                    {
+                        DerivedFrom = msg.DerivedFrom,
+                        ID = msg.ID,
+                        Value = contentTask.Result
+                    };
+                    return HandleMessage(smsg);
+                }
             }
 
-            return null;
+            return ExtractSmartFormat(msg, module);
         }
 
         private Message HandleMessage(StringMessage msg, AMessageModule module = null)
