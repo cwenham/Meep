@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.IO.Pipelines;
 using System.Reactive.Linq;
 using System.ComponentModel;
 
@@ -119,9 +118,9 @@ namespace Meep
         /// reading discrete messages from Streams. We will treat a discrete
         /// message as a pipeline definition, and re-load each time a new message
         /// is received.</remarks>
-        public Bootstrapper(PipeReader reader)
-        {
-        }
+        //public Bootstrapper(PipeReader reader)
+        //{
+        //}
 
         /// <summary>
         /// Bootstrap from a Git repository
