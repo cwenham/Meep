@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using sle = System.Linq.Expressions;
 
 using NCalc;
@@ -10,7 +12,6 @@ using SmartFormat;
 using MeepLib;
 using MeepLib.MeepLang;
 using MeepLib.Messages;
-using System.Threading.Tasks;
 
 namespace MeepLib.Filters
 {
@@ -90,7 +91,7 @@ namespace MeepLib.Filters
         private Func<Message, bool> _lambda { get; set; }
 
         private Expression expression = null;
-        private object expressionLock = new object();
+        private Mutex expressionMutex = new Mutex(false);
 
         private string[] parameterised = null;
 
@@ -109,14 +110,14 @@ namespace MeepLib.Filters
                     }
 
                     MessageContext context = new MessageContext(msg, this);
-                    lock (expressionLock)
-                    {
-                        expression.Parameters.Clear();
-                        for (int i = 1; i <= parameterised.Length - 1; i++)
-                            expression.Parameters.Add($"arg{i}", Smart.Format(parameterised[i], context).ToBestType());
-                    }
+                    expressionMutex.WaitOne();
+                    expression.Parameters.Clear();
+                    for (int i = 1; i <= parameterised.Length - 1; i++)
+                        expression.Parameters.Add($"arg{i}", Smart.Format(parameterised[i], context).ToBestType());
+                    bool result = (bool)expression.Evaluate();
+                    expressionMutex.ReleaseMutex();
 
-                    if ((bool)expression.Evaluate())
+                    if (result)
                         return ThisPassedTheTest(msg);
                     else
                         return ThisFailedTheTest(msg);
