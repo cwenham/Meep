@@ -8,14 +8,12 @@
     
     <!-- Load site-specific config and secrets you don't want in a repo -->
   <xi:include href="/users/cwenham/MeepSiteConfig.xml">
-    <xi:failback href="Z:\MeepSiteConfig.xml"/>
+    <xi:fallback href="Z:\MeepSiteConfig.xml"/>
   </xi:include>
 
-  <!--
-  <Plugin File="/Users/cwenham/Projects/MeepMagick/MeepMagick/bin/Debug/netstandard2.0/osx.10.10-x64/publish/MeepMagick.dll">
-    <Failback File=""/>
-  </Plugin>
-  -->
+  <!--<Plugin File="/Users/cwenham/Projects/MeepMagick/MeepMagick/bin/Debug/netstandard2.0/osx.10.10-x64/publish/MeepMagick.dll">
+    <Fallback File="C:\Users\cwenham\Source\Repos\MeepMagick\MeepMagick\bin\Debug\netstandard2.1\MeepMagick.dll"/>
+  </Plugin>-->
     
     <Config>
         <s:Table Name="ImagePosts">

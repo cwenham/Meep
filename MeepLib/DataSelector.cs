@@ -275,6 +275,11 @@ namespace MeepLib
         }
     }
 
+    /// <summary>
+    /// Convert a string to a DataSelector
+    /// </summary>
+    /// <remarks>Lets our deserialiser create a DataSelector from a string attribute, making it dirt easy to add them
+    /// as properties to any AMessageModule.</remarks>
     public class DataSelectorConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)

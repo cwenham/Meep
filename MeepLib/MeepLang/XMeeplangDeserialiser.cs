@@ -37,7 +37,8 @@ namespace MeepLib.MeepLang
         /// </remarks>
         public List<string> Invisibles = new List<string> { 
             $"{ANamable.DefaultNamespace}:Config",
-            $"{ANamable.DefaultNamespace}:Plugin"
+            $"{ANamable.DefaultNamespace}:Plugin",
+            $"{ANamable.DefaultNamespace}:Fallback"
         };
 
         private Stack<string> _invisiblesStack = new Stack<string>();

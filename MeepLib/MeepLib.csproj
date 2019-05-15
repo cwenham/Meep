@@ -27,11 +27,11 @@ Meep is System.Reactive + XML + Plugins.</Description>
     <Compile Remove="IPersistedCache.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.6.2" />
+    <PackageReference Include="NLog" Version="4.6.3" />
     <PackageReference Include="System.Reactive" Version="4.2.0-preview.102" />
     <PackageReference Include="SmartFormat.NET" Version="2.4.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="CoreCLR-NCalc" Version="2.2.51" />
+    <PackageReference Include="CoreCLR-NCalc" Version="2.2.59" />
     <PackageReference Include="Mvp.Xml.NetStandard" Version="1.0.0" />
     <PackageReference Include="NuGet.Build.Packaging" Version="0.2.2" />
   </ItemGroup>
@@ -40,7 +40,6 @@ Meep is System.Reactive + XML + Plugins.</Description>
     <Folder Include="MeepLang\" />
     <Folder Include="Flow\" />
     <Folder Include="Config\" />
-    <Folder Include="Algorithms\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MeepModel\MeepModel.csproj" />
