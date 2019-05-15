@@ -3,8 +3,8 @@
 (Short for Message Pipeline) 
 
 Use XML to create realtime message processing pipelines that receive, filter, 
-modify, act upon, and output discrete messages. **Meep is System.Reactive + XML
-+ Plugins**.
+modify, act upon, and output discrete messages. Meep is System.Reactive + XML
++ Plugins.
 
 E.G.: Every 10 seconds ping a host, then--in batches of 5 at a time--store the
 responses in a table called "Pings" in a database called "Example".
