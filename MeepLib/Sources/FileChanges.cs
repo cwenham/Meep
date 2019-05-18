@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Concurrency;
+using System.Reactive.Subjects;
 using System.Xml.Serialization;
 
 using MeepLib.Messages;
@@ -49,6 +50,7 @@ namespace MeepLib.Sources
                 if (_Pipeline == null)
                 {
                     var fsw = new FileSystemWatcher(Path, Filter);
+                    fsw.Error += Fsw_Error;
 
                     var mergedEvents = Observable.Merge(
                         Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(x => fsw.Changed += x, x => fsw.Changed -= x).Select(x => x.EventArgs),
@@ -80,7 +82,7 @@ namespace MeepLib.Sources
                                     Modified = File.GetLastWriteTimeUtc(fev.FullPath),
                                     Size = info != null ? info.Length : 0
                                 };
-
+                    
                     fsw.EnableRaisingEvents = true;
                 }
 
@@ -88,6 +90,16 @@ namespace MeepLib.Sources
             }
             protected set => base.Pipeline = value;
         }
+
+        private void Fsw_Error(object sender, ErrorEventArgs e)
+        {
+            Exception ex = e.GetException();
+            if (ex != null)
+                logger.Error(ex, "{0} thrown by FileSystemWatcher for {1}: {2}", ex.GetType().Name, this.Name, ex.Message);
+            else
+                logger.Error("Unknown error thrown by FileSystemWatcher for {0}", this.Name);
+        }
+
         private IObservable<Message> _Pipeline;
     }
 }

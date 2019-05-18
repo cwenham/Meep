@@ -49,9 +49,9 @@ namespace MeepLib.Outputs
             if (Headers != null)
                 req.AddHeaders(context, Headers);
 
-            if (msg is StreamMessage)
+            if (msg is IStreamMessage)
             {
-                req.Content = new StreamContent(await ((StreamMessage)msg).Stream);
+                req.Content = new StreamContent(await ((IStreamMessage)msg).GetStream());
             }
             else
             {

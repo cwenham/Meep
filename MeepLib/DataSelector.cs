@@ -142,7 +142,7 @@ namespace MeepLib
                 };
 
             if (msg is StringMessage)
-                return HandleMessage((StringMessage)msg);
+                return HandleMessage((StringMessage)msg, module);
 
             if (contentTask != null)
             {
@@ -156,7 +156,7 @@ namespace MeepLib
                         ID = msg.ID,
                         Value = contentTask.Result
                     };
-                    return HandleMessage(smsg);
+                    return HandleMessage(smsg, module);
                 }
             }
 

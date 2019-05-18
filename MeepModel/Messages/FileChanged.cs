@@ -42,19 +42,15 @@ namespace MeepLib.Messages
         [DataMember, Index(IsUnique = false)]
         public long Size { get; set; }
 
-        [JsonIgnore, XmlIgnore]
-        public Task<Stream> Stream
+        public Task<Stream> GetStream()
         {
-            get
+            try
             {
-                try
-                {
-                    return Task.Run<Stream>(() => File.OpenRead(FullPath));
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
+                return Task.Run<Stream>(() => File.OpenRead(FullPath));
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
     }

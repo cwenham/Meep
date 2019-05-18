@@ -32,7 +32,7 @@ namespace MeepLib.Modifiers
                 switch (msg)
                 {
                     case IStreamMessage streamMsg:
-                        return await FromStream(streamMsg.Stream);
+                        return await FromStream(streamMsg.GetStream());
                     default:
                         MessageContext context = new MessageContext(msg, this);
                         string data = Smart.Format(From, context);
@@ -48,7 +48,7 @@ namespace MeepLib.Modifiers
 
         private async Task<Message> FromStream(Task<Stream> stream)
         {
-            var reader = new StreamReader(await stream);
+            using var reader = new StreamReader(await stream);
             return JsonConvert.DeserializeObject<Message>(await reader.ReadToEndAsync());
         }
     }

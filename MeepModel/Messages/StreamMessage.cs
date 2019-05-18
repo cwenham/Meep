@@ -16,11 +16,18 @@ namespace MeepLib.Messages
     [DataContract]
     public class StreamMessage : Message, IStreamMessage
     {
+        public Task<Stream> Stream { get; set; }
+
         /// <summary>
         /// The stream
         /// </summary>
         /// <value>The stream.</value>
-        [XmlIgnore, JsonIgnore, NotMapped]
-        public Task<Stream> Stream { get; set; }
+        public async Task<Stream> GetStream()
+        {
+            return await Task.Run<Stream>(() =>
+            {
+                return Stream;
+            });
+        }
     }
 }

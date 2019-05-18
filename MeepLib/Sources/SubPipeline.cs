@@ -34,7 +34,7 @@ namespace MeepLib.Sources
             switch (msg)
             {
                 case IStreamMessage sm:
-                    process = AHostProxy.Current.SelfInvoke(await sm.Stream);
+                    process = AHostProxy.Current.SelfInvoke(await sm.GetStream());
                     break;
                 default:
                     MessageContext context = new MessageContext(msg, this);

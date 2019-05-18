@@ -221,10 +221,11 @@ namespace MeepLib
             if (msg is null)
                 return null;
 
-            if (msg.Stream is null)
+            using var stream = await msg.GetStream();
+            if (stream is null)
                 return null;
 
-            var reader = new StreamReader(await msg.Stream);
+            using var reader = new StreamReader(stream);
             return await reader.ReadToEndAsync();
         }
 

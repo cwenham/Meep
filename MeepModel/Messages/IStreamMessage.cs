@@ -6,6 +6,6 @@ namespace MeepLib.Messages
 {
     public interface IStreamMessage
     {
-        Task<Stream> Stream { get; }
+        Task<Stream> GetStream();
     }
 }
