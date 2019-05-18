@@ -21,8 +21,7 @@ namespace MeepLib.Flow
         {
             get {
                 if (_Source == null)
-                    if (Phonebook.ContainsKey(From))
-                        _Source = Phonebook[From] as AMessageModule;
+                    _Source = ByName<AMessageModule>(From);
 
                 if (_Source is null)
                     throw new ArgumentException($"Tap could not find: {From}", nameof(From));

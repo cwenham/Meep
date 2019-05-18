@@ -20,5 +20,16 @@ namespace MeepSQL.Config
             Columns.AddRange(children.OfType<Column>());
             Create = children.OfType<SQL>().FirstOrDefault();
         }
+
+        public IEnumerable<ANamable> GetChildren()
+        {
+            var mine = new List<ANamable>();
+            mine.AddRange(Columns);
+
+            if (Create != null)
+                mine.Add(Create);
+
+            return mine;
+        }
     }
 }

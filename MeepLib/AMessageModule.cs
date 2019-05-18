@@ -18,7 +18,7 @@ using MeepLib.Config;
 
 namespace MeepLib
 {
-    public abstract class AMessageModule : ANamable, IParent
+    public abstract class AMessageModule : ANamable, IParent, IChild
     {
         protected Logger logger
         {
@@ -99,6 +99,9 @@ namespace MeepLib
                 _Pipeline = value;
             }
         }
+
+        public ANamable Parent { get; private set; }
+
         private IObservable<Message> _Pipeline;
 
         /// <summary>
@@ -246,8 +249,21 @@ namespace MeepLib
 
         public void AddChildren(IEnumerable<ANamable> children)
         {
+            foreach (IChild child in children.Cast<IChild>())
+                child.AddParent(this);
+
             Upstreams.AddRange(children.OfType<AMessageModule>());
             Config.AddRange(children.OfType<AConfig>());
+        }
+
+        public void AddParent(ANamable parent)
+        {
+            Parent = parent;
+        }
+
+        IEnumerable<ANamable> IParent.GetChildren()
+        {
+            return Upstreams.Cast<ANamable>().Union(Config.Cast<ANamable>());
         }
     }
 }

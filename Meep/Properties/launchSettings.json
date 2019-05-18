@@ -2,7 +2,7 @@
   "profiles": {
     "Meep": {
       "commandName": "Project",
-      "commandLineArgs": "-p Z:\\JaneksBlackBox2.meep -q"
+      "commandLineArgs": "-p Z:\\JaneksBlackBox.meep -q"
     }
   }
 }

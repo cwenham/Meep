@@ -4,14 +4,18 @@ using System.Xml.Serialization;
 
 namespace MeepLib.Config
 {
-    public abstract class AConfig : ANamable
+    public abstract class AConfig : ANamable, IChild
     {
+        public ANamable Parent { get; private set; }
+
+        public void AddParent(ANamable parent)
+        {
+            Parent = parent;
+        }
+
         public T FindConfig<T>(string name) where T : AConfig
         {
-            if (Phonebook.ContainsKey(name))
-                return Phonebook[name] as T;
-            else
-                return null;
+            return ByName<T>(name);
         }
     }
 }

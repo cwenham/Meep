@@ -4,20 +4,9 @@ using System.Collections.Generic;
 
 namespace MeepLib
 {
-    public interface IParent
-    {
-        void AddChildren(IEnumerable<ANamable> children);
-    }
-
     public abstract class ANamable
     {
         public static string DefaultNamespace = "http://meep.example.com/Meep/V1";
-
-        public ANamable() : base()
-        {
-            MessageContext.InvalidateCache();
-        }
-
 
         /// <summary>
         /// Name of the module
@@ -38,28 +27,69 @@ namespace MeepLib
             set
             {
                 _Name = value;
-
-                // Maintain the directory of named modules.
-                // This is used by modules that address other modules, such
-                // as Tap.
-                if (!Phonebook.ContainsKey(_Name))
-                    Phonebook.Add(_Name, this);
             }
         }
         private string _Name;
 
         public T ByName<T>(string name) where T : ANamable
         {
-            if (Phonebook.ContainsKey(name))
-                return Phonebook[name] as T;
+            var root = GetRoot();
+
+            if (root != null)
+                return root.MineByName<T>(name);
+
+            return MineByName<T>(name);
+        }
+
+        private T MineByName<T>(string name) where T : ANamable
+        {
+            if (Name.Equals(name))
+                return this as T;
+
+            IParent parent = this as IParent;
+            if (parent != null)
+                return (from c in parent.GetChildren()
+                        let d = c.MineByName<T>(name)
+                        where d != null
+                        select d).FirstOrDefault();
+
             return null;
         }
 
-        public static IEnumerable<T> InventoryByBase<T>() where T : ANamable
+        public IEnumerable<T> InventoryByBase<T>() where T : ANamable
         {
-            return Phonebook.Values.OfType<T>();
+            var root = GetRoot();
+            if (this == root)
+                return MyInventoryByBase<T>();
+            else
+                return root.MyInventoryByBase<T>();
         }
 
-        protected static Dictionary<string, ANamable> Phonebook { get; set; } = new Dictionary<string, ANamable>();
+        private IEnumerable<T> MyInventoryByBase<T>() where T : ANamable
+        {
+            var mine = new List<T>();
+            T myself = this as T;
+            if (myself != null)
+                mine.Add(myself);
+
+            IParent parent = this as IParent;
+            if (parent != null)
+                mine.AddRange(parent.GetChildren().SelectMany(x => x.MyInventoryByBase<T>()));
+
+            return mine;
+        }
+
+        private ANamable GetRoot()
+        {
+            Pipeline pipeRoot = this as Pipeline;
+            if (pipeRoot != null)
+                return pipeRoot;
+
+            IChild ancestor = this as IChild;
+            if (ancestor != null && ancestor.Parent != null && ancestor.Parent != this)
+                return ancestor.Parent.GetRoot();
+
+            return this;
+        }
     }
 }

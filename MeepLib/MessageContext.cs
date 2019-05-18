@@ -21,10 +21,9 @@ namespace MeepLib
             mdl = module;
 
             // Populate config lookup
-            _cfgMutex.WaitOne();
-            if (cfg == null)
-                cfg = ANamable.InventoryByBase<ANamable>().ToDictionary(x => x.Name);
-            _cfgMutex.ReleaseMutex();
+            cfg = new Dictionary<string, ANamable>();
+            foreach (var c in module.InventoryByBase<ANamable>())
+                cfg.TryAdd(c.Name, c);
 
             // Populate fam lookup
             fam = new Dictionary<string, Message>();
@@ -82,13 +81,7 @@ namespace MeepLib
         /// a web service in a file that you XInclude from the main pipeline, 
         /// then fetch its values from anywhere else, thus keeping them out of
         /// your repository.</para></remarks>
-        public static Dictionary<string,ANamable> cfg { get; set; }
-        private static Mutex _cfgMutex = new Mutex(false);
-
-        public static void InvalidateCache()
-        {
-            cfg = null;
-        }
+        public Dictionary<string,ANamable> cfg { get; set; }
 
         /// <summary>
         /// Return the ToString value of the message
