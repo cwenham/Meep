@@ -42,14 +42,14 @@ namespace MeepLib.Filters
         /// <summary>
         /// Evaluate a Batch message's children (true), or just the container message (false--default)
         /// </summary>
-        public bool Unbatch { get; set; } = false;
+        public bool Children { get; set; } = false;
 
         public override async Task<Message> HandleMessage(Message msg)
         {
             return await Task.Run(() =>
             {
                 Batch batch = msg as Batch;
-                if (Unbatch && batch != null)
+                if (Children && batch != null)
                     return HandleBatch(batch);
                 else
                     return HandleSingle(msg);

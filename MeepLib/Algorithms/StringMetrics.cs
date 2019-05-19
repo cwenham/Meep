@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 using NCalc;
 
@@ -15,11 +16,12 @@ namespace MeepLib.Algorithms
         /// </summary>
         /// <remarks>These bigrams are common in keyboard smashes, but not in general English usage.</remarks>
         private static string[] smashgrams = new string[] {
-            "dj","fh","sk","jd","hf",
+            "fh","sk","jd","hf",
             "pq","rp","ql","wj","vb","pg",
-            "jsm","dfh","hfd","sdf","adsr","sdt",
-            "thg","tyt","fds","dtf","fjh","gjh",
-            "yhg"
+            "dfh","hfd","sdf","adsr","sdt",
+            "thg","tyt","fds","dtf","fjh",
+            "gjh","yhg","srd","dgh","jkg",
+            "dfg","jkdf","dfgh","ghjk"
         };
 
         /// <summary>
@@ -128,6 +130,38 @@ namespace MeepLib.Algorithms
                 return input.Length;
 
             return 0;
+        }
+
+        /// <summary>
+        /// Boolean Regex match
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static object RegexMatch(FunctionArgs args)
+        {
+            string value = Convert.ToString(args.Parameters[0].Evaluate());
+            string expression = Convert.ToString(args.Parameters[1].Evaluate());
+
+            if (expression != null && value != null)
+                return Regex.Match(value, expression).Success;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Boolean test for a substring existing within a string value
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static object Contains(FunctionArgs args)
+        {
+            string input = Convert.ToString(args.Parameters[0].Evaluate());
+            string value = Convert.ToString(args.Parameters[1].Evaluate());
+
+            if (input != null && value != null)
+                return input.Contains(value);
+
+            return false;
         }
     }
 }
