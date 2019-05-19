@@ -39,26 +39,60 @@ namespace MeepLib.Filters
         /// </remarks>
         public NCalcEvaluator Expr { get; set; }
 
+        /// <summary>
+        /// Evaluate a Batch message's children (true), or just the container message (false--default)
+        /// </summary>
+        public bool Unbatch { get; set; } = false;
+
         public override async Task<Message> HandleMessage(Message msg)
         {
             return await Task.Run(() =>
             {
+                Batch batch = msg as Batch;
+                if (Unbatch && batch != null)
+                    return HandleBatch(batch);
+                else
+                    return HandleSingle(msg);
+            });
+        }
+
+        private Message HandleBatch(Batch batch)
+        {
+            foreach (var msg in batch.Messages)
                 try
                 {
                     MessageContext context = new MessageContext(msg, this);
                     bool result = Expr.EvaluateBool(context);
 
                     if (result)
-                        return ThisPassedTheTest(msg);
-                    else
-                        return ThisFailedTheTest(msg);
+                        return ThisPassedTheTest(batch);
                 }
                 catch (Exception ex)
                 {
                     logger.Error(ex, "{0} thrown on Where condition: {1}", ex.GetType().Name, ex.Message);
                     return null;
                 }
-            });
+
+            return ThisFailedTheTest(batch);
+        }
+
+        private Message HandleSingle(Message msg)
+        {
+            try
+            {
+                MessageContext context = new MessageContext(msg, this);
+                bool result = Expr.EvaluateBool(context);
+
+                if (result)
+                    return ThisPassedTheTest(msg);
+                else
+                    return ThisFailedTheTest(msg);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "{0} thrown on Where condition: {1}", ex.GetType().Name, ex.Message);
+                return null;
+            }
         }
     }
 }
