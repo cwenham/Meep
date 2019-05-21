@@ -26,7 +26,6 @@
     <Folder Include="Filters\" />
     <Folder Include="Outputs\" />
     <Folder Include="Modifiers\" />
-    <Folder Include="Sources\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="..\..\..\Meeplines\Smoketest.meep" />

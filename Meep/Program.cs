@@ -34,6 +34,7 @@ namespace Meep
         {
             bool shouldShowHelp = false;
             bool shouldShowTypePrefixes = false;
+            bool shouldShowLibrary = false;
             string gitRepo = null;
             string pipelineFile = Path.Combine(Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]), "Pipelines", "MasterPipeline.meep");
             TimeSpan recheck = TimeSpan.FromMinutes(30);
@@ -47,6 +48,7 @@ namespace Meep
                 { "x|xml", "Gutter serialisation in XML", g => GutterSerialisation = GutterSerialisation.XML },
                 { "b|bson", "Gutter serialisation in BSON", b => GutterSerialisation = GutterSerialisation.BSON },
                 { "tp|typePrefixes", "Display a list of type prefixes (if Meep is misidentifying parameter types)", tp => shouldShowTypePrefixes = tp != null },
+                { "lb|listBooks", "Display a list of books available with <Emit Selection=\"...\"/>", lb => shouldShowLibrary = lb != null },
                 { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
             };
 
@@ -67,6 +69,9 @@ namespace Meep
 
             if (shouldShowTypePrefixes)
                 ShowTypePrefixes();
+
+            if (shouldShowLibrary)
+                ShowLibrary();
 
             LoadBasePlugins();
 
@@ -123,6 +128,14 @@ namespace Meep
             Console.WriteLine("  URL:/relative/url    - Specify relative URLs with the 'URL:' prefix.");
             Console.WriteLine("  http://example.com/  - Absolute URLs do not need an extra prefix. Meep knows the 'scheme://' pattern.");
             Console.WriteLine("  <?xml?>              - Begin XML with a standard declaration (include version and encoding optionally) if Meep doesn't guess from the matching root element tags.");
+        }
+
+        static void ShowLibrary()
+        {
+            Console.WriteLine("Selections available for <Emit Selection=\"...\">");
+            foreach (var book in MeepLib.Sources.Emit.GetSelections())
+                Console.WriteLine(book.Key);
+            Console.WriteLine("\n\nFeed the output of <Timer> or <Random> to <Emit>, or set the Paragraph attribute to emit specific paragraphs or items from the selection.");
         }
 
         static void Bootstrapper_PipelineRefreshed(object sender, PipelineRefreshEventArgs e)
