@@ -22,7 +22,7 @@ namespace MeepLib.Outputs
 
         public override async Task<Message> HandleMessage(Message msg)
         {
-            var selection = await From.Select(msg, this);
+            var selection = await From.SelectMessage(msg, this);
             if (selection != null)
                 if (selection is Batch)
                     foreach (var s in ((Batch)selection).Messages)

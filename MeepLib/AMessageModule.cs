@@ -18,7 +18,7 @@ using MeepLib.Config;
 
 namespace MeepLib
 {
-    public abstract class AMessageModule : ANamable, IParent, IChild
+    public abstract class AMessageModule : ANamable, IParent, IChild, IDisposable
     {
         protected Logger logger
         {
@@ -264,6 +264,11 @@ namespace MeepLib
         IEnumerable<ANamable> IParent.GetChildren()
         {
             return Upstreams.Cast<ANamable>().Union(Config.Cast<ANamable>());
+        }
+
+        public virtual void Dispose()
+        {
+            // Subclasses will override this to dispose of resources
         }
     }
 }

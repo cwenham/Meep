@@ -16,7 +16,7 @@ namespace MeepLib.Messages
     /// <remarks>All communication between modules in a pipeline take the form
     /// of messages derived from this class.</remarks>
     [DataContract]
-    public class Message
+    public class Message : IDisposable
     {
         /// <summary>
         /// Message ID
@@ -140,6 +140,12 @@ namespace MeepLib.Messages
             {
                 return null;
             }
+        }
+
+        public virtual void Dispose()
+        {
+            // Override in descendant classes that have resources to be mopped up.
+            // Dispose() should be called by EOLMessage() in the Meep host.
         }
     }
 }

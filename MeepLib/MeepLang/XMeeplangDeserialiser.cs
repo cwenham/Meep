@@ -165,7 +165,7 @@ namespace MeepLib.MeepLang
     {
         public string Element { get; set; }
 
-        public UnknownElementException(string element)
+        public UnknownElementException(string element) : base($"Could not find Module named {element}")
         {
             Element = element;
         }

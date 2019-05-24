@@ -112,6 +112,17 @@ namespace MeepLib
             yield break;
         }
 
+        public async Task<IEnumerable<string>> SelectStrings(MessageContext context)
+        {
+            if (context.msg is XContainerMessage)
+                return ExtractXPathToStrings(((XContainerMessage)context.msg).Value);
+
+            if (context.msg is JTokenMessage)
+                return ExtractJPathToStrings(((JTokenMessage)context.msg).Value);
+
+            return new string[] { ExtractSmartFormatToString(context) };
+        }
+
         /// <summary>
         /// Apply the selection to a Message, returning a single result in best specific type or a BatchMessage if 
         /// there are multiple results
@@ -120,7 +131,7 @@ namespace MeepLib
         /// <param name="module"></param>
         /// <returns></returns>
         /// <remarks>Mainly for modules like Extract that will return the results directly.</remarks>
-        public async Task<Message> Select(Message msg, AMessageModule module = null)
+        public async Task<Message> SelectMessage(Message msg, AMessageModule module = null)
         {
             Task<string> contentTask = null;
             IStreamMessage streamMsg = msg as IStreamMessage;
@@ -131,14 +142,14 @@ namespace MeepLib
                 return new Batch
                 {
                     DerivedFrom = msg,
-                    Messages = ExtractXPath(((XContainerMessage)msg).Value, msg)
+                    Messages = ExtractXPathToMessages(((XContainerMessage)msg).Value, msg)
                 };
 
             if (msg is JTokenMessage)
                 return new Batch
                 {
                     DerivedFrom = msg,
-                    Messages = ExtractJPath(((JTokenMessage)msg).Value, msg)
+                    Messages = ExtractJPathToMessages(((JTokenMessage)msg).Value, msg)
                 };
 
             if (msg is StringMessage)
@@ -160,7 +171,7 @@ namespace MeepLib
                 }
             }
 
-            return ExtractSmartFormat(msg, module);
+            return ExtractSmartFormatToMessage(msg, module);
         }
 
         private Message HandleMessage(StringMessage msg, AMessageModule module = null)
@@ -175,7 +186,7 @@ namespace MeepLib
                             return new Batch
                             {
                                 DerivedFrom = msg,
-                                Messages = ExtractXPath(xdoc, msg)
+                                Messages = ExtractXPathToMessages(xdoc, msg)
                             };
                         break;
                     case DataScent.JsonPath:
@@ -184,17 +195,17 @@ namespace MeepLib
                             return new Batch
                             {
                                 DerivedFrom = msg,
-                                Messages = ExtractJPath(jdoc, msg)
+                                Messages = ExtractJPathToMessages(jdoc, msg)
                             };
                         break;
                     case DataScent.Regex:
                         return new Batch
                         {
                             DerivedFrom = msg,
-                            Messages = ExtractRegex(msg.Value, msg)
+                            Messages = ExtractRegexToMessages(msg.Value, msg)
                         };
                     case DataScent.SmartFormat:
-                        return ExtractSmartFormat(msg, module);
+                        return ExtractSmartFormatToMessage(msg, module);
                     case DataScent.SQLang:
                         // ToDo: Can we treat msg contents as a DB connection and query it?
                         break;
@@ -210,7 +221,7 @@ namespace MeepLib
                     default:
                         break;
                 }
-                return ExtractSmartFormat(msg, module);
+                return ExtractSmartFormatToMessage(msg, module);
             }
             catch (Exception ex)
             {
@@ -219,7 +230,13 @@ namespace MeepLib
             }
         }
 
-        private IEnumerable<Message> ExtractXPath(XContainer content, Message msg)
+        private IEnumerable<string> ExtractXPathToStrings(XContainer content)
+        {
+            return from m in content.XPathSelectElements(Value)
+                   select m.ToString();
+        }
+
+        private IEnumerable<Message> ExtractXPathToMessages(XContainer content, Message msg)
         {
             return from m in content.XPathSelectElements(Value)
                    select new XContainerMessage
@@ -229,7 +246,13 @@ namespace MeepLib
                    };
         }
 
-        private IEnumerable<Message> ExtractJPath(JToken content, Message msg)
+        private IEnumerable<string> ExtractJPathToStrings(JToken content)
+        {
+            return from t in content.SelectTokens(Value, false)
+                   select t.ToString();
+        }
+
+        private IEnumerable<Message> ExtractJPathToMessages(JToken content, Message msg)
         {
             return from t in content.SelectTokens(Value, false)
                    select new JTokenMessage
@@ -239,7 +262,20 @@ namespace MeepLib
                    };
         }
 
-        private Message ExtractSmartFormat(Message msg, AMessageModule module = null)
+        private string ExtractSmartFormatToString(MessageContext context)
+        {
+            try
+            {
+                return Smart.Format(Value, context);
+            }
+            catch (Exception ex)
+            {
+                logger.Warn(ex, "{0} thrown Extracting from SmartFormat: {1}", ex.GetType().Name, ex.Message);
+            }
+            return null;
+        }
+
+        private Message ExtractSmartFormatToMessage(Message msg, AMessageModule module = null)
         {
             try
             {
@@ -259,7 +295,18 @@ namespace MeepLib
             return null;
         }
 
-        private IEnumerable<Message> ExtractRegex(string content, Message msg)
+        private IEnumerable<string> ExtractRegexToStrings(string content)
+        {
+            var match = Match(content);
+
+            if (match != null && match.Success)
+                return from g in match.Groups.Skip(1)
+                       select g.Value;
+            else
+                return null;
+        }
+
+        private IEnumerable<Message> ExtractRegexToMessages(string content, Message msg)
         {
             var match = Match(content);
 

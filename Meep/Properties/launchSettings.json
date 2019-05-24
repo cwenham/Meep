@@ -2,7 +2,7 @@
   "profiles": {
     "Meep": {
       "commandName": "Project",
-      "commandLineArgs": "-p Z:\\JaneksBlackBox.meep -q"
+      "commandLineArgs": "-p C:\\Users\\cwenham\\source\\repos\\MeepCookbook\\SSHDeploy.meep"
     }
   }
 }

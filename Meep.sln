@@ -1,23 +1,26 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeepLib", "MeepLib\MeepLib.csproj", "{1DDB9706-D4C3-4B97-A747-4495B5E067C7}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28917.182
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeepLib", "MeepLib\MeepLib.csproj", "{1DDB9706-D4C3-4B97-A747-4495B5E067C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeepModel", "MeepModel\MeepModel.csproj", "{3820C9ED-2793-4267-86D8-74B324F44BF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeepModel", "MeepModel\MeepModel.csproj", "{3820C9ED-2793-4267-86D8-74B324F44BF9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeepLibTests", "MeepLibTests\MeepLibTests.csproj", "{415825F3-F77F-48F9-A169-C63AED0EDC24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeepLibTests", "MeepLibTests\MeepLibTests.csproj", "{415825F3-F77F-48F9-A169-C63AED0EDC24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meep", "Meep\Meep.csproj", "{A27855EA-4D6A-4D92-AA3C-9E4FC8D48609}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meep", "Meep\Meep.csproj", "{A27855EA-4D6A-4D92-AA3C-9E4FC8D48609}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeepGit", "MeepGit\MeepGit.csproj", "{50F8817D-84D1-43AC-9150-F3A26C0ED2AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeepGit", "MeepGit\MeepGit.csproj", "{50F8817D-84D1-43AC-9150-F3A26C0ED2AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeepSQL", "MeepSQL\MeepSQL.csproj", "{44E77B08-5B0E-4CE7-9123-B24312209882}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeepSQL", "MeepSQL\MeepSQL.csproj", "{44E77B08-5B0E-4CE7-9123-B24312209882}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3EBFBC13-D147-4258-A41F-6000DF3A8ED8}"
 	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
 		LICENSE = LICENSE
+		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeepSSH", "MeepSSH\MeepSSH.csproj", "{7996145E-1F0A-4E5D-8009-843D31EAC80C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +52,16 @@ Global
 		{44E77B08-5B0E-4CE7-9123-B24312209882}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44E77B08-5B0E-4CE7-9123-B24312209882}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44E77B08-5B0E-4CE7-9123-B24312209882}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7996145E-1F0A-4E5D-8009-843D31EAC80C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7996145E-1F0A-4E5D-8009-843D31EAC80C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7996145E-1F0A-4E5D-8009-843D31EAC80C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7996145E-1F0A-4E5D-8009-843D31EAC80C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {87E9AE8B-C7CA-489F-91F1-69C834F83E7F}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0

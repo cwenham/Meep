@@ -150,7 +150,7 @@ namespace Meep
                 observable.Connect();
 
                 Subscription = observable.SubscribeOn(TaskPoolScheduler.Default).Subscribe<Message>(
-                    msg => RegisterMessage(msg),
+                    msg => EOLMessage(msg),
                     ex => LogError(ex),
                     () => Console.WriteLine("Pipeline completed")
                 );
@@ -161,7 +161,12 @@ namespace Meep
             }
         }
 
-        private static void RegisterMessage(Message msg)
+        /// <summary>
+        /// End-Of-Life a message
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <remarks>Writes the message out according to gutter serialisation rules, then calls Dispose().</remarks>
+        private static void EOLMessage(Message msg)
         {
             switch (GutterSerialisation)
             {
@@ -179,6 +184,8 @@ namespace Meep
                 default:
                     break;
             }
+
+            msg.Dispose();
         }
 
         private static void LogError(Exception ex)
@@ -195,6 +202,7 @@ namespace Meep
 
             Assembly.LoadFrom(Path.Combine(exeDirectory, "MeepSQL.dll"));
             Assembly.LoadFrom(Path.Combine(exeDirectory, "MeepGit.dll"));
+            Assembly.LoadFrom(Path.Combine(exeDirectory, "MeepSSH.dll"));
         }
     }
 
