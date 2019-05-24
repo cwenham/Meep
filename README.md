@@ -213,10 +213,11 @@ careful.
 Timers are just one kind of fountainhead, or _source_. Here are some others
 built into Meep:
 
+   * **Emit** Emit individual paragraphs (or words) from a common text such as Lorem Ipsum or a list of countries
    * **Fibonacci** Produces the next number in a Fibonacci sequence
    * **FileChanges** Generates a message every time a file is created or changes on disk
    * **Get** Fetches the contents of a URL
-   * **Listen** Listens for incoming HTTP requests
+   * **Listen** for incoming HTTP requests. Combined with **Respond** to implement a basic HTTP server
    * **Load** Loads a file from disk
    * **Localise** Caches a resource at a remote URL, either to disk or memory
    * **Ping** Pings a remote host
@@ -233,8 +234,10 @@ Get, or Load the file that changed, and so-on.
 
    * **Bayes** categorisation and training, with a native implementation
    * **Bloom** for managing cache hits
+   * **Distinct** and **DistinctUntilChanged** for ignoring dupes
+   * **Match** RegEx matching
+   * **Skip** Skip n-many messages
    * **Where** using [NCalc](https://github.com/sklose/NCalc2) expressions
-   * **Pattern** using regular expressions (regex)
    
 The output message of **Pattern** includes the Match object, which you can
 inspect downstream in {Smart.Format} expressions.
@@ -243,10 +246,13 @@ inspect downstream in {Smart.Format} expressions.
 
    * **Delete** HTTP
    * **Email**
+   * **Extract** subsets according to XPath, JPath or RegEx
    * **Post** HTTP
    * **Put** HTTP
-   * **Recombine** genomes defined in XML, for making basic genetic algorithms
+   * **Recombine** genomes defined in XML, for making genetic algorithms
+   * **Respond** to inbound HTTP requests taken by **Listen**
    * **Save** to file
+   * **Split** delimited data into columns and rows
    * **Unzip** files
    * **WriteLine** to console 
            
@@ -254,8 +260,8 @@ inspect downstream in {Smart.Format} expressions.
             
 MeepLib only supports a few modules on its own so its base NuGet package can 
 remain a pure .Net-Standard library with minimal dependencies. So the host Meep 
-program bundles it with two plugins to make it more useful out-of-the-box: 
-MeepGit and MeepSQL. 
+program bundles it with three plugins to make it more useful out-of-the-box: 
+MeepGit, MeepSQL, and MeepSSH. 
 
 MeepGit supports Git operations like Clone, Pull, Fetch, and Checkout. In
 addition to exposing these functions as modules you can use, Meep uses them
@@ -269,6 +275,10 @@ any database supported by .Net ADO, and it includes default support for SQLite:
 if you need to "just dump it somewhere" then remember our first example at the 
 top of this page: all the defaults are chosen for zero-config usage.
         
+MeepSSH can connect to any SSH host with password or private key authentication,
+converting upstream messages into commands executed on the remote host, and the
+output of those commands into messages passed downstream.
+
 Meep is based on System.Reactive and handles messages asynchronously and in 
 realtime.
 
