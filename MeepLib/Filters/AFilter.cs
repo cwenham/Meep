@@ -11,7 +11,7 @@ namespace MeepLib.Filters
     /// in case of a match. The user will optionally set the value of Polarity
     /// if they want to flip the action of the filter in reverse; to pass
     /// messages that match instead of block them.</remarks>
-    public class AFilter : AMessageModule
+    public class AFilter : AMessageModule, IPolarisedFilter
     {
         /// <summary>
         /// Whether a positive match means the message will Pass or Block
@@ -20,7 +20,7 @@ namespace MeepLib.Filters
         /// <remarks>Defaults to "Block".</remarks>
         public string Polarity { get; set; } = "Pass";
 
-        protected bool blockOnMatch
+        public bool BlockOnMatch
         {
             get
             {
@@ -28,26 +28,17 @@ namespace MeepLib.Filters
             }
         }
 
-        /// <summary>
-        /// Act according to polarity when a messages passes the filter's test
-        /// </summary>
-        /// <returns></returns>
-        /// <param name="msg">Message.</param>
-        /// <remarks>Used to make filter implementations easier to read and
-        /// understand. The module would only be concerned with its test, and
-        /// returns ThisPassedTheTest(msg) to let us decide if that means the
-        /// message goes through or is blocked.</remarks>
-        protected Message ThisPassedTheTest(Message msg)
+        public Message ThisPassedTheTest(Message msg)
         {
-            if (blockOnMatch)
+            if (BlockOnMatch)
                 return null;
             else
                 return msg;
         }
 
-        protected Message ThisFailedTheTest(Message msg)
+        public Message ThisFailedTheTest(Message msg)
         {
-            if (!blockOnMatch)
+            if (!BlockOnMatch)
                 return null;
             else
                 return msg;
