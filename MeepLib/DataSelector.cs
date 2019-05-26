@@ -19,8 +19,9 @@ namespace MeepLib
     /// <summary>
     /// A selector such as an XPath, JPath, Regex, or {Smart.Format} template 
     /// </summary>
-    /// <remarks>Supports implicit conversion from strings or via its own TypeConverter so it can be used as the type
-    /// for "From" properties in modules that need to provide a selector that's standardised across Meep.
+    /// <remarks>Supports implicit conversion from strings or via its own TypeConverter so it can be used liberally
+    /// as the property type of Message Modules so the user has the flexibility to use whatever fits the job in
+    /// the Meeplang definitions and supports a uniform selection of type prefixes and syntax hints.
     /// </remarks>
     [TypeConverter(typeof(DataSelectorConverter))]
     public class DataSelector
@@ -112,6 +113,11 @@ namespace MeepLib
             yield break;
         }
 
+        /// <summary>
+        /// Extract string data from a message's content
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public async Task<IEnumerable<string>> SelectStrings(MessageContext context)
         {
             if (context.msg is XContainerMessage)
@@ -121,6 +127,44 @@ namespace MeepLib
                 return ExtractJPathToStrings(((JTokenMessage)context.msg).Value);
 
             return new string[] { ExtractSmartFormatToString(context) };
+        }
+
+        /// <summary>
+        /// Extract string data from a message's content
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public async Task<string> SelectString(MessageContext context)
+        {
+            return (await SelectStrings(context))?.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Try to extract a long from a message's content
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns>Tuple with a bool and long. If extraction and parsing as a long succeeded, the bool will be true.</returns>
+        public async Task<(bool,long)> TrySelectLong(MessageContext context)
+        {
+            string sNumber = await SelectString(context);
+            if (long.TryParse(sNumber, out long num))
+                return (true, num);
+            else
+                return (false, 0);            
+        }
+
+        /// <summary>
+        /// Try to extract a decimal from a message's content
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns>Tuple with a bool and a decimal. If extraction and parsing as a decimal succeeded, the bool will be true.</returns>
+        public async Task<(bool,decimal)> TrySelectDecimal(MessageContext context)
+        {
+            string sNumber = await SelectString(context);
+            if (decimal.TryParse(sNumber, out decimal num))
+                return (true, num);
+            else
+                return (false, 0m);
         }
 
         /// <summary>
