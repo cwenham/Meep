@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 using System.Data.SQLite;
 using SmartFormat;
@@ -150,10 +151,10 @@ namespace MeepSQL
         /// </summary>
         /// <returns>The CREATE TABLE statement.</returns>
         /// <param name="table">Table definition.</param>
-        public static string ToCreateTable(this Config.Table table)
+        public static async Task<string> ToCreateTable(this Config.Table table, MessageContext context)
         {
             if (!(table.Create is null))
-                return table.Create.Content;
+                return await table.Create.Content.SelectString(context);
 
             List<string> definitions = new List<string>();
             List<string> indexes = new List<string>();

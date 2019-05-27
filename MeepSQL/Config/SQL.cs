@@ -2,6 +2,7 @@
 using System.Xml;
 
 using MeepLib;
+using MeepLib.Config;
 using MeepLib.MeepLang;
 
 namespace MeepSQL.Config
@@ -11,12 +12,14 @@ namespace MeepSQL.Config
     /// </summary>
     /// <remarks>For the user that wants to override automatic SQL generation.</remarks>
     [MeepNamespace(ASqlModule.PluginNamespace)]
-    public class SQL: ANamable, IMeepDeserialisable
+    public class SQL: AConfig, IMeepDeserialisable
     {
-        public string Content { get; set; }
+        public DataSelector Content { get; set; }
 
         public void ReadXML(XmlReader reader)
         {
+            this.Name = reader.GetAttribute("Name");
+
             while (reader.NodeType != XmlNodeType.Text && reader.NodeType != XmlNodeType.EndElement)
             {
                 if (!reader.Read())

@@ -52,16 +52,20 @@ namespace MeepSQL
             {
                 var sample = group.First();
                 MessageContext context = new MessageContext(sample, this);
-                string tableName = Smart.Format(Table, context);
+                string dbName = await Database.SelectString(context);
+                string tableName = await Table.SelectString(context);
                 string[] parameterised = $"UPDATE {tableName} SET {Set} WHERE {Where}".ToSmartParameterised();
 
                 if (String.IsNullOrWhiteSpace(tableName))
                     tableName = sample.TableName();
 
-                WriteMutex.WaitOne();
+                Mutex accessMutex = null;
+                if (AccessMutex.ContainsKey(dbName))
+                    accessMutex = AccessMutex[dbName];
                 try
                 {
-                    using (DbConnection connection = NewConnection(context))
+                    accessMutex?.WaitOne();
+                    using (DbConnection connection = await NewConnection(context))
                     {
                         connection.Open();
 
@@ -92,7 +96,7 @@ namespace MeepSQL
                 }
                 finally
                 {
-                    WriteMutex.ReleaseMutex();
+                    accessMutex?.ReleaseMutex();
                 }
             }
 

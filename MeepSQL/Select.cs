@@ -31,32 +31,32 @@ namespace MeepSQL
         /// Limit the number of results, if Order is specified
         /// </summary>
         /// <value></value>
-        public int Top { get; set; }
+        public DataSelector Top { get; set; }
 
         /// <summary>
         /// Specific columns to select
         /// </summary>
         /// <value>Comma separated list, in SQL syntax</value>
         /// <remarks>Defaults to all ('*')</remarks>
-        public string Columns { get; set; } = "*";
+        public DataSelector Columns { get; set; } = "*";
 
         /// <summary>
         /// Where clause in {Smart.Format}
         /// </summary>
         /// <value>The where.</value>
-        public string Where { get; set; } = "";
+        public DataSelector Where { get; set; } = "";
 
         /// <summary>
         /// Order By clause
         /// </summary>
         /// <value>The order.</value>
-        public string Order { get; set; } = "";
+        public DataSelector Order { get; set; } = "";
 
         /// <summary>
         /// Which named query to use, if any are defined
         /// </summary>
         /// <value>The query.</value>
-        public string Query { get; set; } = "";
+        public DataSelector Query { get; set; } = "";
 
         /// <summary>
         /// Full SQL queries in {Smart.Format}
@@ -75,32 +75,33 @@ namespace MeepSQL
         {
             MessageContext context = new MessageContext(msg, this);
 
-            string sfTable = Smart.Format(Table, context);
-            string sfColumn = Smart.Format(Columns, context);
-            string sfWhere = Smart.Format(Where, context);
-            string sfOrder = Smart.Format(Order, context);
-            string sfQueryName = Smart.Format(Query, context);
-            string sfSql = null;
+            (bool topDefined, long dsTop) = await Top.TrySelectLong(context);
+            string dsTable = await Table.SelectString(context);
+            string dsColumn = await Columns.SelectString(context);
+            string dsWhere = await Where.SelectString(context);
+            string dsOrder = await Order.SelectString(context);
+            string dsQueryName = await Query.SelectString(context);
+            string dsSql = null;
 
             // Empty Where
-            if (String.IsNullOrWhiteSpace(sfWhere))
-                sfWhere = "1 = 1";
+            if (String.IsNullOrWhiteSpace(dsWhere))
+                dsWhere = "1 = 1";
 
             try
             {
-                var namedQuery = Queries?.Where(x => x.Name.Equals(sfQueryName)).FirstOrDefault();
+                var namedQuery = Queries?.Where(x => x.Name.Equals(dsQueryName)).FirstOrDefault();
                 if (namedQuery != null)
-                    sfSql = Smart.Format(namedQuery.Content, context);
+                    dsSql = await namedQuery.Content.SelectString(context);
                 else
-                    sfSql = Smart.Format("SELECT {0} FROM {1} WHERE {2} {3} {4}",
-                                         sfColumn,
-                                         sfTable,
-                                         sfWhere,
-                                         !String.IsNullOrWhiteSpace(sfOrder) ? $"ORDER BY {sfOrder}" : "",
-                                         Top > 0 ? $"LIMIT {Top}" : ""
+                    dsSql = Smart.Format("SELECT {0} FROM {1} WHERE {2} {3} {4}",
+                                         dsColumn,
+                                         dsTable,
+                                         dsWhere,
+                                         !String.IsNullOrWhiteSpace(dsOrder) ? $"ORDER BY {dsOrder}" : "",
+                                         topDefined ? $"LIMIT {Top}" : ""
                                         );
 
-                using (DbConnection connection = NewConnection(context))
+                using (DbConnection connection = await NewConnection(context))
                 {
                     connection.Open();
 
@@ -108,7 +109,7 @@ namespace MeepSQL
                     // into the query.
 
                     DbCommand cmd = connection.CreateCommand();
-                    cmd.CommandText = sfSql;
+                    cmd.CommandText = dsSql;
                     cmd.CommandType = CommandType.Text;
                     var result = await cmd.ExecuteReaderAsync();
 
@@ -134,7 +135,7 @@ namespace MeepSQL
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"{ex.GetType().Name} thrown for \"{sfSql}\": {ex.Message}");
+                logger.Error(ex, $"{ex.GetType().Name} thrown for \"{dsSql}\": {ex.Message}");
                 return null;
             }
         }

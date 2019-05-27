@@ -51,9 +51,9 @@ namespace MeepSQL
 
                 MessageContext context = new MessageContext(sample, this);
 
-                string connectionString = Connection != null ? Smart.Format(Connection, context) : null;
-                string dbName = Smart.Format(Database, context);
-                string tableName = Smart.Format(Table, context);
+                string connectionString = Connection != null ? await Connection.SelectString(context) : null;
+                string dbName = Database != null ? await Database.SelectString(context) : null;
+                string tableName = Table != null ? await Table.SelectString(context) : null;
 
                 if (String.IsNullOrWhiteSpace(connectionString))
                 {
@@ -69,13 +69,17 @@ namespace MeepSQL
                 if (String.IsNullOrWhiteSpace(tableName))
                     tableName = sample.TableName();
 
-                WriteMutex.WaitOne();
+                Mutex accessMutex = null;
+                if (AccessMutex.ContainsKey(dbName))
+                    accessMutex = AccessMutex[dbName];
+
                 try
                 {
                     Config.Table table = ByName<Config.Table>(tableName);
                     if (table is null)
                         table = sample.ToTableDef(tableName);
 
+                    accessMutex?.WaitOne();
                     using (DbConnection connection = connectionString.ToConnection())
                     {
                         connection.Open();
@@ -92,7 +96,8 @@ namespace MeepSQL
                         if (!tableExists)
                         {
                             var ctcmd = connection.CreateCommand();
-                            ctcmd.CommandText = String.Format("BEGIN;\n{0}\nCOMMIT;", table.ToCreateTable());
+
+                            ctcmd.CommandText = String.Format("BEGIN;\n{0}\nCOMMIT;", table.ToCreateTable(context));
                             ctcmd.ExecuteScalar();
                         }
 
@@ -114,7 +119,7 @@ namespace MeepSQL
                 }
                 finally
                 {
-                    WriteMutex.ReleaseMutex();
+                    accessMutex?.ReleaseMutex();
                 }
             }
 

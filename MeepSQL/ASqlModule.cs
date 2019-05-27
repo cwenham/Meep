@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Data.Common;
 using System.Threading.Tasks;
 using System.IO;
@@ -21,33 +22,33 @@ namespace MeepSQL
         public const string PluginNamespace = "http://meep.example.com/MeepSQL/V1";
 
         /// <summary>
-        /// Connection string in {Smart.Format}
+        /// Connection string
         /// </summary>
         /// <value>The connection.</value>
         /// <remarks>Defaults to SQLite</remarks>
-        public string Connection { get; set; } = "";
+        public DataSelector Connection { get; set; }
 
         protected static string _defaultConnection = "Data Source={0}.sqlite";
 
         /// <summary>
-        /// Database name in {Smart.Format}
+        /// Database name
         /// </summary>
         /// <value>The database.</value>
         /// Use instead of a connection string to default to SQLite
-        public string Database { get; set; } = "";
+        public DataSelector Database { get; set; }
 
         /// <summary>
         /// Name of table in {Smart.Format} to insert|update
         /// </summary>
         /// <value>The table.</value>
         /// <remarks>Defaults to name of database, meant for one-table stores and "just dump it somewhere" usage.</remarks>
-        public string Table { get; set; } = "";
+        public DataSelector Table { get; set; }
 
         /// <summary>
         /// Compound Database:Table name
         /// </summary>
         /// <value>Database and table names separated by colon</value>
-        /// <remarks>Mainly for use with the macro syntax</remarks>
+        /// <remarks>For use with the macro syntax</remarks>
         public string DBTable
         {
             private get
@@ -70,25 +71,32 @@ namespace MeepSQL
         /// itself rather than its contents, such as statistical information.</remarks>
         public bool Unbatch { get; set; } = true;
 
-        protected static Mutex WriteMutex = new Mutex();
+        /// <summary>
+        /// Dictionary of mutexes for serialising access to SQLite databases
+        /// </summary>
+        /// <remarks>Descendant modules are expected to make use of this as needed.</remarks>
+        protected static ConcurrentDictionary<string, Mutex> AccessMutex = new ConcurrentDictionary<string, Mutex>();
 
-        protected DbConnection NewConnection(MessageContext context)
+        protected async Task<DbConnection> NewConnection(MessageContext context)
         {
-            string sfConnectionString = Connection != null ? Smart.Format(Connection, context) : null;
-            string sfDatabase = Smart.Format(Database, context);
+            string dsConnectionString = Connection != null ? await Connection.SelectString(context) : null;
+            string dsDatabase = Database != null ? await Database.SelectString(context) : null;
 
-            if (String.IsNullOrWhiteSpace(sfConnectionString))
+            if (String.IsNullOrWhiteSpace(dsConnectionString))
             {
                 // Default to a SQLite database if no connection string given
                 string dbPath = Path.Combine(AHostProxy.Current.BaseDirectory, "Databases");
                 if (!Directory.Exists(dbPath))
                     Directory.CreateDirectory(dbPath);
 
-                string dbFile = Path.Combine(dbPath, sfDatabase);
-                sfConnectionString = String.Format(_defaultConnection, dbFile);
+                string dbFile = Path.Combine(dbPath, dsDatabase);
+                dsConnectionString = String.Format(_defaultConnection, dbFile);
+
+                if (!AccessMutex.ContainsKey(dsDatabase))
+                    AccessMutex.TryAdd(dsDatabase, new Mutex());
             }
 
-            return sfConnectionString.ToConnection();
+            return dsConnectionString.ToConnection();
         }
     }
 }

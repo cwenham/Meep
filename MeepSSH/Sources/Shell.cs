@@ -4,8 +4,6 @@ using System.Text;
 using System.Linq;
 using System.Reactive.Linq;
 
-using NLog;
-using SmartFormat;
 using Renci.SshNet;
 
 using MeepLib;
