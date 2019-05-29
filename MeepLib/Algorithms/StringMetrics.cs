@@ -19,9 +19,10 @@ namespace MeepLib.Algorithms
             "fh","sk","jd","hf",
             "pq","rp","ql","wj","vb","pg",
             "dfh","hfd","sdf","adsr","sdt",
-            "thg","tyt","fds","dtf","fjh",
+            "thg","tyt","fds","fdf","dtf","fjh",
             "gjh","yhg","srd","dgh","jkg",
-            "dfg","jkdf","dfgh","ghjk"
+            "dfg","jkdf","dfgh","ghjk","sfd",
+            "wdw"
         };
 
         /// <summary>
