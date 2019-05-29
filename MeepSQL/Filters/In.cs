@@ -75,6 +75,7 @@ namespace MeepSQL.Filters
             string dsQueryName = Query != null ? await Query?.SelectString(context) : null;
             string sfSql = null;
 
+            bool hasRows = false;
             Mutex accessMutex = null;
             if (AccessMutex.ContainsKey(dbName))
                 accessMutex = AccessMutex[dbName];
@@ -123,11 +124,8 @@ namespace MeepSQL.Filters
                     }
 
                     var result = await cmd.ExecuteReaderAsync();
-
-                    if (result.HasRows)
-                        return ThisPassedTheTest(msg);
-                    else
-                        return ThisFailedTheTest(msg);
+                    hasRows = result.HasRows;
+                    result.Close();
                 }
             }
             catch (Exception ex)
@@ -140,6 +138,11 @@ namespace MeepSQL.Filters
                 accessMutex?.ReleaseMutex();
             }
 
+            // Wait to get out of the try/using/finally block for lock sensitive databases like SQLite
+            if (hasRows)
+                return ThisPassedTheTest(msg);
+            else
+                return ThisFailedTheTest(msg);
         }
 
         public bool BlockOnMatch { get; set; }
