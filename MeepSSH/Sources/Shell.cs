@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Text;
 using System.Linq;
 using System.Reactive.Linq;
@@ -38,15 +39,10 @@ namespace MeepSSH.Sources
             {
                 if (_pipeline is null)
                 {
-                    _client = CreateClient();
-                    _client.KeepAliveInterval = KeepAlive;
-
                     _pipeline = from msg in UpstreamMessaging
                                 let result = ShippingAndHandling(msg)
                                 where result != null
                                 select result;
-
-                    _client.Connect();
                 }
 
                 return _pipeline;
@@ -61,49 +57,87 @@ namespace MeepSSH.Sources
         public async override Task<Message> HandleMessage(Message msg)
         {
             MessageContext context = new MessageContext(msg, this);
+            ConnectionInfo info = await GetConnectionInfo(context);
+            string connectionName = ConnectionName(info);
+            SshClient client = null;
+            if (_clients.ContainsKey(connectionName))
+                client = _clients[connectionName];
+            else
+            {
+                client = new SshClient(info);
+                client.KeepAliveInterval = KeepAlive;
+                _clients.TryAdd(connectionName, client);
+            }
+
+            try
+            {
+                if (!client.IsConnected)
+                    client.Connect();
+            }
+            catch (Exception ex)
+            {
+                logger.Warn(ex, "{0} thrown when trying to connect to {1}: {2}", ex.GetType().Name, connectionName, ex.Message);
+                return null;
+            }
+
             string command = (await Command.SelectStrings(context))?.FirstOrDefault();
 
             if (String.IsNullOrWhiteSpace(command))
                 return null;
 
-            var commandRunner = _client.CreateCommand(command);
-            commandRunner.CommandTimeout = this.Timeout;
-
-            var result = await Task.Factory.FromAsync((callback, stateObject) => commandRunner.BeginExecute(callback, stateObject), commandRunner.EndExecute, null);
-
-            return new StringMessage
+            try
             {
-                DerivedFrom = msg,
-                Value = result
-            };
+                var commandRunner = client.CreateCommand(command);
+                commandRunner.CommandTimeout = this.Timeout;
+
+                var result = await Task.Factory.FromAsync((callback, stateObject) => commandRunner.BeginExecute(callback, stateObject), commandRunner.EndExecute, null);
+
+                return new StringMessage
+                {
+                    DerivedFrom = msg,
+                    Value = result
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.Warn(ex, "{0} thrown when sending command to {1}: {2}", ex.GetType().Name, connectionName, ex.Message);
+                return null;
+            }
         }
 
         /// <summary>
         /// Create an SshClient based on the connection parameters set in attributes
         /// </summary>
         /// <returns></returns>
-        private SshClient CreateClient()
+        private SshClient CreateClient(MessageContext context)
         {
-            MessageContext context = new MessageContext(null, this);
             var connectionInfoTask = GetConnectionInfo(context);
             connectionInfoTask.Wait();
             if (connectionInfoTask.Result is null)
-                throw new ArgumentException("Insufficient connection details");
+                throw new ArgumentException("Insufficient connection details");            
 
             return new SshClient(connectionInfoTask.Result);
         }
 
-        private SshClient _client;
+        private string ConnectionName(ConnectionInfo info)
+        {
+            return $"{info.Username}@{info.Host}:{info.Port}";
+        }
+
+        /// <summary>
+        /// Dictionary of clients by ConnectioName
+        /// </summary>
+        private Dictionary<string, SshClient> _clients = new Dictionary<string, SshClient>();
 
         /// <summary>
         /// Disconnect from the remote host and dispose of SshClient
         /// </summary>
         public override void Dispose()
         {
-            if (_client != null)
+            foreach (var client in _clients.Values)
             {
-                _client.Disconnect();
-                _client.Dispose();
+                client.Disconnect();
+                client.Dispose();
             }
         }
     }
