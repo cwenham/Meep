@@ -18,7 +18,7 @@ namespace MeepLib.Filters
     /// Only allow messages with distinct (new) values
     /// </summary>
     /// <remarks></remarks>
-    [Macro(Name = "Distinct", DefaultProperty = "From", Position = MacroPosition.Downstream)]
+    [Macro(Name = "Distinct", DefaultProperty = "From", Position = MacroPosition.Upstream)]
     public class Distinct : AMessageModule
     {
         /// <summary>

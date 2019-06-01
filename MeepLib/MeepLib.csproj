@@ -16,6 +16,12 @@
 Meep is System.Reactive + XML + Plugins.</Description>
     <PackOnBuild>true</PackOnBuild>
     <ReleaseVersion>1.0-alpha</ReleaseVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.1.0</Version>
+    <RepositoryUrl>https://github.com/cwenham/Meep</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Copyright>Chris Wenham</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
@@ -46,5 +52,9 @@ Meep is System.Reactive + XML + Plugins.</Description>
   </ItemGroup>
   <ItemGroup>
     <None Remove="MeepLang\XmlTimeSpan.xml" />
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 </Project>
