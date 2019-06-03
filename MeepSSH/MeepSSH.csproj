@@ -16,8 +16,4 @@
     <ProjectReference Include="..\MeepModel\MeepModel.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Messages\" />
-  </ItemGroup>
-
 </Project>

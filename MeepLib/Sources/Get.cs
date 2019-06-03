@@ -45,11 +45,10 @@ namespace MeepLib.Sources
                 {
                     var result = await client.SendAsync(req);
 
-                    return new WebMessage
+                    return new WebMessage(result.Content.ReadAsStreamAsync())
                     {
                         DerivedFrom = msg,
-                        Headers = result.Headers,
-                        Stream = result.Content.ReadAsStreamAsync()
+                        Headers = result.Headers
                     };
                 }
             }

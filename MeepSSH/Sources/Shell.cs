@@ -27,33 +27,6 @@ namespace MeepSSH.Sources
         /// host. The command will be allowed to finish and its output issued as a StringMessage downstream.</remarks>
         public DataSelector Command { get; set; }
 
-        /// <summary>
-        /// How often to send KeepAlive messages
-        /// </summary>
-        /// <remarks>Defaults to 5 minutes.</remarks>
-        public TimeSpan KeepAlive { get; set; } = TimeSpan.FromMinutes(5);
-
-        public override IObservable<Message> Pipeline
-        {
-            get
-            {
-                if (_pipeline is null)
-                {
-                    _pipeline = from msg in UpstreamMessaging
-                                let result = ShippingAndHandling(msg)
-                                where result != null
-                                select result;
-                }
-
-                return _pipeline;
-            }
-            protected set
-            {
-                _pipeline = value;
-            }
-        }
-        private IObservable<Message> _pipeline;
-
         public async override Task<Message> HandleMessage(Message msg)
         {
             MessageContext context = new MessageContext(msg, this);
@@ -106,28 +79,9 @@ namespace MeepSSH.Sources
         }
 
         /// <summary>
-        /// Create an SshClient based on the connection parameters set in attributes
-        /// </summary>
-        /// <returns></returns>
-        private SshClient CreateClient(MessageContext context)
-        {
-            var connectionInfoTask = GetConnectionInfo(context);
-            connectionInfoTask.Wait();
-            if (connectionInfoTask.Result is null)
-                throw new ArgumentException("Insufficient connection details");            
-
-            return new SshClient(connectionInfoTask.Result);
-        }
-
-        private string ConnectionName(ConnectionInfo info)
-        {
-            return $"{info.Username}@{info.Host}:{info.Port}";
-        }
-
-        /// <summary>
         /// Dictionary of clients by ConnectioName
         /// </summary>
-        private Dictionary<string, SshClient> _clients = new Dictionary<string, SshClient>();
+        private ConcurrentDictionary<string, SshClient> _clients = new ConcurrentDictionary<string, SshClient>();
 
         /// <summary>
         /// Disconnect from the remote host and dispose of SshClient

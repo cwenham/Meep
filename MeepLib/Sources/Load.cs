@@ -48,10 +48,7 @@ namespace MeepLib.Sources
                                 Value = File.ReadAllText(filePath)
                             };
                         else
-                            return new StreamMessage
-                            {
-                                Stream = Task.Run<Stream>(() => File.OpenRead(filePath))
-                            };
+                            return new StreamMessage(File.OpenRead(filePath));
                     }
                     catch (Exception ex)
                     {

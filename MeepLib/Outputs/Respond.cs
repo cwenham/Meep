@@ -22,7 +22,7 @@ namespace MeepLib.Outputs
         /// Body of response in {Smart.Format}
         /// </summary>
         /// <value></value>
-        public string Body { get; set; } = "{AsJSON}";
+        public string Body { get; set; }
 
         /// <summary>
         /// MIME type for response
@@ -39,7 +39,7 @@ namespace MeepLib.Outputs
         public override async Task<Message> HandleMessage(Message msg)
         {
             // Find the original HTTP request, it'll have the context to respond on.
-            WebMessage entry = msg.FirstAncestor<WebMessage>();
+            WebRequestMessage entry = msg.FirstAncestor<WebRequestMessage>();
             if (entry == null
                 || entry.Context == null
                 || !entry.Context.Response.OutputStream.CanWrite)
@@ -47,21 +47,30 @@ namespace MeepLib.Outputs
 
             try
             {
-                await Task.Run(() =>
+                int status = int.Parse(Smart.Format(StatusCode, msg));
+                var contentType = Smart.Format(ContentType, msg);
+
+                var context = entry.Context;
+                context.Response.StatusCode = status;
+                context.Response.ContentType = contentType;
+
+                StreamMessage smsg = msg as StreamMessage;
+                if (smsg != null && Body is null)
                 {
-                    int status = int.Parse(Smart.Format(StatusCode, msg));
-                    var contentType = Smart.Format(ContentType, msg);
-                    var payload = Smart.Format(Body, msg);
+                    var outStream = await smsg.GetStream();
+                    if (outStream.CanSeek)
+                        outStream.Position = 0;
+                    outStream.CopyTo(context.Response.OutputStream);                    
+                }
+                else
+                {
+                    var payload = Smart.Format(Body ?? "{AsJSON}", msg);
                     var payloadBytes = Encoding.UTF8.GetBytes(payload);
-
-                    var context = entry.Context;
-                    context.Response.StatusCode = status;
-                    context.Response.ContentType = contentType;
                     context.Response.ContentLength64 = payloadBytes.Length;
-
                     context.Response.OutputStream.Write(payloadBytes, 0, payloadBytes.Length);
-                    context.Response.Close();
-                }, _cancelSource.Token);
+                }
+
+                context.Response.Close();
             }
             catch (Exception ex)
             {

@@ -16,17 +16,35 @@ namespace MeepLib.Messages
     [DataContract]
     public class StreamMessage : Message, IStreamMessage
     {
-        public Task<Stream> Stream { get; set; }
+        public StreamMessage()
+        {
+            // Default parameterless constructor
+        }
+
+        public StreamMessage(Stream stream)
+        {
+            _stream = stream;
+        }
+
+        protected Stream _stream;
 
         /// <summary>
-        /// The stream
+        /// Task that returns the stream
         /// </summary>
         /// <value>The stream.</value>
-        public async Task<Stream> GetStream()
+        /// <remarks>Intended to be overridden in subclasses where the non-exceptional behaviour is to wait on a task
+        /// that eventually delivers a stream. HttpResponseMessage.Content.ReadAsStreamAsync() for example, returns
+        /// what this would return: a task waiting the milliseconds before a remote host begins sending a stream. We
+        /// expose it as a Task so we don't have to block for those milliseconds.
+        /// 
+        /// <para>If the stream is already available, then it may not be necessary to subclass unless you need to
+        /// package it with some metadata like an origin URL.</para>
+        /// </remarks>
+        public virtual async Task<Stream> GetStream()
         {
             return await Task.Run<Stream>(() =>
             {
-                return Stream;
+                return _stream;
             });
         }
     }

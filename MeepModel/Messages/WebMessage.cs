@@ -5,6 +5,8 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading.Tasks;
+using System.IO;
 
 using Newtonsoft.Json;
 
@@ -16,23 +18,24 @@ namespace MeepLib.Messages
     [DataContract]
     public class WebMessage : StreamMessage
     {
+        public WebMessage(Task<Stream> stream)
+        {
+            _streamTask = stream;
+        }
+
+        private Task<Stream> _streamTask;
+
+        public override async Task<Stream> GetStream()
+        {
+            return await _streamTask;
+        }
+
         /// <summary>
         /// URL the message came from/was delivered to
         /// </summary>
         /// <value>The URL.</value>
         [DataMember]
         public string URL { get; set; }
-
-        /// <summary>
-        /// Live context of the listener
-        /// </summary>
-        /// <value>The context.</value>
-        /// <remarks>Only set if message originated from an HttpListener,
-        /// this will hold the live context of the call so another module in
-        /// the pipeline can respond, making the pipeline act as an HTTP server.
-        /// </remarks>
-        [XmlIgnore, JsonIgnore, NotMapped]
-        public HttpListenerContext Context { get; set; }
 
         /// <summary>
         /// Headers of the response

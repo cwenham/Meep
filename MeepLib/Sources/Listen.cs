@@ -39,7 +39,7 @@ namespace MeepLib.Sources
                 {
                     _cancelSource = new CancellationTokenSource();
 
-                    _pipeline = Observable.Create<WebMessage>(async observer =>
+                    _pipeline = Observable.Create<WebRequestMessage>(async observer =>
                     {
                         var server = new HttpListener();
                         if (!String.IsNullOrWhiteSpace(Base) && Uri.IsWellFormedUriString(Base, UriKind.Absolute))
@@ -48,8 +48,8 @@ namespace MeepLib.Sources
 
                         while (!_cancelSource.IsCancellationRequested)
                         {
-                            var context = await Task.Run(() => server.GetContext(), _cancelSource.Token);
-                            observer.OnNext(new WebMessage
+                            var context = await Task.Run(() => server.GetContext(), _cancelSource.Token);                            
+                            observer.OnNext(new WebRequestMessage
                             {
                                 URL = context.Request.RawUrl,
                                 Context = context

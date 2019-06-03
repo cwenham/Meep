@@ -51,6 +51,12 @@ namespace MeepSSH
         public DataSelector Passphrase { get; set; }
 
         /// <summary>
+        /// How often to send KeepAlive messages
+        /// </summary>
+        /// <remarks>Defaults to 5 minutes.</remarks>
+        public TimeSpan KeepAlive { get; set; } = TimeSpan.FromMinutes(5);
+
+        /// <summary>
         /// Get Password or Private Key authentication method, according to attributes
         /// </summary>
         /// <param name="context"></param>
@@ -125,6 +131,25 @@ namespace MeepSSH
                 return null;
 
             return new ConnectionInfo(host, username, new AuthenticationMethod[] { authMethod });
+        }
+
+        /// <summary>
+        /// Create an SshClient based on the connection parameters set in attributes
+        /// </summary>
+        /// <returns></returns>
+        protected SshClient CreateClient(MessageContext context)
+        {
+            var connectionInfoTask = GetConnectionInfo(context);
+            connectionInfoTask.Wait();
+            if (connectionInfoTask.Result is null)
+                throw new ArgumentException("Insufficient connection details");
+
+            return new SshClient(connectionInfoTask.Result);
+        }
+
+        protected string ConnectionName(ConnectionInfo info)
+        {
+            return $"{info.Username}@{info.Host}:{info.Port}";
         }
     }
 

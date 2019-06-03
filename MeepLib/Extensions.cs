@@ -275,6 +275,9 @@ namespace MeepLib
                 case DataScent.SmartFormat:
                     stripped = value.TrimStart("SF:");
                     break;
+                case DataScent.NCalc:
+                    stripped = value.TrimStart("NC:");
+                    break;
                 case DataScent.CLang:
                     break;
                 case DataScent.SQLang:
@@ -343,6 +346,9 @@ namespace MeepLib
 
             if (value.StartsWith("SF:"))
                 return DataScent.SmartFormat;
+
+            if (value.StartsWith("NC:"))
+                return DataScent.NCalc;
 
             if (value.StartsWith("SQL:"))
                 return DataScent.SQLang;
@@ -456,6 +462,8 @@ namespace MeepLib
         Regex,
 
         SmartFormat,
+
+        NCalc,
 
         // C-like language (curly braces, etc.)
         CLang,
