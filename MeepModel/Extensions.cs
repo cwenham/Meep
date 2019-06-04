@@ -18,6 +18,19 @@ namespace MeepLib.Messages
     public static class Extensions
     {
         /// <summary>
+        /// Shortest of two TimeSpans
+        /// </summary>
+        /// <param name="span1"></param>
+        /// <param name="span2"></param>
+        /// <returns></returns>
+        public static TimeSpan Min(this TimeSpan span1, TimeSpan span2)
+        {
+            if (span1 < span2)
+                return span1;
+            return span2;
+        }
+
+        /// <summary>
         /// Return the SHA 256 hash of a string
         /// </summary>
         /// <returns>The SHA 256.</returns>
