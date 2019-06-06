@@ -48,7 +48,7 @@ namespace Meep
                 { "x|xml", "Gutter serialisation in XML", g => GutterSerialisation = GutterSerialisation.XML },
                 { "b|bson", "Gutter serialisation in BSON", b => GutterSerialisation = GutterSerialisation.BSON },
                 { "tp|typePrefixes", "Display a list of type prefixes (if Meep is misidentifying parameter types)", tp => shouldShowTypePrefixes = tp != null },
-                { "lb|listBooks", "Display a list of books available with <Emit Selection=\"...\"/>", lb => shouldShowLibrary = lb != null },
+                { "lb|listBooks", "Display a list of books available with <Enumerate Selection=\"...\"/>", lb => shouldShowLibrary = lb != null },
                 { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
             };
 
@@ -124,6 +124,7 @@ namespace Meep
             Console.WriteLine("  XPath:Element/Path   - Relative XPaths with the 'XPath:' prefix.");
             Console.WriteLine("  //Element/XPath      - Extra prefix not needed if the XPath begins with '//'.");
             Console.WriteLine("  SF:{Smart.Format}    - Smart.Format templates with the 'SF:' prefix.");
+            Console.WriteLine("  NC:[NCalc] Format    - NCalc Formatted expressions with the 'NC:' prefix.");
             Console.WriteLine("  ./Path/To/File       - On Unix or Windows, specify relative paths with the './' prefix and forward slashes.");
             Console.WriteLine("  URL:/relative/url    - Specify relative URLs with the 'URL:' prefix.");
             Console.WriteLine("  http://example.com/  - Absolute URLs do not need an extra prefix. Meep knows the 'scheme://' pattern.");
@@ -132,10 +133,11 @@ namespace Meep
 
         static void ShowLibrary()
         {
-            Console.WriteLine("Selections available for <Emit Selection=\"...\">");
-            foreach (var book in MeepLib.Sources.Emit.GetSelections())
+            Console.WriteLine("Selections available for <Enumerate Selection=\"...\">");
+            foreach (var book in MeepLib.Sources.Enumerate.GetSelections())
                 Console.WriteLine(book.Key);
-            Console.WriteLine("\n\nFeed the output of <Timer> or <Random> to <Emit>, or set the Paragraph attribute to emit specific paragraphs or items from the selection.");
+            Console.WriteLine("\n\nFeed the output of <Timer> or <Random> to <Enumerate>, or set the Paragraph attribute to emit specific paragraphs or items from the selection.");
+            Console.WriteLine("E.G.: <Enumerate Selection=\"Countries\" Paragraph=\"{msg.Value}\">");
         }
 
         static void Bootstrapper_PipelineRefreshed(object sender, PipelineRefreshEventArgs e)

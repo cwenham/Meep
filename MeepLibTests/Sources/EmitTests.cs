@@ -14,7 +14,7 @@ namespace MeepLibTests.Sources
         [Fact]
         public void Selections()
         {
-            var selections = Emit.GetSelections();
+            var selections = Enumerate.GetSelections();
             Assert.NotEmpty(selections);
 
             Assert.NotEmpty(selections["US States"]);
@@ -25,7 +25,7 @@ namespace MeepLibTests.Sources
         [Fact]
         public async void Wraparound()
         {
-            var Emitter = new Emit("Reindeer");
+            var Emitter = new Enumerate("Reindeer");
 
             // There are only 8 reindeer, so 11 should wrap-around to the third
             var msg1 = new Step

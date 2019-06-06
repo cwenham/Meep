@@ -417,7 +417,7 @@ namespace MeepLib
                 return DataScent.WinPath;
 
             // Is it easily XML?
-            if (value.Substring(0, 5).Equals("<?xml", StringComparison.OrdinalIgnoreCase))
+            if (value.Length > 5 && value.Substring(0, 5).Equals("<?xml", StringComparison.OrdinalIgnoreCase))
                 return DataScent.XML;
 
             // Is it easily JSON?

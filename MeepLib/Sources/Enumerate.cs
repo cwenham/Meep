@@ -5,32 +5,54 @@ using System.Threading.Tasks;
 
 using SmartFormat;
 
+using MeepLib.Config;
 using MeepLib.MeepLang;
 using MeepLib.Messages;
 
 namespace MeepLib.Sources
 {
     /// <summary>
-    /// Emit paragraphs or words of built-in libraries of plain text, such as Lorem Ipsum, country names or common passwords
+    /// Enumerate list items, including paragraphs or words of built-in libraries of plain text (including Lorem Ipsum and country names)
     /// </summary>
-    /// <remarks>Ideal combined with emitters and modifiers of Step messages such as Timer and Random. Use Lorem Ipsum 
+    /// <remarks>Provide your own collections of items with <see cref="MeepLib.Config.Text"/> elements, or name a built-in or
+    /// plugin-supplied list with the Selection attribute.
+    /// 
+    /// <para>Ideal combined with emitters and modifiers of Step messages such as Timer and Random. Use Lorem Ipsum 
     /// for testing text interfaces, or the bad password list for automated pen testing. Having a few bog-standard 
     /// common texts hard-coded into a message pipeline library like Meep can be very convenient for quick jobs without 
     /// needing to source a text file from somewhere. Otherwise, you can still easily consume a text file with the Load
-    /// module and parse/split it with the Extract and Split modules.</remarks>
-    public class Emit : AMessageModule
+    /// module and parse/split it with the Extract and Split modules.</para></remarks>
+    public class Enumerate : AMessageModule
     {
-        public Emit() : base()
+        public Enumerate() : base()
         { }
 
-        public Emit(string selection) : base()
+        public Enumerate(string selection) : base()
         {
             Selection = selection;
         }
 
+        public List<DataSelector> Items
+        {
+            get
+            {
+                if (_items is null)
+                    _items = (from i in this.Config.OfType<Text>()
+                              select new DataSelector(i.Content)).ToList();
+
+                return _items;
+            }
+            private set
+            {
+                _items = value;
+            }
+        }
+        private List<DataSelector> _items;
+
         /// <summary>
         /// Name of the 'book' in the library
         /// </summary>
+        /// <remarks>Leave empty if you're supplying a list with <see cref="MeepLib.Config.Text"/> elements.</remarks>
         public string Selection
         {
             get
@@ -43,26 +65,21 @@ namespace MeepLib.Sources
 
                 var selections = GetSelections();
                 if (selections.ContainsKey(_selection))
-                    _book = selections[_selection];
+                    _book = selections[_selection].Select(x => new DataSelector(x)).ToList();
                 else
                     throw new ArgumentException($"{_selection} book not found. Check for misspelling or that its containing plugin has been loaded.");
             }
         }
         private string _selection;
 
-        private List<string> _book;
+        private List<DataSelector> _book;
 
         /// <summary>
-        /// Paragraph number in {Smart.Format}
+        /// Index number in {Smart.Format}
         /// </summary>
-        /// <remarks>This will be wrapped around rather than throw an out-of-range exception, so 12 on a 5-paragraph
-        /// book will evaluate to paragraph 2.</remarks>
-        public string Paragraph { get; set; } = "{msg.Number}";
-
-        /// <summary>
-        /// Paragraph numbering starts at zero (true), or 1 (false)
-        /// </summary>
-        public bool ZeroBased { get; set; } = true;
+        /// <remarks>This will be wrapped around rather than throw an out-of-range exception, so 12 on a 5-item
+        /// list will evaluate to item 2.</remarks>
+        public DataSelector Index { get; set; } = "{msg.Number}";
 
         /// <summary>
         /// List of 'books' in the library
@@ -105,35 +122,35 @@ namespace MeepLib.Sources
                 return null;
 
             if (_book is null)
+                // Wasn't set earlier in deserialisation? Okay, maybe we're in <Text> list mode
+                if (Items != null)
+                    _book = Items;
+
+            if (_book is null || _book.Count == 0)
                 return null;
 
             MessageContext context = new MessageContext(msg, this);
 
-            return await Task.Run<Message>(() =>
+            try
             {
-                try
-                {
-                    string sfParagraph = Smart.Format(Paragraph, context);
-                    if (!long.TryParse(sfParagraph, out long index))
-                        return null;
-
-                    long shim = ZeroBased ? 1 : 0;
-
-                    if (index > _book.Count - shim)
-                        index = index % (_book.Count - shim);
-
-                    return new StringMessage
-                    {
-                        DerivedFrom = msg,
-                        Value = _book[(int)(index - shim)]
-                    };
-                }
-                catch (Exception ex)
-                {
-                    logger.Warn(ex, "{0} thrown when emitting from {1}: {2}", ex.GetType().Name, Selection, ex.Message);
+                string sfIndex = await Index.SelectString(context);
+                if (!long.TryParse(sfIndex, out long index))
                     return null;
-                }
-            });
+
+                if (index > _book.Count - 1)
+                    index = index % (_book.Count);
+
+                return new StringMessage
+                {
+                    DerivedFrom = msg,
+                    Value = await _book[(int)index].SelectString(context)
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.Warn(ex, "{0} thrown when enumerating from {1}: {2}", ex.GetType().Name, Selection, ex.Message);
+                return null;
+            }
         }
     }
 
