@@ -38,7 +38,7 @@ namespace MeepLib.Modifiers
         /// <remarks>Just a wrapper for DataSelector.Select().</remarks>
         public async override Task<Message> HandleMessage(Message msg)
         {
-            return await From.SelectMessage(msg, this);
+            return await From.SelectMessage(new MessageContext(msg, this));
         }       
     }
 }

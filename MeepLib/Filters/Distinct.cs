@@ -34,9 +34,10 @@ namespace MeepLib.Filters
         /// <returns></returns>
         protected string SelectValue(Message msg)
         {
+            MessageContext context = new MessageContext(msg, this);
             try
             {
-                var selection = From.SelectMessage(msg, this);
+                var selection = From.SelectMessage(context);
                 selection.Wait();
                 if (selection.Result != null)
                     if (selection.Result is Batch)

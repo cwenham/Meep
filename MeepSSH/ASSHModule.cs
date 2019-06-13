@@ -65,11 +65,11 @@ namespace MeepSSH
         {
             if (PrivateKey != null)
             {
-                var key = (await PrivateKey.SelectStrings(context)).FirstOrDefault();
+                var key = await PrivateKey.SelectString(context);
                 if (String.IsNullOrWhiteSpace(key))
                     return null;
 
-                var passphrase = (await Passphrase.SelectStrings(context))?.FirstOrDefault();
+                var passphrase = await Passphrase.SelectString(context);
 
                 var keySmell = key.SmellsLike();
                 if (keySmell == DataScent.UnixPath || keySmell == DataScent.WinPath)
@@ -85,7 +85,7 @@ namespace MeepSSH
 
             if (Pass != null)
             {
-                var password = (await Pass.SelectStrings(context)).FirstOrDefault();
+                var password = await Pass.SelectString(context);
                 if (String.IsNullOrWhiteSpace(password))
                     return null;
 
@@ -103,10 +103,10 @@ namespace MeepSSH
             if (Port is null)
                 return 22;
 
-            var portTask = Port.SelectStrings(context);
+            var portTask = Port.SelectString(context);
             portTask.Wait();
 
-            string strPort = portTask.Result?.FirstOrDefault();
+            string strPort = portTask.Result;
             if (String.IsNullOrWhiteSpace(strPort))
                 return 22;
 
@@ -118,11 +118,11 @@ namespace MeepSSH
 
         protected async Task<ConnectionInfo> GetConnectionInfo(MessageContext context)
         {
-            var host = (await Host.SelectStrings(context))?.FirstOrDefault();
+            var host = await Host.SelectString(context);
             if (String.IsNullOrWhiteSpace(host))
                 return null;
 
-            var username = (await User.SelectStrings(context))?.FirstOrDefault();
+            var username = await User.SelectString(context);
             if (String.IsNullOrWhiteSpace(username))
                 return null;
 

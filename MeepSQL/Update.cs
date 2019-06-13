@@ -59,12 +59,12 @@ namespace MeepSQL
                 if (String.IsNullOrWhiteSpace(tableName))
                     tableName = sample.TableName();
 
-                Mutex accessMutex = null;
-                if (AccessMutex.ContainsKey(dbName))
-                    accessMutex = AccessMutex[dbName];
+                Semaphore accessSemaphore = null;
+                if (AccessSemaphore.ContainsKey(dbName))
+                    accessSemaphore = AccessSemaphore[dbName];
                 try
                 {
-                    accessMutex?.WaitOne();
+                    accessSemaphore?.WaitOne();
                     using (DbConnection connection = await NewConnection(context))
                     {
                         connection.Open();
@@ -96,7 +96,7 @@ namespace MeepSQL
                 }
                 finally
                 {
-                    accessMutex?.ReleaseMutex();
+                    accessSemaphore?.Release();
                 }
             }
 

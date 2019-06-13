@@ -76,9 +76,9 @@ namespace MeepSQL.Filters
             string sfSql = null;
 
             bool hasRows = false;
-            Mutex accessMutex = null;
-            if (AccessMutex.ContainsKey(dbName))
-                accessMutex = AccessMutex[dbName];
+            Semaphore accessSemaphore = null;
+            if (AccessSemaphore.ContainsKey(dbName))
+                accessSemaphore = AccessSemaphore[dbName];
             try
             {
                 string[] paramValues;
@@ -106,7 +106,7 @@ namespace MeepSQL.Filters
                     paramValues[0] = dsFrom;
                 }
 
-                accessMutex?.WaitOne();
+                accessSemaphore?.WaitOne();
                 using (DbConnection connection = await NewConnection(context))
                 {
                     connection.Open();
@@ -135,7 +135,7 @@ namespace MeepSQL.Filters
             }
             finally
             {
-                accessMutex?.ReleaseMutex();
+                accessSemaphore?.Release();
             }
 
             // Wait to get out of the try/using/finally block for lock sensitive databases like SQLite

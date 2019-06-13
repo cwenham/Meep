@@ -134,6 +134,7 @@ namespace MeepLib.MeepLang
                 {
                     Assembly.LoadFrom(filepath);
                     XMeeplangDeserialiser.InvalidateCache();
+                    DataSelector.InvalidateCache();
                     return true;
                 }
             }

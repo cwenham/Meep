@@ -133,17 +133,17 @@ namespace MeepLib.Sources
 
             try
             {
-                string sfIndex = await Index.SelectString(context);
-                if (!long.TryParse(sfIndex, out long index))
+                (bool parsed, long dsIndex) = await Index.TrySelectLong(context);
+                if (!parsed)
                     return null;
 
-                if (index > _book.Count - 1)
-                    index = index % (_book.Count);
+                if (dsIndex > _book.Count - 1)
+                    dsIndex = dsIndex % (_book.Count);
 
                 return new StringMessage
                 {
                     DerivedFrom = msg,
-                    Value = await _book[(int)index].SelectString(context)
+                    Value = await _book[(int)dsIndex].SelectString(context)
                 };
             }
             catch (Exception ex)

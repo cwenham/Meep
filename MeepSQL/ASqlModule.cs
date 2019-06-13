@@ -72,10 +72,18 @@ namespace MeepSQL
         public bool Unbatch { get; set; } = true;
 
         /// <summary>
-        /// Dictionary of mutexes for serialising access to SQLite databases
+        /// Dictionary of semaphores for serialising access to SQLite databases
         /// </summary>
-        /// <remarks>Descendant modules are expected to make use of this as needed.</remarks>
-        protected static ConcurrentDictionary<string, Mutex> AccessMutex = new ConcurrentDictionary<string, Mutex>();
+        /// <remarks>Descendant modules are expected to make use of this as needed. Any database that doesn't manage
+        /// its own serialisation of commands will need to be controlled with semaphores. Originally we used a Mutex,
+        /// but they have thread affinity and async methods may not resume on the same thread they started on.
+        /// 
+        /// <para>If a named database is not present in this dictionary, assume it doesn't need serialisation and a
+        /// WaitOne(), Release() cycle isn't necessary.</para>
+        /// 
+        /// <para>Databases that don't need it will usually include all that have their own server process, like
+        /// SQL Server, MySQL, Postgres, cloud hosted databases and so-on.</para></remarks>
+        protected static ConcurrentDictionary<string, Semaphore> AccessSemaphore = new ConcurrentDictionary<string, Semaphore>();
 
         protected async Task<DbConnection> NewConnection(MessageContext context)
         {
@@ -92,8 +100,8 @@ namespace MeepSQL
                 string dbFile = Path.Combine(dbPath, dsDatabase);
                 dsConnectionString = String.Format(_defaultConnection, dbFile);
 
-                if (!AccessMutex.ContainsKey(dsDatabase))
-                    AccessMutex.TryAdd(dsDatabase, new Mutex());
+                if (!AccessSemaphore.ContainsKey(dsDatabase))
+                    AccessSemaphore.TryAdd(dsDatabase, new Semaphore(1, 1));
             }
 
             return dsConnectionString.ToConnection();

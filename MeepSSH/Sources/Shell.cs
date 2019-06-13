@@ -4,13 +4,13 @@ using System.Collections.Concurrent;
 using System.Text;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 using Renci.SshNet;
 
 using MeepLib;
 using MeepLib.MeepLang;
 using MeepLib.Messages;
-using System.Threading.Tasks;
 
 namespace MeepSSH.Sources
 {
@@ -53,7 +53,7 @@ namespace MeepSSH.Sources
                 return null;
             }
 
-            string command = (await Command.SelectStrings(context))?.FirstOrDefault();
+            string command = await Command.SelectString(context);
 
             if (String.IsNullOrWhiteSpace(command))
                 return null;

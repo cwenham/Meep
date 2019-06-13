@@ -11,13 +11,13 @@ namespace MeepLibTests
     public class MeepSQLTests
     {
         [Fact]
-        public void CreateTableSQL()
+        public async void CreateTableSQL()
         {
             Message msg = new Message
             {
             };
 
-            string create1 = msg.ToTableDef("Messages").ToCreateTable();
+            string create1 = await msg.ToTableDef("Messages").ToCreateTable(new MessageContext(msg,null));
 
             Assert.Equal(CreateTableSQL1.ToUnixEndings(), create1.ToUnixEndings());
         }

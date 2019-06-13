@@ -22,13 +22,9 @@ namespace MeepLib.Outputs
 
         public override async Task<Message> HandleMessage(Message msg)
         {
-            var selection = await From.SelectMessage(msg, this);
-            if (selection != null)
-                if (selection is Batch)
-                    foreach (var s in ((Batch)selection).Messages)
-                        Console.WriteLine(s.ToString());
-                else
-                    Console.WriteLine(selection.ToString());
+            var enumerator = From.Select(new MessageContext(msg, this)).GetAsyncEnumerator();
+            while (await enumerator.MoveNextAsync())
+                Console.WriteLine(enumerator.Current.ToString());
 
             return msg;
         }
