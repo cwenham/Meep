@@ -41,4 +41,10 @@
   <ItemGroup>
     <Compile Remove="Messages\DataRecordMessage.cs" />
   </ItemGroup>
+
+  <Target Name="WorkaroundNetStandard" AfterTargets="ResolvePackageAssets">
+    <ItemGroup>
+      <TransitiveFrameworkReference Remove="NETStandard.Library" />
+    </ItemGroup>
+  </Target>
 </Project>
