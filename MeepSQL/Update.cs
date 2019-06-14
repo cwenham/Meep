@@ -52,8 +52,8 @@ namespace MeepSQL
             {
                 var sample = group.First();
                 MessageContext context = new MessageContext(sample, this);
-                string dbName = await Database.SelectString(context);
-                string tableName = await Table.SelectString(context);
+                string dbName = await Database.SelectStringAsync(context);
+                string tableName = await Table.SelectStringAsync(context);
                 string[] parameterised = $"UPDATE {tableName} SET {Set} WHERE {Where}".ToSmartParameterised();
 
                 if (String.IsNullOrWhiteSpace(tableName))

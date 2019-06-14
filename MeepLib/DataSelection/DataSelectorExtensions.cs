@@ -21,7 +21,7 @@ namespace MeepLib
         /// <param name="context"></param>
         /// <returns></returns>
         /// <remarks>For when we're only expecting, or only need one result.</remarks>
-        public async static Task<string> SelectString(this DataSelector selector, MessageContext context)
+        public async static Task<string> SelectStringAsync(this DataSelector selector, MessageContext context)
         {
             // At time-of-writing, Microsoft hadn't added all the LINQ extension methods for IAsyncEnumerable (there
             // would be between 200-600 of them, and I couldn't find any clear discussion about what they were 
@@ -33,9 +33,29 @@ namespace MeepLib
             return null;
         }
 
-        public async static Task<(bool,long)> TrySelectLong(this DataSelector selector, MessageContext context)
+        /// <summary>
+        /// Return the first string selected from a MessageContext
+        /// </summary>
+        /// <param name="selector"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static string SelectString(this DataSelector selector, MessageContext context)
         {
-            string val = await selector.SelectString(context);
+            var stringTask = selector.SelectStringAsync(context);
+            stringTask.Wait();
+
+            return stringTask.Result;
+        }
+
+        /// <summary>
+        /// Attempt to return the first long selected from a MessageContext
+        /// </summary>
+        /// <param name="selector"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public async static Task<(bool Parsed,long Value)> TrySelectLongAsync(this DataSelector selector, MessageContext context)
+        {
+            string val = await selector.SelectStringAsync(context);
             if (String.IsNullOrWhiteSpace(val))
                 return (false, 0);
 
@@ -46,12 +66,26 @@ namespace MeepLib
         }
 
         /// <summary>
+        /// Attempt to return the first long selected from a MessageContext
+        /// </summary>
+        /// <param name="selector"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static (bool Parsed,long Value) TrySelectLong(this DataSelector selector, MessageContext context)
+        {
+            var selectTask = selector.TrySelectLongAsync(context);
+            selectTask.Wait();
+
+            return selectTask.Result;
+        }
+
+        /// <summary>
         /// Return a String or Batch Message from a MessageContext
         /// </summary>
         /// <param name="selector"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async static Task<Message> SelectMessage(this DataSelector selector, MessageContext context)
+        public async static Task<Message> SelectMessageAsync(this DataSelector selector, MessageContext context)
         {
             List<object> results = new List<object>();
             var enumerator = selector.Select(context).GetAsyncEnumerator();

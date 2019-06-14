@@ -51,9 +51,9 @@ namespace MeepSQL
 
                 MessageContext context = new MessageContext(sample, this);
 
-                string connectionString = Connection != null ? await Connection.SelectString(context) : null;
-                string dbName = Database != null ? await Database.SelectString(context) : null;
-                string tableName = Table != null ? await Table.SelectString(context) : null;
+                string connectionString = Connection != null ? await Connection.SelectStringAsync(context) : null;
+                string dbName = Database != null ? await Database.SelectStringAsync(context) : null;
+                string tableName = Table != null ? await Table.SelectStringAsync(context) : null;
 
                 if (String.IsNullOrWhiteSpace(connectionString))
                 {

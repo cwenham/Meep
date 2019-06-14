@@ -25,13 +25,13 @@ namespace MeepLib.Sources
         /// Host name, without scheme (eg: host.domain.com or IP address)
         /// </summary>
         /// <value>The host.</value>
-        public string Host { get; set; }
+        public DataSelector Host { get; set; }
 
         /// <summary>
         /// TCP port number to connect to
         /// </summary>
         /// <value>The port.</value>
-        public int Port { get; set; }
+        public DataSelector Port { get; set; }
 
         /// <summary>
         /// Longest period of inactivity before we try to reconnect
@@ -67,11 +67,21 @@ namespace MeepLib.Sources
 
         private void ReadLoop(IObserver<Message> observer)
         {
+            var context = new MessageContext(null, this);
+            string dsHost = Host.SelectString(context);
+            var dsPort = Port.TrySelectLong(context);
+
+            if (String.IsNullOrWhiteSpace(dsHost))
+                throw new ArgumentException("Host is empty or null");
+
+            if (!dsPort.Parsed)
+                throw new ArgumentException("Invalid port number");            
+
             bool Retrying = false;
 
             while (true) // Level where retries happen
             {
-                using (System.Net.Sockets.TcpClient client = new System.Net.Sockets.TcpClient(Host, Port))
+                using (System.Net.Sockets.TcpClient client = new System.Net.Sockets.TcpClient(dsHost, (int)dsPort.Value))
                 using (NetworkStream stream = client.GetStream())
                 {
                     stream.ReadTimeout = (int)ReadTimeout.TotalMilliseconds;

@@ -87,8 +87,8 @@ namespace MeepSQL
 
         protected async Task<DbConnection> NewConnection(MessageContext context)
         {
-            string dsConnectionString = Connection != null ? await Connection.SelectString(context) : null;
-            string dsDatabase = Database != null ? await Database.SelectString(context) : null;
+            string dsConnectionString = Connection != null ? await Connection.SelectStringAsync(context) : null;
+            string dsDatabase = Database != null ? await Database.SelectStringAsync(context) : null;
 
             if (String.IsNullOrWhiteSpace(dsConnectionString))
             {

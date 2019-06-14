@@ -119,9 +119,10 @@ namespace Meep
         {
             Console.WriteLine("Type Prefixes and conventions. Meep will try to guess the type by what it looks like, but if that's not working then these prefixes and conventions tell Meep specifically how to handle arguments in pipeline definitions.");
             Console.WriteLine("  /Regex Slashes/      - Regular expression between the slashes.");
+            Console.WriteLine("  RX:RegEx             - Explicit Regex prefix.");
             Console.WriteLine("  $.JSONPath           - Begin absolute JSON Paths (JPaths) with '$'.");
-            Console.WriteLine("  JPath:.path[0]       - Relative JSON Paths with the 'JPath:' prefix.");
-            Console.WriteLine("  XPath:Element/Path   - Relative XPaths with the 'XPath:' prefix.");
+            Console.WriteLine("  JP:.path[0]          - Relative JSON Paths with the 'JPath:' prefix.");
+            Console.WriteLine("  XP:Element/Path      - Relative XPaths with the 'XPath:' prefix.");
             Console.WriteLine("  //Element/XPath      - Extra prefix not needed if the XPath begins with '//'.");
             Console.WriteLine("  SF:{Smart.Format}    - Smart.Format templates with the 'SF:' prefix.");
             Console.WriteLine("  NC:[NCalc] Format    - NCalc Formatted expressions with the 'NC:' prefix.");

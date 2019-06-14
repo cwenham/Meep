@@ -68,11 +68,11 @@ namespace MeepSQL.Filters
         {
             MessageContext context = new MessageContext(msg, this);
 
-            string dbName = Database != null ? await Database.SelectString(context) : null;
-            string dsTable = Table != null ? await Table?.SelectString(context) : null;
-            string dsColumn = Column != null ? await Column?.SelectString(context) : null;
-            string dsFrom = From != null ? await From?.SelectString(context) : null;
-            string dsQueryName = Query != null ? await Query?.SelectString(context) : null;
+            string dbName = Database != null ? await Database.SelectStringAsync(context) : null;
+            string dsTable = Table != null ? await Table?.SelectStringAsync(context) : null;
+            string dsColumn = Column != null ? await Column?.SelectStringAsync(context) : null;
+            string dsFrom = From != null ? await From?.SelectStringAsync(context) : null;
+            string dsQueryName = Query != null ? await Query?.SelectStringAsync(context) : null;
             string sfSql = null;
 
             bool hasRows = false;
@@ -94,7 +94,7 @@ namespace MeepSQL.Filters
 
                     paramValues = new string[parameterised.Length - 1];
                     for (int i = 0; i < paramValues.Length; i++)
-                        paramValues[i] = await selectors[i].SelectString(context);
+                        paramValues[i] = await selectors[i].SelectStringAsync(context);
                 }
                 else
                 {

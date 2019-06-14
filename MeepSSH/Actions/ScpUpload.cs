@@ -19,8 +19,8 @@ namespace MeepSSH.Actions
     {
         protected override async Task<Message> HandleFile(MessageContext context, ScpClient client)
         {
-            string sfLocalFile = File != null ? await File.SelectString(context) : null;
-            string sfRemote = Remote != null ? await Remote.SelectString(context) : null;
+            string sfLocalFile = File != null ? await File.SelectStringAsync(context) : null;
+            string sfRemote = Remote != null ? await Remote.SelectStringAsync(context) : null;
 
             StreamMessage smsg = context.msg as StreamMessage;
             if (smsg != null)

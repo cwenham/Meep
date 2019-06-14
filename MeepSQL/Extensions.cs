@@ -154,7 +154,7 @@ namespace MeepSQL
         public static async Task<string> ToCreateTable(this Config.Table table, MessageContext context)
         {
             if (!(table.Create is null))
-                return await table.Create.Content.SelectString(context);
+                return await table.Create.Content.SelectStringAsync(context);
 
             List<string> definitions = new List<string>();
             List<string> indexes = new List<string>();

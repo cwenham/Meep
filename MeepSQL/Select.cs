@@ -75,12 +75,12 @@ namespace MeepSQL
         {
             MessageContext context = new MessageContext(msg, this);
 
-            (bool topDefined, long dsTop) = await Top.TrySelectLong(context);
-            string dsTable = await Table.SelectString(context);
-            string dsColumn = await Columns.SelectString(context);
-            string dsWhere = await Where.SelectString(context);
-            string dsOrder = await Order.SelectString(context);
-            string dsQueryName = await Query.SelectString(context);
+            (bool topDefined, long dsTop) = await Top.TrySelectLongAsync(context);
+            string dsTable = await Table.SelectStringAsync(context);
+            string dsColumn = await Columns.SelectStringAsync(context);
+            string dsWhere = await Where.SelectStringAsync(context);
+            string dsOrder = await Order.SelectStringAsync(context);
+            string dsQueryName = await Query.SelectStringAsync(context);
             string dsSql = null;
 
             // Empty Where
@@ -91,7 +91,7 @@ namespace MeepSQL
             {
                 var namedQuery = Queries?.Where(x => x.Name.Equals(dsQueryName)).FirstOrDefault();
                 if (namedQuery != null)
-                    dsSql = await namedQuery.Content.SelectString(context);
+                    dsSql = await namedQuery.Content.SelectStringAsync(context);
                 else
                     dsSql = Smart.Format("SELECT {0} FROM {1} WHERE {2} {3} {4}",
                                          dsColumn,

@@ -53,7 +53,7 @@ namespace MeepSSH.Sources
                 return null;
             }
 
-            string command = await Command.SelectString(context);
+            string command = await Command.SelectStringAsync(context);
 
             if (String.IsNullOrWhiteSpace(command))
                 return null;

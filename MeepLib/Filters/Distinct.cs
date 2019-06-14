@@ -37,7 +37,7 @@ namespace MeepLib.Filters
             MessageContext context = new MessageContext(msg, this);
             try
             {
-                var selection = From.SelectMessage(context);
+                var selection = From.SelectMessageAsync(context);
                 selection.Wait();
                 if (selection.Result != null)
                     if (selection.Result is Batch)

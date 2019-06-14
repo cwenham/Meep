@@ -133,7 +133,7 @@ namespace MeepLib.Sources
 
             try
             {
-                (bool parsed, long dsIndex) = await Index.TrySelectLong(context);
+                (bool parsed, long dsIndex) = await Index.TrySelectLongAsync(context);
                 if (!parsed)
                     return null;
 
@@ -143,7 +143,7 @@ namespace MeepLib.Sources
                 return new StringMessage
                 {
                     DerivedFrom = msg,
-                    Value = await _book[(int)dsIndex].SelectString(context)
+                    Value = await _book[(int)dsIndex].SelectStringAsync(context)
                 };
             }
             catch (Exception ex)

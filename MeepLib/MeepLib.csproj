@@ -34,6 +34,7 @@ Meep is System.Reactive + XML + Plugins.</Description>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.6.3" />
+    <PackageReference Include="System.IO.Pipelines" Version="4.6.0-preview6.19303.8" />
     <PackageReference Include="System.Reactive" Version="4.2.0-preview.102" />
     <PackageReference Include="SmartFormat.NET" Version="2.4.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
