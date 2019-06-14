@@ -97,7 +97,7 @@ namespace MeepSQL
                         {
                             var ctcmd = connection.CreateCommand();
 
-                            ctcmd.CommandText = String.Format("BEGIN;\n{0}\nCOMMIT;", table.ToCreateTable(context));
+                            ctcmd.CommandText = String.Format("BEGIN;\n{0}\nCOMMIT;", await table.ToCreateTable(context));
                             ctcmd.ExecuteScalar();
                         }
 
