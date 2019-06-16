@@ -206,6 +206,8 @@ namespace Meep
             Assembly.LoadFrom(Path.Combine(exeDirectory, "MeepSQL.dll"));
             Assembly.LoadFrom(Path.Combine(exeDirectory, "MeepGit.dll"));
             Assembly.LoadFrom(Path.Combine(exeDirectory, "MeepSSH.dll"));
+
+            SmartFormat.Smart.Default.AddExtensions(new MeepLib.Algorithms.SmartFormatExtensions.CSVEscape());
         }
     }
 

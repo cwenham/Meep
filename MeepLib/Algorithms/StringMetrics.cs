@@ -164,5 +164,26 @@ namespace MeepLib.Algorithms
 
             return false;
         }
+
+        /// <summary>
+        /// Escape newlines and separators so a string can be used as the value in a CSV
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static object CSVEscaped(FunctionArgs args)
+        {
+            string input = Convert.ToString(args.Parameters[0].Evaluate());
+
+            string separator = "\t";
+            if (args.Parameters.Length > 1)
+                separator = Convert.ToString(args.Parameters[1].Evaluate());
+
+            string sepReplacement = "\\t";
+            if (args.Parameters.Length > 2)
+                sepReplacement = Convert.ToString(args.Parameters[2].Evaluate());
+
+
+            return input.Replace("\n", "\\n").Replace("\r","\\r").Replace(separator, sepReplacement);
+        }
     }
 }

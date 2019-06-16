@@ -47,6 +47,7 @@ Meep is System.Reactive + XML + Plugins.</Description>
     <Folder Include="MeepLang\" />
     <Folder Include="Flow\" />
     <Folder Include="Config\" />
+    <Folder Include="Algorithms\SmartFormatExtensions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MeepModel\MeepModel.csproj" />

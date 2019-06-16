@@ -10,48 +10,61 @@ using MeepLib.Messages;
 namespace MeepLib.Outputs
 {
     /// <summary>
-    /// Save message to disk
+    /// Save message to disk, overwriting any existing file
     /// </summary>
     [Macro(Name = "SaveAs", DefaultProperty = "As", Position = MacroPosition.Downstream)]
     public class Save : AMessageModule
     {
         /// <summary>
-        /// Filename and path in {Smart.Format}
+        /// Filename and path
         /// </summary>
         /// <value>As.</value>
-        public string As { get; set; }
+        public DataSelector As { get; set; }
 
         /// <summary>
-        /// Part of the message to save in {Smart.Format}
+        /// Part of the message to save
         /// </summary>
         /// <value>From.</value>
         /// <remarks>Defaults to saving the whole message serialised to JSON</remarks>
-        public string From { get; set; } = "{msg.AsJSON}";
+        public DataSelector From { get; set; }
 
         public override async Task<Message> HandleMessage(Message msg)
         {
+            if (From == null)
+                From = "{msg.AsJSON}";
+
             MessageContext context = new MessageContext(msg, this);
 
-            return await Task.Run<Message>(() =>
-            {
-                string saveAs = Smart.Format(As, context);
-                string content = Smart.Format(From, context);
+            string dsAs = null;
+            string dsFrom = null;
 
-                try
-                {
-                    File.WriteAllText(saveAs, content);
-                    return new LocalisedResource
-                    {
-                        DerivedFrom = msg,
-                        Local = saveAs
-                    }; 
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex, "{0} thrown saving to {1}: {2}", ex.GetType().Name, saveAs, ex.Message);
+            try
+            {
+                dsAs = await As.SelectStringAsync(context);
+                dsFrom = await From.SelectStringAsync(context);
+
+                if (String.IsNullOrWhiteSpace(dsAs))
                     return null;
-                }
-            });
+
+                if (!Directory.Exists(Path.GetDirectoryName(dsAs)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(dsAs));
+
+                if (!File.Exists(dsAs))
+                    File.Create(dsAs);
+
+                await File.WriteAllTextAsync(dsAs, dsFrom);
+
+                return new LocalisedResource
+                {
+                    DerivedFrom = msg,
+                    Local = dsAs
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.Warn(ex, "{0} thrown when saving to {1}: {2}", ex.GetType().Name, dsAs, ex.Message);
+                return null;
+            }
         }
     }
 }
