@@ -31,6 +31,7 @@ Meep is System.Reactive + XML + Plugins.</Description>
     <Compile Remove="Config.cs" />
     <Compile Remove="Budget.cs" />
     <Compile Remove="IPersistedCache.cs" />
+    <Compile Remove="DataSelection\LiteralSelector.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.6.3" />
@@ -41,6 +42,7 @@ Meep is System.Reactive + XML + Plugins.</Description>
     <PackageReference Include="CoreCLR-NCalc" Version="2.2.59" />
     <PackageReference Include="Mvp.Xml.NetStandard" Version="1.0.0" />
     <PackageReference Include="NuGet.Build.Packaging" Version="0.2.2" />
+    <PackageReference Include="System.Text.Json" Version="4.6.0-preview6.19303.8" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Outputs\" />

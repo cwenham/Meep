@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Buffers;
 
 using MeepLib.DataSelection;
 using MeepLib.Messages;
@@ -29,6 +30,23 @@ namespace MeepLib
             var enumerator = selector.Select(context).GetAsyncEnumerator();
             if (await enumerator.MoveNextAsync())
                 return enumerator.Current.ToString();
+
+            return null;
+        }
+
+        public async static Task<ReadOnlyMemory<byte>> SelectROMByteAsync(this DataSelector selector,
+                                                                          MessageContext context,
+                                                                          Encoding encoding = null)
+        {
+            if (encoding is null)
+                encoding = Encoding.UTF8;
+
+            // ToDo: I'm expecting there to be a more efficient way of doing this, probably by going to each of the
+            // DataSelector subclasses and looking for methods unique to just SmartFormat, JPath, XPath, etc.
+            // Until then, this is just a convenience method that does it the dumb way.
+            var enumerator = selector.Select(context).GetAsyncEnumerator();
+            if (await enumerator.MoveNextAsync())
+                return new ReadOnlyMemory<byte>(encoding.GetBytes(enumerator.Current.ToString()));
 
             return null;
         }

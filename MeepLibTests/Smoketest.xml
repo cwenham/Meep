@@ -3,32 +3,23 @@
           xmlns:mp="http://meep.example.com/Meep/V1" 
           xmlns:xi="http://www.w3.org/2003/XInclude" 
           xmlns:s="http://meep.example.com/MeepSQL/V1" 
-          xmlns:r="http://meep.example.com/MeepReddit/V1"
+          xmlns:r="http://meep.example.com/MeepReddit/V1" 
           xmlns:im="http://meep.example.com/MeepMagick/V1">
     
+    
     <!-- Load site-specific config and secrets you don't want in a repo -->
-  <xi:include href="/users/cwenham/MeepSiteConfig.xml">
-    <xi:fallback href="Z:\MeepSiteConfig.xml"/>
-  </xi:include>
-
-  <!--<Plugin File="/Users/cwenham/Projects/MeepMagick/MeepMagick/bin/Debug/netstandard2.0/osx.10.10-x64/publish/MeepMagick.dll">
-    <Fallback File="C:\Users\cwenham\Source\Repos\MeepMagick\MeepMagick\bin\Debug\netstandard2.1\MeepMagick.dll"/>
-  </Plugin>-->
+    <xi:include href="/users/cwenham/MeepSiteConfig.xml">
+        <xi:fallback href="Z:\MeepSiteConfig.xml" />
+    </xi:include>
     
-    <Config>
-        <s:Table Name="ImagePosts">
-            <s:Column Name="ID" Type="guid" From="{fam.PostMessage.ID}" Index="PrimaryKey"/>
-            <s:Column Name="FullName" Type="varchar" Length="20" From="{fam.PostMessage.Post.FullName}" Index="Unique"/>
-            <s:Column Name="Created" Type="datetime" From="{fam.PostMessage.Post.CreatedUTC}" Index="NotUnique"/>
-            <s:Column Name="Author" Type="varchar" Length="20" From="{fam.PostMessage.Post.AuthorName}" Index="NotUnique"/>
-            <s:Column Name="Title" Type="text" From="{fam.PostMessage.Post.Title}"/>
-            <s:Column Name="Subreddit" Type="varchar" Length="20" From="{fam.PostMessage.Post.SubredditName}" Index="NotUnique"/>
-            <s:Column Name="Permalink" Type="varchar" Length="1024" From="{fam.PostMessage.Post.Permalink}" Index="NotUnique"/>
-            <s:Column Name="Url" Type="varchar" Length="1024" From="{fam.PostMessage.Post.Url}" Index="NotUnique"/>
-            <s:Column Name="PHash" From="{msg.PHashString}"/>
-        </s:Table>
-    </Config>
     
+    <Reflect>
+        <TcpListen Host="localhost"/>
+        
+        <Timer Interval="00:00:10"/>
+    </Reflect>
+    
+    <TcpClient Host="127.0.0.1" WriteLine="{msg.AsJSON}"/>
     
     <!-- Get from our own Listen/Respond module pair further below -->
     <!--<Get URL="http://127.0.0.1:7780/{msg.Value}">
@@ -44,60 +35,10 @@
 
         <Listen Base="http://127.0.0.1:7780/"/>
     </Respond>-->
-    
     <!-- Ping a well known host and store the response times in a database. -->
     <!--<Batch MaxSize="5" s:Store="Smoketest:Pings">
         <Ping To="www.mit.edu">
             <Timer Interval="00:00:10"/>
         </Ping>
     </Batch>-->
-    
-    <!--
-    <r:History Name="NewComments" Username="{msg.Comment.AuthorName}" Max="50"
-               mp:WriteLine="[{msg.DerivedFrom.Comment.Subreddit}] {msg.DerivedFrom.Comment.AuthorName}; {msg.DerivedFrom.Comment.Body}">
-        <r:Comments Subreddit="/r/pics" />
-        <r:Comments Subreddit="/r/aww" />
-    </r:History>
-    -->
-       
-    <!--
-    <im:Info Name="PHashed">
-        <Localise From="{fam.PostMessage.Post.Url}" To="MEMORY">
-            <r:History Name="NewPosts" Username="{msg.Post.AuthorName}" Max="50"
-                       mp:WriteLine="{msg.User.Name} {msg.Tokens:list:|,|,}">
-                <r:Unmoderated Subreddit="/r/pics" />
-                <r:Unmoderated Subreddit="/r/aww" />
-            </r:History>    
-        </Localise>
-    </im:Info>
-    -->
-     
-    <!--
-    <r:History Name="ModeratedUsers" Username="{msg.Action.TargetAuthorName}" Max="75"
-               mp:WriteLine="{msg.User.Name} {msg.Tokens:list:|,|,}">
-        <r:ModLog Subreddit="/r/pics" />
-        <r:ModLog Subreddit="/r/aww" />
-    </r:History>
-    -->
-    
-    <!--
-    <BayesTrain Class="{msg.DerivedFrom.Action.Details}">
-        <Tap From="ModeratedUsers"/>
-    </BayesTrain>
-    -->
-    
-    <!--
-    <Bayes Name="ClassifiedPosts">
-        <Tap From="NewPosts"/>
-        <Tap From="NewComments"/>
-    </Bayes>
-    -->
-    
-    <!--
-    <s:InsertOrReplace Database="Reddit" Table="ImagePosts">
-        <Tap From="PHashed"/>
-    </s:InsertOrReplace>
-    -->
-    
-    
 </Pipeline>

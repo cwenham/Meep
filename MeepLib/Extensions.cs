@@ -1,12 +1,14 @@
-﻿using System;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Net.Http;
+
 using System.IO;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Diagnostics.Contracts;
 
 using SmartFormat;
 using SmartFormat.Core.Parsing;
@@ -14,7 +16,6 @@ using Newtonsoft.Json;
 
 using MeepLib.Config;
 using MeepLib.Messages;
-using System.Diagnostics.Contracts;
 
 namespace MeepLib
 {

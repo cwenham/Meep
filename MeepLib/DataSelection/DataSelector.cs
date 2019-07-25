@@ -44,6 +44,10 @@ namespace MeepLib
             if (_configuredSelectors == null)
                 return null;
 
+            // Contexts with no message usually come from setting up the Pipeline before any messages have been created
+            if (context.msg is null)
+                return _configuredSelectors.First().Value.Select(context);
+
             var selector = SelectorForMessageType(context.msg.GetType());
 
             if (selector is null)
@@ -73,7 +77,7 @@ namespace MeepLib
         private Dictionary<Type, ADataSelector> ConfiguredSelectors(string input)
         {
             var candidates = from s in Selectors
-                             where input.StartsWith(s.Key)
+                             where input.StartsWith(s.Key, StringComparison.OrdinalIgnoreCase)
                              let DePrefixed = input.TrimStart(s.Key)
                              let selector = s.Value.Item2.InvokeMember(null, System.Reflection.BindingFlags.CreateInstance, null, null, new object[] { DePrefixed }) as ADataSelector
                              where selector != null
@@ -84,6 +88,13 @@ namespace MeepLib
                              };
 
             var instances = candidates.ToDictionary(x => x.Accepted, y => y.Selector);
+
+            // Default to SmartFormat
+            if (!instances.Any())
+                instances = new Dictionary<Type, ADataSelector>
+                {
+                    { typeof(Message), new SmartFormatSelector(input) }
+                };
             
             // Add the default
             if (!instances.ContainsKey(typeof(Message)))
