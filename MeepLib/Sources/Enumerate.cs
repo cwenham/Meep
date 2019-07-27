@@ -155,7 +155,7 @@ namespace MeepLib.Sources
     }
 
     [System.AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = true)]
-    public sealed class LibraryBookAttribute : Attribute
+    public class LibraryBookAttribute : Attribute
     {
         readonly string name;
 

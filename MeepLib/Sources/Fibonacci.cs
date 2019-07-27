@@ -19,37 +19,35 @@ namespace MeepLib.Sources
         /// </summary>
         /// <value>From.</value>
         /// <remarks>Only used if the input is not a NumericMessage with an integer number</remarks>
-        public string From { get; set; }
+        public DataSelector From { get; set; }
 
         private int LastPosition = 0;
 
         public override async Task<Message> HandleMessage(Message msg)
         {
-            return await Task.Run<Message>(() =>
+            long pos = 0;
+
+            NumericMessage numeric = msg as NumericMessage;
+            if (numeric != null)
+                pos = (long)numeric.Number;
+            else
+                if (From != null)
             {
-                int pos = 0;
+                MessageContext context = new MessageContext(msg, this);
+                var fromMsg = await From.TrySelectLongAsync(context);
+                if (!fromMsg.Parsed)
+                    return null;
+                pos = fromMsg.Value;
+            }
 
-                NumericMessage numeric = msg as NumericMessage;
-                if (numeric != null)
-                    pos = (int)numeric.Number;
-                else
-                    if (!String.IsNullOrWhiteSpace(From))
-                {
-                    MessageContext context = new MessageContext(msg, this);
-                    string sfFrom = Smart.Format(From, context);
-                    if (int.TryParse(sfFrom, out int p))
-                        pos = p;
-                }
+            if (pos == 0)
+                pos = LastPosition++;
 
-                if (pos == 0)
-                    pos = LastPosition++;
-
-                return new NumericMessage
-                {
-                    DerivedFrom = msg,
-                    Number = Fib(pos)
-                };
-            });
+            return new NumericMessage
+            {
+                DerivedFrom = msg,
+                Number = Fib(pos)
+            };
         }
 
         /// <summary>
@@ -57,7 +55,7 @@ namespace MeepLib.Sources
         /// </summary>
         /// <returns></returns>
         /// <param name="n">N.</param>
-        static ulong Fib(int n)
+        static ulong Fib(long n)
         {
             double sqrt5 = Math.Sqrt(5);
             double p1 = (1 + sqrt5) / 2;
