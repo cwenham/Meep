@@ -8,6 +8,13 @@ using MeepLib.Messages;
 
 namespace MeepLib.DataSelection
 {
+    /// <summary>
+    /// Base class for DataSelectors, which pluck values from messages given a template in some format
+    /// </summary>
+    /// <remarks>We want to support many syntaxes for "getting a thing", like XPath, Regular Expressions, JPath,
+    /// {Smart.Format} and so-on. This should be extendable with plugins and be reasonable about letting us pick which
+    /// one we want: either a prefix in the template (like "XP:" for XPath), or a smart selection made by considering
+    /// the Message type.</remarks>
     public abstract class ADataSelector
     {
         protected Logger logger = LogManager.GetCurrentClassLogger();

@@ -355,6 +355,8 @@ namespace MeepLib.Modifiers
              12543.854m, // G,  MIDI 127
              13289.750m, // G#
 
+             // That was the end of the MIDI scale, will need to think about whether it should go further.
+
              // Six-lined
              14080m,     // A
              14917.240m, // A#
@@ -408,20 +410,21 @@ namespace MeepLib.Modifiers
         /// <summary>
         /// Visible light frequencies, in Nanometers
         /// </summary>
-        /// <remarks>Scale is set to the beginning of each hue's range</remarks>
+        /// <remarks>Scale is set to the beginning of each hue's range and is the opposite order of Hz because this one
+        /// is wavelength and a binary search expects an ordered list.</remarks>
         [Scale("Light Nm")]
         public static decimal[] RoygbivNm =
         {
-            1000,       // Infrared
-             700,       // Red
-             635,       // Orange
-             590,       // Yellow
-             560,       // Green
-             520,       // Cyan
-             490,       // Blue
-             450,       // Violet
-             300,       // Near ultraviolet
              200,       // Far ultraviolet
+             300,       // Near ultraviolet
+             450,       // Violet
+             490,       // Blue
+             520,       // Cyan
+             560,       // Green
+             590,       // Yellow
+             635,       // Orange
+             700,       // Red
+            1000,       // Infrared
         };
 
         //ToDo: TV channel frequencies
