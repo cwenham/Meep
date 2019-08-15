@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.IO.Pipelines;
@@ -197,7 +196,7 @@ namespace MeepLib.Sources
 
                     if (position != null)
                     {
-                        var msg = DeserialiseOrBust(buffer.Slice(0, position.Value));
+                        var msg = buffer.Slice(0, position.Value).DeserialiseOrBust();
                         observer.OnNext(msg);
 
                         // Skip the line + the \n character (basically position)
@@ -220,60 +219,10 @@ namespace MeepLib.Sources
             reader.Complete();
         }
 
-        //ToDo: Move DeserialiseOrBust into Extensions.cs when Visual Studio decides to stop crashing when we load it.
-
-        /// <summary>
-        /// Try to deserialise a string to a Meep Message, otherwise return a suitable IStringMessage
-        /// </summary>
-        /// <returns></returns>
-        /// <param name="data">Data.</param>
-        /// <remarks>Intended for bridging pipelines across IPC or networks where we don't want to burden the user to
-        /// write explicit syntax that it's going to carry Meep Messages, we just want Meep to listen and go "oh okay,
-        /// it's a Message".</remarks>
-        public Message DeserialiseOrBust(ReadOnlySequence<byte> data)
-        {
-            // Does it fit the format "#00[typename]:{json here}", where 00 is the int16 length of [typename]?
-            // If so, it's the format we use to serialise messages for IPC
-            if (data.Length > 5)
-            {
-                // First memory sequence should always have enough to contain the whole type name, but we haven't tested
-                // this yet and would imply some short packet lengths.
-                var beginning = data.First.Span;
-
-                // Speculatively grab the type name's length first so we can finish the rest of the test in one go
-                UInt16 typeNameLen = BitConverter.ToUInt16(beginning.Slice(1, 2));
-
-                if (beginning[0].Equals('#') && beginning[3 + typeNameLen].Equals(':'))
-                    try
-                    {
-                        ReadOnlySpan<byte> typeName = beginning.Slice(1, typeNameLen);
-                        Type msgType = Type.GetType(typeName.ToString());
-                        if (msgType is null)
-                            msgType = typeof(Message);
-
-                        ReadOnlySequence<byte> json = data.Slice(4 + typeNameLen);
-                        Utf8JsonReader reader = new Utf8JsonReader(json, false, new JsonReaderState());
-                        var msg = JsonSerializer.ReadValue<Message>(ref reader);
-
-                        if (msg != null)
-                            return msg;
-                    }
-                    catch (Exception ex)
-                    {
-                        // If it matched our serialisation format, we should assume it's unusual to fail
-                        // deserialisation, but we aren't going to stop the pipe because we are expecting to consume
-                        // noisy feeds.
-                        logger.Warn(ex, "{0} thrown when deserialising message: {1}", ex.GetType().Name, ex.Message);
-                    }
-            }
-
-            return new ByteSequenceMessage(null, data);
-        }
-
         private Message Deserialise(ReadOnlySequence<byte> slice)
         {
             Utf8JsonReader reader = new Utf8JsonReader(slice, false, new JsonReaderState());
-            return JsonSerializer.ReadValue<Message>(ref reader);            
+            return JsonSerializer.Deserialize<Message>(ref reader);            
         }
 
         [Obsolete("Switch to Fill/ReadPipeAsync methods to use System.IO.Pipelines")]

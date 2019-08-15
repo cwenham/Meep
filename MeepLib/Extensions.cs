@@ -5,6 +5,8 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Buffers;
+using System.Text.Json;
 
 using System.IO;
 using System.Text.RegularExpressions;
@@ -116,6 +118,25 @@ namespace MeepLib
             return FirstAncestor<T>(msg.DerivedFrom);
         }
 
+        /// <summary>
+        /// Finds the first ancestor in the DerivedFrom chain that matches any class or interface
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public static T FirstByClass<T>(this Message msg) where T : class
+        {
+            if (msg == null)
+                return default(T);
+
+            var cmsg = msg as T;
+
+            if (cmsg is null && msg.DerivedFrom != null)
+                return FirstByClass<T>(msg.DerivedFrom);
+            else
+                return cmsg;
+        }
+
         public static HttpRequestMessage AddHeaders(this HttpRequestMessage req, MessageContext context, IEnumerable<Header> headers)
         {
             var reqHeaders = from h in headers
@@ -161,8 +182,74 @@ namespace MeepLib
         }
 
         /// <summary>
-        /// Convert a {Smart.Format} template to a @Parameterised template and
-        /// arguments
+        /// Try to deserialise a string to a Meep Message, otherwise return a suitable IStringMessage
+        /// </summary>
+        /// <returns></returns>
+        /// <param name="data">Data.</param>
+        /// <remarks>Intended for bridging pipelines across IPC or networks where we don't want to burden the user to
+        /// write explicit syntax that it's going to carry Meep Messages, we just want Meep to listen and go "oh okay,
+        /// it's a Message".</remarks>
+        public static Message DeserialiseOrBust(this ReadOnlySequence<byte> data)
+        {
+            // Does it fit the format "#00[typename]:{json here}", where 00 is the int16 length of [typename]?
+            // If so, it's the format we use to serialise messages for IPC
+            if (data.Length > 5)
+            {
+                // First memory sequence should always have enough to contain the whole type name, but we haven't tested
+                // this yet and would imply some short packet lengths.
+                var beginning = data.First.Span;
+
+                // Speculatively grab the type name's length first so we can finish the rest of the test in one go
+                UInt16 typeNameLen = BitConverter.ToUInt16(beginning.Slice(1, 2));
+
+                if (beginning[0].Equals((byte)'#') && beginning[3 + typeNameLen].Equals((byte)':'))
+                    try
+                    {
+                        ReadOnlySpan<byte> typeName = beginning.Slice(3, typeNameLen);
+                        string strTypeName = System.Text.Encoding.UTF8.GetString(typeName);
+                        Type msgType = Type.GetType(strTypeName);
+                        if (msgType is null)
+                            msgType = typeof(Message);
+
+                        ReadOnlySequence<byte> json = data.Slice(4 + typeNameLen);
+                        Utf8JsonReader reader = new Utf8JsonReader(json, false, new JsonReaderState());
+                        Message msg = (Message)System.Text.Json.JsonSerializer.Deserialize(ref reader, msgType);
+
+                        if (msg != null)
+                            return msg;
+                    }
+                    catch (Exception ex)
+                    {
+                        // If it matched our serialisation format, we should assume it's unusual to fail
+                        // deserialisation, but we aren't going to stop the pipe because we are expecting to consume
+                        // noisy feeds.
+                        //logger.Warn(ex, "{0} thrown when deserialising message: {1}", ex.GetType().Name, ex.Message);
+                    }
+            }
+
+            return new ByteSequenceMessage(null, data);
+        }
+
+        public static async Task SerialiseWithTypePrefixAsync(this Message msg, Stream utf8Stream)
+        {
+            utf8Stream.WriteByte((byte)'#');
+
+            byte[] typeName = System.Text.Encoding.UTF8.GetBytes(msg.GetType().AssemblyQualifiedName);
+            utf8Stream.Write(BitConverter.GetBytes((UInt16)typeName.Length));
+            await utf8Stream.WriteAsync(typeName, 0, typeName.Length);
+
+            utf8Stream.WriteByte((byte)':');
+
+            await System.Text.Json.JsonSerializer.SerializeAsync(utf8Stream, msg, msg.GetType());
+        }
+
+        public static Message DeserialiseOrBust(this byte[] data)
+        {
+            return new ReadOnlySequence<byte>(data).DeserialiseOrBust();
+        }
+
+        /// <summary>
+        /// Convert a {Smart.Format} template to a @Parameterised template and arguments
         /// </summary>
         /// <returns>Parameterised template followed by Smart.Format placeholders.</returns>
         /// <param name="template">Template.</param>
@@ -222,12 +309,14 @@ namespace MeepLib
             if (msg is null)
                 return null;
 
-            using var stream = await msg.GetStream();
-            if (stream is null)
-                return null;
+            using (var stream = await msg.GetStream())
+            {
+                if (stream is null)
+                    return null;
 
-            using var reader = new StreamReader(stream);
-            return await reader.ReadToEndAsync();
+                using (var reader = new StreamReader(stream))
+                    return await reader.ReadToEndAsync();
+            }
         }
 
         /// <summary>

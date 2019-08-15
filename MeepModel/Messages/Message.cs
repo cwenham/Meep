@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 using Newtonsoft.Json;
 
@@ -55,7 +56,7 @@ namespace MeepLib.Messages
         /// Reference to original message, if available
         /// </summary>
         /// <value>The derived from.</value>
-        [XmlIgnore, JsonIgnore, NotMapped]
+        [XmlIgnore, Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, NotMapped]
         public Message DerivedFrom
         {
             get => _DerivedFrom;
@@ -79,7 +80,7 @@ namespace MeepLib.Messages
         /// When the message was created, in UTC
         /// </summary>
         /// <value>The created.</value>
-        [XmlIgnore, JsonIgnore, NotMapped]
+        [XmlIgnore, Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, NotMapped]
         public DateTime Created
         {
             get
@@ -101,7 +102,7 @@ namespace MeepLib.Messages
         [DataMember, NotMapped]
         public long Deadline { get; set; }
 
-        [JsonIgnore, XmlIgnore, NotMapped]
+        [XmlIgnore, Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, NotMapped]
         public string AsJSON
         {
             get
@@ -110,7 +111,7 @@ namespace MeepLib.Messages
             }
         }
 
-        [JsonIgnore, XmlIgnore, NotMapped]
+        [XmlIgnore, Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore, NotMapped]
         public string AsXML
         {
             get

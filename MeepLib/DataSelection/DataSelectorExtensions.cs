@@ -34,6 +34,27 @@ namespace MeepLib
             return null;
         }
 
+        /// <summary>
+        /// Return the first string selected from a MessageContext
+        /// </summary>
+        /// <param name="selector"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static string SelectString(this DataSelector selector, MessageContext context)
+        {
+            var stringTask = selector.SelectStringAsync(context);
+            stringTask.Wait();
+
+            return stringTask.Result;
+        }
+
+        /// <summary>
+        /// Message selection as a ReadOnlyMemory of bytes
+        /// </summary>
+        /// <param name="selector"></param>
+        /// <param name="context"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
         public async static Task<ReadOnlyMemory<byte>> SelectROMByteAsync(this DataSelector selector,
                                                                           MessageContext context,
                                                                           Encoding encoding = null)
@@ -49,20 +70,6 @@ namespace MeepLib
                 return new ReadOnlyMemory<byte>(encoding.GetBytes(enumerator.Current.ToString()));
 
             return null;
-        }
-
-        /// <summary>
-        /// Return the first string selected from a MessageContext
-        /// </summary>
-        /// <param name="selector"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public static string SelectString(this DataSelector selector, MessageContext context)
-        {
-            var stringTask = selector.SelectStringAsync(context);
-            stringTask.Wait();
-
-            return stringTask.Result;
         }
 
         /// <summary>
