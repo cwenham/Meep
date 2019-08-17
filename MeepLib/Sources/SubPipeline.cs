@@ -14,11 +14,11 @@ namespace MeepLib.Sources
     public class SubPipeline : AMessageModule
     {
         /// <summary>
-        /// Pipeline definition file in {Smart.Format}
+        /// Path to pipeline definition file
         /// </summary>
         /// <value>The file.</value>
         /// <remarks>Ignored if we're passed an IStreamMessage.</remarks>
-        public string File { get; set; }
+        public DataSelector File { get; set; }
 
         /// <summary>
         /// True if we shouldn't bother tracking the process and passing on
@@ -38,7 +38,7 @@ namespace MeepLib.Sources
                     break;
                 default:
                     MessageContext context = new MessageContext(msg, this);
-                    string pipelineFile = Smart.Format(File, context);
+                    string pipelineFile = await File.SelectStringAsync(context);
                     process = AHostProxy.Current.SelfInvoke(pipelineFile);
                     break;
             }

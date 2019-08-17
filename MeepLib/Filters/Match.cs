@@ -17,13 +17,12 @@ namespace MeepLib.Filters
     public class Match : AFilter
     {
         /// <summary>
-        /// Part of the message to match on, in {Smart.Format}
+        /// Part of the message to match on
         /// </summary>
         /// <value>The value.</value>
-        /// <remarks>Defaults to a JSON serialised version of the message, so
-        /// make sure your regex Pattern accounts for this if you don't narrow
-        /// the scope here first.</remarks>
-        public string Value { get; set; } = "{msg.AsJSON}";
+        /// <remarks>Defaults to a JSON serialised version of the message, so make sure your regex Pattern accounts for
+        /// this if you don't narrow the scope here first.</remarks>
+        public DataSelector Value { get; set; } = "{msg.AsJSON}";
 
         /// <summary>
         /// Regex pattern to match with
@@ -60,24 +59,21 @@ namespace MeepLib.Filters
 
         public override async Task<Message> HandleMessage(Message msg)
         {
-            return await Task.Run(() =>
-            {
-                MessageContext context = new MessageContext(msg, this);
-                string test = Smart.Format(Value, context);
+            MessageContext context = new MessageContext(msg, this);
+            string test = await Value.SelectStringAsync(context);
 
-                var m = _pattern.Match(test);
-                if (m.Success)
-                    if (!String.IsNullOrWhiteSpace(Return))
-                        return ThisPassedTheTest(new StringMessage
-                        {
-                            DerivedFrom = msg,
-                            Value = Smart.Format(Return, new MessageContext(msg, this, m))
-                        });
-                    else
-                        return ThisPassedTheTest(msg);
+            var m = _pattern.Match(test);
+            if (m.Success)
+                if (!String.IsNullOrWhiteSpace(Return))
+                    return ThisPassedTheTest(new StringMessage
+                    {
+                        DerivedFrom = msg,
+                        Value = Smart.Format(Return, new MessageContext(msg, this, m))
+                    });
+                else
+                    return ThisPassedTheTest(msg);
 
-                return ThisFailedTheTest(msg);
-            });
+            return ThisFailedTheTest(msg);
         }
     }
 }

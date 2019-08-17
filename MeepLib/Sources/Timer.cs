@@ -31,10 +31,10 @@ namespace MeepLib.Sources
         public long LastElapsed { get; private set; }
 
         /// <summary>
-        /// Value in {Smart.Format} to put in each message
+        /// Value to put in each message
         /// </summary>
         /// <value>The payload.</value>
-        public string Payload { get; set; } = "{msg.Number}";
+        public DataSelector Payload { get; set; } = "{msg.Number}";
 
         /// <summary>
         /// Start without firing an initial message
@@ -80,7 +80,7 @@ namespace MeepLib.Sources
 
             MessageContext context = new MessageContext(msg, this);
 
-            msg.Value = Smart.Format(Payload, context);
+            msg.Value = Payload.SelectString(context);
 
             return msg;
         }

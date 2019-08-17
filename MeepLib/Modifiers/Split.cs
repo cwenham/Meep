@@ -16,21 +16,21 @@ namespace MeepLib.Modifiers
     public class Split : AMessageModule
     {
         /// <summary>
-        /// Delimiter to split on, in {Smart.Format}
+        /// Delimiter to split the columns on
         /// </summary>
         /// <value></value>
         /// <remarks>Defaults to a comma for CSV input.</remarks>
-        public string On { get; set; } = ",";
+        public DataSelector On { get; set; } = ",";
 
         /// <summary>
-        /// Line delimiter, in {Smart.Format}
+        /// Line delimiter
         /// </summary>
         /// <value></value>
         /// <remarks>Line separator, defaults to a newline.</remarks>
-        public string With { get; set; } = "\n";
+        public DataSelector With { get; set; } = "\n";
 
         /// <summary>
-        /// Optional column header names in {Smart.Format}
+        /// Optional column header names
         /// </summary>
         /// <value>The columns.</value>
         /// <remarks>Supported syntax:
@@ -42,27 +42,27 @@ namespace MeepLib.Modifiers
         /// </list>
         /// 
         /// </remarks>
-        public string Columns { get; set; } = "#";
+        public DataSelector Columns { get; set; } = "#";
 
         public override async Task<Message> HandleMessage(Message msg)
         {
+            MessageContext context = new MessageContext(msg, this);
+            string dsOn = await On.SelectStringAsync(context);
+            string dsWith = await With.SelectStringAsync(context);
+            string dsColumns = await Columns.SelectStringAsync(context);
+
             return await Task.Run<Message>(() =>
             {
-                MessageContext context = new MessageContext(msg, this);
-                string sfOn = Smart.Format(On, context);
-                string sfWith = Smart.Format(With, context);
-                string sfColumns = Smart.Format(Columns, context);
-
                 try
                 {
                     //ToDo: Support a streaming version for very large CSVs
 
                     // First the basic splitting into lines and columns
-                    string[] rawLines = msg.ToString().Trim().Split(new string[] { sfWith },
+                    string[] rawLines = msg.ToString().Trim().Split(new string[] { dsWith },
                                         StringSplitOptions.RemoveEmptyEntries);
 
                     var lines = from r in rawLines
-                                select r.Split(new string[] { sfOn }, StringSplitOptions.None);
+                                select r.Split(new string[] { dsOn }, StringSplitOptions.None);
 
                     string[] first = lines?.FirstOrDefault();
                     if (first is null)
@@ -71,17 +71,17 @@ namespace MeepLib.Modifiers
                     // Second, sort out the column names
                     string[] columns = null;
 
-                    if (sfColumns.Equals("#"))
+                    if (dsColumns.Equals("#"))
                         columns = Enumerable.Range(1, first.Length).Select(x => Convert.ToString(x)).ToArray();
                     else
-                    if (sfColumns.Equals("*"))
+                    if (dsColumns.Equals("*"))
                     {
                         columns = first;
                         lines = lines.Skip(1);
                     }
                     else
                     {
-                        columns = sfColumns.Split(',');
+                        columns = dsColumns.Split(',');
                     }
 
                     // Third, determine the column types and get converters for them

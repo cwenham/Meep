@@ -14,17 +14,17 @@ namespace MeepLib.Outputs
     public class Post : AMessageModule
     {
         /// <summary>
-        /// URL in {Smart.Format}
+        /// URL to HTTP POST to
         /// </summary>
         /// <value>The URL.</value>
-        public string URL { get; set; }
+        public DataSelector URL { get; set; }
 
         /// <summary>
         /// What to deliver in the POST
         /// </summary>
         /// <value>The payload.</value>
         /// <remarks>Defaults to message serialised to JSON.</remarks>
-        public string Payload { get; set; } = "{AsJSON}";
+        public DataSelector Payload { get; set; } = "{AsJSON}";
 
         public IEnumerable<Header> Headers
         {
@@ -45,7 +45,8 @@ namespace MeepLib.Outputs
         public override async Task<Message> HandleMessage(Message msg)
         {
             MessageContext context = new MessageContext(msg, this);
-            HttpRequestMessage req = new HttpRequestMessage(Method, Smart.Format(URL, context));
+            string dsUrl = await URL.SelectStringAsync(context);
+            HttpRequestMessage req = new HttpRequestMessage(Method, dsUrl);
             if (Headers != null)
                 req.AddHeaders(context, Headers);
 
@@ -55,7 +56,7 @@ namespace MeepLib.Outputs
             }
             else
             {
-                string payload = Smart.Format(Payload, context);
+                string payload = await Payload.SelectStringAsync(context);
                 req.Content = new StringContent(payload);
             }
 

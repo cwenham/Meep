@@ -20,17 +20,17 @@ namespace MeepLib.Filters
     public class Bayes : AMessageModule
     {
         /// <summary>
-        /// Classes to test (spam), in comma-separated {Smart.Format}
+        /// Classes to test, comma separated
         /// </summary>
-        /// <value>Smart.Formatted string that evaluates to comma-separated class names</value>
+        /// <value>Evaluates to comma-separated class names</value>
         /// <remarks>Defaults to all trained classes minus Against classes if null or empty.</remarks>
-        public string Class { get; set; }
+        public DataSelector Class { get; set; }
 
         /// <summary>
-        /// Classes to compare against (ham), in comma-separated {Smart.Format}
+        /// Classes to compare against (ham)
         /// </summary>
-        /// <value>Smart.Formatted string that evaluates to comma-separated class names</value>
-        public string Against { get; set; }
+        /// <value>Evaluates to comma-separated class names</value>
+        public DataSelector Against { get; set; }
 
         /// <summary>
         /// Mimimum number of documents in training set to consider a class
@@ -46,25 +46,27 @@ namespace MeepLib.Filters
             if (bmsg == null)
                 return msg;
 
-            if (String.IsNullOrWhiteSpace(Against))
+            MessageContext context = new MessageContext(msg, this);
+
+            string dsAgainst = await Against.SelectStringAsync(context);
+
+            if (String.IsNullOrWhiteSpace(dsAgainst))
                 throw new ArgumentException("Must specify 'ham' classes to test Against", nameof(Against));
+
+            string dsClass = await Class.SelectStringAsync(context);
 
             return await Task.Run<Message>(() =>
             {
-                MessageContext context = new MessageContext(msg, this);
-                string sfClass = Class != null ? Smart.Format(Class, context) : null;
-                string sfAgainst = Against != null ? Smart.Format(Against, context) : null;
-
                 string[] peerNames = null;
-                if (!String.IsNullOrWhiteSpace(sfClass))
-                    peerNames = sfClass.Split(',');
+                if (!String.IsNullOrWhiteSpace(dsClass))
+                    peerNames = dsClass.Split(',');
 
                 if (peerNames is null || peerNames.Length == 0)
                     peerNames = Classes.Keys.ToArray();
 
                 string[] againstNames = null;
-                if (!String.IsNullOrWhiteSpace(sfAgainst))
-                    againstNames = sfAgainst.Split(',');
+                if (!String.IsNullOrWhiteSpace(dsAgainst))
+                    againstNames = dsAgainst.Split(',');
 
                 peerNames = peerNames.Except(againstNames).ToArray();
 

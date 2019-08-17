@@ -21,10 +21,10 @@ namespace MeepLib.Sources
     public class Localise : AMessageModule
     {
         /// <summary>
-        /// URL to download from in {Smart.Format}
+        /// URL of file to download
         /// </summary>
         /// <value>From.</value>
-        public string From { get; set; }
+        public DataSelector From { get; set; }
 
         /// <summary>
         /// Subdirectory to store downloaded files, or "Memory" to keep in RAM 
@@ -33,7 +33,7 @@ namespace MeepLib.Sources
         /// <value>The subdir.</value>
         /// <remarks>Usually just "Downloads" but is set to "Plugins" when this
         /// module is used by the plugin system.</remarks>
-        public string To { get; set; } = "Downloads";
+        public DataSelector To { get; set; } = "Downloads";
 
         public override async Task<Message> HandleMessage(Message msg)
         {
@@ -42,16 +42,16 @@ namespace MeepLib.Sources
                 using (HttpClient client = new HttpClient())
                 {
                     MessageContext context = new MessageContext(msg, this);
-                    string sfTo = Smart.Format(To, context);
-                    string sfFrom = Smart.Format(From, context);
-                    HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, sfFrom);
+                    string dsTo = await To.SelectStringAsync(context);
+                    string dsFrom = await From.SelectStringAsync(context);
+                    HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, dsFrom);
 
                     var rTask = client.SendAsync(req);
 
-                    if (sfTo.Equals("MEMORY", StringComparison.OrdinalIgnoreCase))
-                        return await ToRam(msg, rTask, sfFrom);
+                    if (dsTo.Equals("MEMORY", StringComparison.OrdinalIgnoreCase))
+                        return await ToRam(msg, rTask, dsFrom);
                     else
-                        return await ToDisk(msg, rTask, sfTo, sfFrom);
+                        return await ToDisk(msg, rTask, dsTo, dsFrom);
                 }
             }
             catch (Exception ex)

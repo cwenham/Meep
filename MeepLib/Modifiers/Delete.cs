@@ -17,10 +17,10 @@ namespace MeepLib.Modifiers
     public class Delete : AMessageModule
     {
         /// <summary>
-        /// URL in {Smart.Format}
+        /// URL to send an HTTP DELETE to
         /// </summary>
         /// <value>The URL.</value>
-        public string URL { get; set; }
+        public DataSelector URL { get; set; }
 
         /// <summary>
         /// Headers to include in request
@@ -43,7 +43,8 @@ namespace MeepLib.Modifiers
         public override async Task<Message> HandleMessage(Message msg)
         {
             MessageContext context = new MessageContext(msg, this);
-            HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Delete, Smart.Format(URL, context));
+            string dsUrl = await URL.SelectStringAsync(context);
+            HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Delete, dsUrl);
             if (Headers != null)
                 req.AddHeaders(context, Headers);
 

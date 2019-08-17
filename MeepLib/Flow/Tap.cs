@@ -12,7 +12,7 @@ namespace MeepLib.Flow
     public class Tap : AMessageModule
     {
         /// <summary>
-        /// Named module elsewhere in the pipeline. Does NOT support Smart.Format
+        /// Named module elsewhere in the pipeline
         /// </summary>
         /// <value></value>
         public string From { get; set; }

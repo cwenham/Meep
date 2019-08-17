@@ -29,7 +29,7 @@ namespace MeepLib.Sources
         /// 
         /// <para>(77 = 'M' and 80 = 'P' in ASCII table)</para>
         /// </remarks>
-        public string Base { get; set; } = "http://127.0.0.1:7780/";
+        public DataSelector Base { get; set; } = "http://127.0.0.1:7780/";
 
         public override IObservable<Message> Pipeline
         {
@@ -37,13 +37,16 @@ namespace MeepLib.Sources
             {
                 if (_pipeline == null)
                 {
+                    MessageContext context = new MessageContext(null, this);
+                    string dsBase = Base.SelectString(context);
+
                     _cancelSource = new CancellationTokenSource();
 
                     _pipeline = Observable.Create<WebRequestMessage>(async observer =>
                     {
                         var server = new HttpListener();
-                        if (!String.IsNullOrWhiteSpace(Base) && Uri.IsWellFormedUriString(Base, UriKind.Absolute))
-                            server.Prefixes.Add(Base);
+                        if (!String.IsNullOrWhiteSpace(dsBase) && Uri.IsWellFormedUriString(dsBase, UriKind.Absolute))
+                            server.Prefixes.Add(dsBase);
                         server.Start();
 
                         while (!_cancelSource.IsCancellationRequested)

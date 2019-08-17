@@ -17,13 +17,13 @@ namespace MeepLib.Sources
         /// Directory to monitor
         /// </summary>
         /// <value>The path.</value>
-        public string Path { get; set; }
+        public DataSelector Path { get; set; }
 
         /// <summary>
         /// Filename filter, honoring "*" wildcards
         /// </summary>
         /// <value>The filter.</value>
-        public string Filter { get; set; }
+        public DataSelector Filter { get; set; } = "*";
 
         /// <summary>
         /// Throttling for file change messaging
@@ -49,7 +49,11 @@ namespace MeepLib.Sources
             {
                 if (_Pipeline == null)
                 {
-                    var fsw = new FileSystemWatcher(Path, Filter);
+                    MessageContext context = new MessageContext(null, this);
+                    string dsPath = Path.SelectString(context);
+                    string dsFilter = Filter.SelectString(context);
+
+                    var fsw = new FileSystemWatcher(dsPath, dsFilter);
                     fsw.Error += Fsw_Error;
 
                     var mergedEvents = Observable.Merge(
@@ -60,14 +64,14 @@ namespace MeepLib.Sources
 
                     if (!DryStart)
                     {
-                        var initialList = from f in Directory.EnumerateFiles(Path, Filter)
+                        var initialList = from f in Directory.EnumerateFiles(dsPath, dsFilter)
                                           let info = new FileInfo(f)
                                           // Since this is injected into a stream of updates, we'll
                                           // order by creation time to match the order implied if
                                           // the files hadn't already existed.
                                           orderby info.CreationTime
                                           select new FileSystemEventArgs(WatcherChangeTypes.Created,
-                                                                         Path,
+                                                                         dsPath,
                                                                          System.IO.Path.GetFileName(f));
 
                         mergedEvents = mergedEvents.StartWith(initialList);

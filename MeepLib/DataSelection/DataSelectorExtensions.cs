@@ -73,6 +73,24 @@ namespace MeepLib
         }
 
         /// <summary>
+        /// Attemt to return the first int selected from a MessageContext
+        /// </summary>
+        /// <param name="selector"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public async static Task<(bool Parsed,int Value)> TrySelectIntAsync(this DataSelector selector, MessageContext context)
+        {
+            string val = await selector.SelectStringAsync(context);
+            if (String.IsNullOrWhiteSpace(val))
+                return (false, 0);
+
+            if (int.TryParse(val, out int result))
+                return (true, result);
+            else
+                return (false, 0);
+        }
+
+        /// <summary>
         /// Attempt to return the first long selected from a MessageContext
         /// </summary>
         /// <param name="selector"></param>
@@ -120,6 +138,24 @@ namespace MeepLib
                 return (true, result);
             else
                 return (false, 0);
+        }
+
+        /// <summary>
+        /// Attempt to return the first boolean selected from a MessageContext
+        /// </summary>
+        /// <param name="selector"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public async static Task<(bool Parsed, bool Value)> TrySelectBoolAsync(this DataSelector selector, MessageContext context)
+        {
+            string val = await selector.SelectStringAsync(context);
+            if (String.IsNullOrWhiteSpace(val))
+                return (false, false);
+
+            if (bool.TryParse(val, out bool result))
+                return (true, result);
+            else
+                return (false, false);
         }
 
         /// <summary>

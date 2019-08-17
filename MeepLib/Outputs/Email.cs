@@ -15,52 +15,65 @@ namespace MeepLib.Outputs
     public class Email : AMessageModule
     {
         /// <summary>
-        /// Destination address in {Smart.Format}
+        /// Destination address
         /// </summary>
         /// <value>To.</value>
-        public string To { get; set; }
+        public DataSelector To { get; set; }
 
         /// <summary>
-        /// Sender's address in {Smart.Format}
+        /// Sender's address
         /// </summary>
         /// <value>From.</value>
-        public string From { get; set; }
+        public DataSelector From { get; set; }
 
-        public string Subject { get; set; }
+        public DataSelector Subject { get; set; }
 
-        public string Body { get; set; } = "{msg.Value}";
+        public DataSelector Body { get; set; } = "{msg.Value}";
 
         /// <summary>
-        /// Address of mail server in {Smart.Format}
+        /// Address of mail server
         /// </summary>
         /// <value>The server.</value>
-        public string Server { get; set; }
+        public DataSelector Server { get; set; }
 
         /// <summary>
-        /// Port of the SMTP server in {Smart.Format}
+        /// Port number of the SMTP server
         /// </summary>
         /// <value>The port.</value>
         /// <remarks>Defaults to secure (587).</remarks>
-        public string Port { get; set; } = "587";
+        public DataSelector Port { get; set; } = "587";
 
-        public bool SSL { get; set; } = true;
+        public DataSelector SSL { get; set; } = "true";
 
         public override async Task<Message> HandleMessage(Message msg)
         {
             MessageContext context = new MessageContext(msg, this);
 
-            string to = Smart.Format(To, context);
-            string from = Smart.Format(From, context);
-            string subject = Smart.Format(Subject, context);
-            string body = Smart.Format(Body, context);
-            string server = Smart.Format(Server, context);
-            int port = int.Parse(Smart.Format(Port, context));
+            string to = await To.SelectStringAsync(context);
+            string from = await From.SelectStringAsync(context);
+            string subject = await Subject.SelectStringAsync(context);
+            string body = await Body.SelectStringAsync(context);
+            string server = await Server.SelectStringAsync(context);
+            var parsedPort = await Port.TrySelectIntAsync(context);
+            var parsedSSL = await SSL.TrySelectBoolAsync(context);
+
+            if (!parsedPort.Parsed)
+            {
+                logger.Warn("Invalid port number for {0}", this.Name);
+                return null;
+            }
+
+            if (!parsedSSL.Parsed)
+            {
+                logger.Warn("No clear true/false for SSL value for {0}", this.Name);
+                return null;
+            }
 
             try
             {
-                using (SmtpClient client = new SmtpClient(server, port))
+                using (SmtpClient client = new SmtpClient(server, parsedPort.Value))
                 {
-                    client.EnableSsl = SSL;
+                    client.EnableSsl = parsedSSL.Value;
                     //client.Credentials = AHostProxy.Current?.GetCredential(server,port) as ICredentialsByHost;
 
                     MailMessage message = new MailMessage(from, to, subject, body);

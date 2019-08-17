@@ -19,22 +19,22 @@ namespace MeepLib.Outputs
     public class Respond : AMessageModule, IDisposable
     {
         /// <summary>
-        /// Body of response in {Smart.Format}
+        /// Body of response
         /// </summary>
         /// <value></value>
-        public string Body { get; set; }
+        public DataSelector Body { get; set; }
 
         /// <summary>
         /// MIME type for response
         /// </summary>
         /// <value>The type of the content.</value>
-        public string ContentType { get; set; } = "application/json";
+        public DataSelector ContentType { get; set; } = "application/json";
 
         /// <summary>
         /// HTTP response code
         /// </summary>
         /// <value>The status code.</value>
-        public string StatusCode { get; set; } = "200";
+        public DataSelector StatusCode { get; set; } = "200";
 
         public override async Task<Message> HandleMessage(Message msg)
         {
@@ -45,14 +45,22 @@ namespace MeepLib.Outputs
                 || !entry.Context.Response.OutputStream.CanWrite)
                 return msg;
 
+            MessageContext context = new MessageContext(msg, this);
+
+            var parsedStatus = await StatusCode.TrySelectIntAsync(context);
+            if (!parsedStatus.Parsed)
+            {
+                logger.Warn("Failed to parse HTTP status for {0}", this.Name);
+                return null;
+            }
+
+            string contentType = await ContentType.SelectStringAsync(context);
+
             try
             {
-                int status = int.Parse(Smart.Format(StatusCode, msg));
-                var contentType = Smart.Format(ContentType, msg);
-
-                var context = entry.Context;
-                context.Response.StatusCode = status;
-                context.Response.ContentType = contentType;
+                var webContext = entry.Context;
+                webContext.Response.StatusCode = parsedStatus.Value;
+                webContext.Response.ContentType = contentType;
 
                 StreamMessage smsg = msg as StreamMessage;
                 if (smsg != null && Body is null)
@@ -60,17 +68,17 @@ namespace MeepLib.Outputs
                     var outStream = await smsg.GetStream();
                     if (outStream.CanSeek)
                         outStream.Position = 0;
-                    outStream.CopyTo(context.Response.OutputStream);                    
+                    outStream.CopyTo(webContext.Response.OutputStream);                    
                 }
                 else
                 {
-                    var payload = Smart.Format(Body ?? "{AsJSON}", msg);
+                    var payload = await Body.SelectStringAsync(context);
                     var payloadBytes = Encoding.UTF8.GetBytes(payload);
-                    context.Response.ContentLength64 = payloadBytes.Length;
-                    context.Response.OutputStream.Write(payloadBytes, 0, payloadBytes.Length);
+                    webContext.Response.ContentLength64 = payloadBytes.Length;
+                    webContext.Response.OutputStream.Write(payloadBytes, 0, payloadBytes.Length);
                 }
 
-                context.Response.Close();
+                webContext.Response.Close();
             }
             catch (Exception ex)
             {

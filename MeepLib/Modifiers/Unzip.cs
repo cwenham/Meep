@@ -19,14 +19,15 @@ namespace MeepLib.Modifiers
         /// <value></value>
         /// <remarks>Defaults to msg.Local, which assumes it's receiving a
         /// LocalisedResource message from just downloading it.</remarks>
-        public string Path { get; set; } = "{msg.Local}";
+        public DataSelector Path { get; set; } = "{msg.Local}";
 
         public override async Task<Message> HandleMessage(Message msg)
         {
+            MessageContext context = new MessageContext(msg, this);
+            string path = await Path.SelectStringAsync(context);
+
             return await Task.Run<Message>(() =>
             {
-                MessageContext context = new MessageContext(msg, this);
-                string path = Smart.Format(Path, context);
                 string extractPath = SI.Path.GetFileName(SI.Path.GetDirectoryName(path));
 
                 try

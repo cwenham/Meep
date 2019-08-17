@@ -19,10 +19,10 @@ namespace MeepLib.Sources
     public class Load : AMessageModule
     {
         /// <summary>
-        /// Path in {Smart.Format} for file to load
+        /// Path for file to load
         /// </summary>
         /// <value>From.</value>
-        public string From { get; set; }
+        public DataSelector From { get; set; }
 
         /// <summary>
         /// Max size of file before switching to returning a stream
@@ -32,32 +32,28 @@ namespace MeepLib.Sources
 
         public override async Task<Message> HandleMessage(Message msg)
         {
-            return await Task.Run<Message>(() =>
-            {
-                MessageContext context = new MessageContext(msg, this);
-                string filePath = Smart.Format(From, context);
-                if (File.Exists(filePath))
-                    try
-                    {
-                        FileInfo info = new FileInfo(filePath);
+            MessageContext context = new MessageContext(msg, this);
+            string filePath = await From.SelectStringAsync(context);
+            if (File.Exists(filePath))
+                try
+                {
+                    FileInfo info = new FileInfo(filePath);
 
-                        if (info.Length < StreamAt)
-                            return new StringMessage
-                            {
-                                DerivedFrom = msg,
-                                Value = File.ReadAllText(filePath)
-                            };
-                        else
-                            return new StreamMessage(File.OpenRead(filePath));
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex, "{0} thrown when loading file: {1}", ex.GetType().Name, ex.Message);
-                    }
+                    if (info.Length < StreamAt)
+                        return new StringMessage
+                        {
+                            DerivedFrom = msg,
+                            Value = File.ReadAllText(filePath)
+                        };
+                    else
+                        return new StreamMessage(File.OpenRead(filePath));
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "{0} thrown when loading file: {1}", ex.GetType().Name, ex.Message);
+                }
 
-                return null;
-            });
-
+            return null;
         }
     }
 }

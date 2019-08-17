@@ -21,7 +21,7 @@ namespace MeepLib.Sources
         /// URL in {Smart.Format}
         /// </summary>
         /// <value>The URL.</value>
-        public string URL { get; set; }
+        public DataSelector URL { get; set; }
 
         /// <summary>
         /// Headers to include in request
@@ -29,13 +29,16 @@ namespace MeepLib.Sources
         /// <value>The headers.</value>
         public Header[] Headers { get; set; }
 
-        public string UserAgent { get; set; } = "Meep v1.0";
+        public DataSelector UserAgent { get; set; } = "Meep v1.0";
 
         public override async Task<Message> HandleMessage(Message msg)
         {
             MessageContext context = new MessageContext(msg, this);
-            HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, Smart.Format(URL, context));
-            req.Headers.UserAgent.ParseAdd(UserAgent);
+            string dsUrl = await URL.SelectStringAsync(context);
+            string dsAgent = await UserAgent.SelectStringAsync(context);
+
+            HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, dsUrl);
+            req.Headers.UserAgent.ParseAdd(dsAgent);
             if (Headers != null)
                 req.AddHeaders(context, Headers);
 

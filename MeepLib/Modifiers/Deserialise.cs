@@ -17,13 +17,13 @@ namespace MeepLib.Modifiers
     public class Deserialise : AMessageModule
     {
         /// <summary>
-        /// What string property of the message to deserialise, in {Smart.Format}
+        /// What string property of the message to deserialise
         /// </summary>
         /// <value></value>
         /// <remarks>This is ignored for WebMessages and StreamMessages, so when
         /// using this as a macro on Get, you could put Deserialise="True" or
         /// any other value and it'd still work as expected.</remarks>
-        public string From { get; set; } = "{Contents}";
+        public DataSelector From { get; set; } = "{Contents}";
 
         public override async Task<Message> HandleMessage(Message msg)
         {
@@ -35,7 +35,7 @@ namespace MeepLib.Modifiers
                         return await FromStream(streamMsg.GetStream());
                     default:
                         MessageContext context = new MessageContext(msg, this);
-                        string data = Smart.Format(From, context);
+                        string data = await From.SelectStringAsync(context);
                         return JsonConvert.DeserializeObject<Message>(data);
                 }
             }

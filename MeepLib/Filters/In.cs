@@ -15,21 +15,23 @@ namespace MeepLib.Filters
     public class In : AFilter
     {
         /// <summary>
-        /// Category message must be in, in {Smart.Format}
+        /// Category message must be in
         /// </summary>
         /// <value>The category.</value>
-        public string Category { get; set; }
+        public DataSelector Category { get; set; }
 
         /// <summary>
         /// Category the message must not be in (the control, eg: "ham")
         /// </summary>
         /// <value>The out.</value>
-        public string Out { get; set; }
+        public DataSelector Out { get; set; }
 
         /// <summary>
-        /// The Category:Out, used for setting by Meeplang macro
+        /// The Category:Out, used for setting by Meeplang macro, DO NOT SET DIRECTLY
         /// </summary>
-        /// <value>The in out.</value>
+        /// <value></value>
+        /// <remarks>This will be used by Meep when you use the "In" macro in another element's attributes, do not
+        /// set it directly.</remarks>
         public string InOut
         {
             get 
@@ -49,17 +51,14 @@ namespace MeepLib.Filters
 
         public override async Task<Message> HandleMessage(Message msg)
         {
-            return await Task.Run<Message>(() =>
-            {
-                MessageContext context = new MessageContext(msg, this);
-                string sfCat = Smart.Format(Category, context);
-                string sfOut = Smart.Format(Out, context);
+            MessageContext context = new MessageContext(msg, this);
+            string dsCat = await Category.SelectStringAsync(context);
+            string dsOut = await Out.SelectStringAsync(context);
 
-                if (msg.ID.InCategory(sfCat) && !msg.ID.InCategory(sfOut))
-                    return ThisPassedTheTest(msg);
+            if (msg.ID.InCategory(dsCat) && !msg.ID.InCategory(dsOut))
+                return ThisPassedTheTest(msg);
 
-                return ThisFailedTheTest(msg);
-            });
+            return ThisFailedTheTest(msg);
         }
     }
 }

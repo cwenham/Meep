@@ -15,10 +15,10 @@ namespace MeepLib.Filters
     public class BayesTrain : AMessageModule
     {
         /// <summary>
-        /// Class of message in {Smart.Format}, E.G.: "spam" or "ham"
+        /// Class of message
         /// </summary>
         /// <value>The class.</value>
-        public string Class { get; set; }
+        public DataSelector Class { get; set; }
 
         public override async Task<Message> HandleMessage(Message msg)
         {
@@ -26,25 +26,23 @@ namespace MeepLib.Filters
             if (tmsg == null)
                 return msg;
 
-            return await Task.Run<Message>(() =>
+            MessageContext context = new MessageContext(msg, this);
+
+            string dfClass = await Class.SelectStringAsync(context);
+
+            ClassIndex cindex = Bayes.GetClass(dfClass);
+            if (cindex == null)
             {
-                MessageContext context = new MessageContext(msg, this);
-                string bclass = Smart.Format(Class, context);
+                cindex = new ClassIndex { Name = dfClass };
+                Bayes.AddClass(cindex);
+            }
 
-                ClassIndex cindex = Bayes.GetClass(bclass);
-                if (cindex == null)
-                {
-                    cindex = new ClassIndex { Name = bclass };
-                    Bayes.AddClass(cindex);
-                }
+            cindex.IncDocumentCount();
 
-                cindex.IncDocumentCount();
+            foreach (string token in tmsg.Tokens)
+                cindex.IncTokenCount(token);
 
-                foreach (string token in tmsg.Tokens)
-                    cindex.IncTokenCount(token);
-
-                return msg;
-            });
+            return msg;
         }
     }
 }

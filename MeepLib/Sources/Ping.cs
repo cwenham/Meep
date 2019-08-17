@@ -17,10 +17,10 @@ namespace MeepLib.Sources
         }
 
         /// <summary>
-        /// Address of host to ping, in {Smart.Format}
+        /// Address of host to ping
         /// </summary>
         /// <value>To.</value>
-        public string To { get; set; }
+        public DataSelector To { get; set; }
 
         /// <summary>
         /// Padding added to response time, for hosts less than 1ms away (same machine or rack)
@@ -36,7 +36,7 @@ namespace MeepLib.Sources
         public override async Task<Message> HandleMessage(Message msg)
         {
             MessageContext context = new MessageContext(msg, this);
-            string pingTo = Smart.Format(To, context);
+            string pingTo = await To.SelectStringAsync(context);
 
             if (Pinger == null)
                 Pinger = new System.Net.NetworkInformation.Ping();
