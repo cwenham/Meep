@@ -46,7 +46,6 @@ namespace Meep
                 { "t|recheck=", "Time to recheck Git/Url for changes", t => recheck = TimeSpan.Parse(t) },
                 { "q|quiet", "No gutter serialisation", g => GutterSerialisation = GutterSerialisation.None },
                 { "x|xml", "Gutter serialisation in XML", g => GutterSerialisation = GutterSerialisation.XML },
-                { "b|bson", "Gutter serialisation in BSON", b => GutterSerialisation = GutterSerialisation.BSON },
                 { "tp|typePrefixes", "Display a list of type prefixes (if Meep is misidentifying parameter types)", tp => shouldShowTypePrefixes = tp != null },
                 { "lb|listBooks", "Display a list of books available with <Enumerate Selection=\"...\"/>", lb => shouldShowLibrary = lb != null },
                 { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
@@ -178,11 +177,6 @@ namespace Meep
                     break;
                 case GutterSerialisation.XML:
                     Console.WriteLine($"{msg.AsXML}\0");
-                    break;
-                case GutterSerialisation.BSON:
-                    MemoryStream ms = new MemoryStream();
-                    msg.ToBSONStream(ms);
-                    Console.WriteLine(Convert.ToBase64String(ms.ToArray()) + "\0");
                     break;
                 default:
                     break;

@@ -230,6 +230,22 @@ namespace MeepLib
             return new ByteSequenceMessage(null, data);
         }
 
+        /// <summary>
+        /// Serialise a Message to JSON with the type encoded in a prefix
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="utf8Stream"></param>
+        /// <returns>JSON written to the utf8Stream, beginning with the type name in the format:
+        ///
+        /// <code>#xxAssemblyQualifiedName:{ ... json ... }</code>
+        ///
+        /// <para>Where the xx after # is the length of the type name as an unsigned short.</para>
+        ///
+        /// <para>This is a hack to work around the lack of a $type property in the JSON rendered by
+        /// System.Text.Json. This makes de/serialisation slower, so we really hope Microsoft sees fit to add some kind
+        /// of type preservation in the future.</para>
+        ///
+        /// </returns>
         public static async Task SerialiseWithTypePrefixAsync(this Message msg, Stream utf8Stream)
         {
             utf8Stream.WriteByte((byte)'#');

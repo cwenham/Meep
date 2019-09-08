@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace MeepLib.Messages
 {
     /// <summary>
-    /// A parsed JSON token as a JSON.Net JToken
+    /// A parsed JSON element
     /// </summary>
-    public class JTokenMessage : Message
+    public class JElementMessage : Message
     {
-        public JToken Value { get; set; }
+        public JsonElement Value { get; set; }
 
         public override string ToString()
         {

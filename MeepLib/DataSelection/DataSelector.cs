@@ -3,14 +3,11 @@ using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
 using NLog;
-using SmartFormat;
-using Newtonsoft.Json.Linq;
 
 using MeepLib.DataSelection;
 using MeepLib.Messages;

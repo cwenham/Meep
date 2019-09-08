@@ -2,9 +2,7 @@
 <Pipeline xmlns="http://meep.example.com/Meep/V1" 
           xmlns:mp="http://meep.example.com/Meep/V1" 
           xmlns:xi="http://www.w3.org/2003/XInclude" 
-          xmlns:s="http://meep.example.com/MeepSQL/V1" 
-          xmlns:r="http://meep.example.com/MeepReddit/V1" 
-          xmlns:im="http://meep.example.com/MeepMagick/V1">
+          xmlns:s="http://meep.example.com/MeepSQL/V1">
 
 <Quantize Scale="Western Musical" WriteLine="{msg.Number}">
     <Fibonacci>

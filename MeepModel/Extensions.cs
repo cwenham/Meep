@@ -4,11 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Xml.Serialization;
 using System.Text.RegularExpressions;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
+using System.Text.Json;
+using System.Xml.Serialization;
 
 namespace MeepLib.Messages
 {
@@ -100,19 +98,7 @@ namespace MeepLib.Messages
         /// <param name="obj">Object.</param>
         public static string ToJSON(this object obj)
         {
-            return JsonConvert.SerializeObject(obj, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Objects
-            });
-        }
-
-        public static void ToBSONStream(this object obj, Stream output)
-        {
-            using (BsonDataWriter writer = new BsonDataWriter(output))
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Serialize(writer, obj);
-            }
+            return JsonSerializer.Serialize(obj, obj.GetType());
         }
 
         /// <summary>

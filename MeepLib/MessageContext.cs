@@ -22,8 +22,9 @@ namespace MeepLib
 
             // Populate config lookup
             cfg = new Dictionary<string, ANamable>();
-            foreach (var c in module.InventoryByBase<ANamable>())
-                cfg.TryAdd(c.Name, c);
+            if (mdl != null)
+                foreach (var c in mdl.InventoryByBase<ANamable>())
+                    cfg.TryAdd(c.Name, c);
 
             // Populate fam lookup
             fam = new Dictionary<string, Message>();

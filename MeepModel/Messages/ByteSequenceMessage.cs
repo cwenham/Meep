@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Runtime.Serialization;
-using System.Xml.Serialization;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
-
-using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace MeepLib.Messages
 {

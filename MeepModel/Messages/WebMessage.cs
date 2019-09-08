@@ -8,8 +8,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
 using System.IO;
 
-using Newtonsoft.Json;
-
 namespace MeepLib.Messages
 {
     /// <summary>

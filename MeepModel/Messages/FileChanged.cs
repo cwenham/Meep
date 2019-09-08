@@ -4,9 +4,8 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System.Threading.Tasks;
 
 namespace MeepLib.Messages
@@ -18,7 +17,7 @@ namespace MeepLib.Messages
         /// Type of file change
         /// </summary>
         /// <value>The type of the change.</value>
-        [DataMember, Index(IsUnique = false), JsonConverter(typeof(StringEnumConverter))]
+        [DataMember, Index(IsUnique = false), JsonConverter(typeof(JsonStringEnumConverter))]
         public WatcherChangeTypes ChangeType { get; set; }
 
         /// <summary>
