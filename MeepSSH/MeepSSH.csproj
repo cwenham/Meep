@@ -2,6 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <ReleaseVersion>1.0.1</ReleaseVersion>
+    <PackOnBuild>true</PackOnBuild>
+    <Copyright>Chris Wenham</Copyright>
+    <NeutralLanguage>en-GB</NeutralLanguage>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/cwenham/Meep/master/LICENSE</PackageLicenseUrl>
+    <Owners>Chris Wenham</Owners>
+    <Summary>Login and send messages as commands to SSH hosts, upload/download data by SCP</Summary>
+    <Title>SSH plugin for Meep</Title>
+    <PackageId>Meep.MeepSSH</PackageId>
+    <PackageVersion>1.0-alpha</PackageVersion>
+    <Authors>Chris Wenham</Authors>
+    <Description>SSH plugin for Meep, supporting SCP uploads/downloads and the ability to login to a remote shell and issue commands via inbound pipeline Messages, passing the responses back into the pipeline as Messages.</Description>
+    <PackageProjectUrl>https://github.com/cwenham/Meep</PackageProjectUrl>
+    <PackageReleaseNotes>Initial NuGet release</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

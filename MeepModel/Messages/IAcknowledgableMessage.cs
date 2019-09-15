@@ -19,5 +19,15 @@ namespace MeepLib.Messages
         /// </summary>
         /// <returns></returns>
         ValueTask Decline();
+
+        /// <summary>
+        /// Automatically acknowledge a message once it reaches the gutter
+        /// </summary>
+        bool AutoAck { get; set; }
+
+        /// <summary>
+        /// Set to true when the message has been acknowledged, so it isn't acknowledged twice
+        /// </summary>
+        bool HasAcknowledged { get; protected set; }
     }
 }

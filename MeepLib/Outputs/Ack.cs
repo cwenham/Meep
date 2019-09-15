@@ -16,6 +16,9 @@ namespace MeepLib.Outputs
             if (ackable is null)
                 return null;
 
+            if (ackable.HasAcknowledged)
+                return null;
+
             await ackable.Acknowledge();
 
             return msg;

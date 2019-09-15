@@ -182,7 +182,20 @@ namespace Meep
                     break;
             }
 
-            msg.Dispose();
+            // Acknowledge any Auto-Ack messages
+            var ackable = msg.FirstByClass<IAcknowledgableMessage>();
+            if (ackable != null && !ackable.HasAcknowledged)
+            {
+                System.Threading.Tasks.Task.Run(() =>
+                {
+                    ackable.Acknowledge();
+                }).ContinueWith((x) =>
+                {
+                    msg.Dispose();
+                });
+            }
+            else
+                msg.Dispose();
         }
 
         private static void LogError(Exception ex)
