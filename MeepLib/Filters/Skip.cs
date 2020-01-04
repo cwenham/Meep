@@ -56,22 +56,26 @@ namespace MeepLib.Flow
         {
             get
             {
-                if (_pipeline == null)
+                if (_Pipeline == null)
+                {
                     if (By > 0)
-                        _pipeline = from b in UpstreamMessaging.Skip(By)
+                        _Pipeline = from b in UpstreamMessaging.Skip(By)
                                     select b;
                     else if (While != null)
-                        _pipeline = from b in UpstreamMessaging.SkipWhile(msg => WhileCondition(msg))
+                        _Pipeline = from b in UpstreamMessaging.SkipWhile(msg => WhileCondition(msg))
                                     select b;
 
-                return _pipeline;
+                    _Pipeline = _Pipeline?.Publish().RefCount();
+                }
+
+                return _Pipeline;
             }
             protected set
             {
-                _pipeline = value;
+                _Pipeline = value;
             }
         }
-        private IObservable<MM.Message> _pipeline;
+        private IObservable<MM.Message> _Pipeline;
 
         public bool WhileCondition(MM.Message msg)
         {

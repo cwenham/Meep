@@ -80,7 +80,8 @@ namespace MeepLib.Sources
                 if (_pipeline == null)
                     _pipeline = Observable
                             .Create<Message>(observer => TaskPoolScheduler.Default
-                            .Schedule(() => ConnectionToMessage(_listener, observer)));
+                            .Schedule(() => ConnectionToMessage(_listener, observer)))
+                            .Publish().RefCount();
 
                 return _pipeline;
             }

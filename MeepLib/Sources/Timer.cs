@@ -58,10 +58,10 @@ namespace MeepLib.Sources
                     if (!DryStart)
                         source = source.StartWith(0);
 
-                    _Pipeline = from seq in source
-                                let message = IssueMessage(seq)
-                                where message != null
-                                select message;
+                    _Pipeline = (from seq in source
+                                 let message = IssueMessage(seq)
+                                 where message != null
+                                 select message).Publish().RefCount();
                 }
 
                 return _Pipeline;

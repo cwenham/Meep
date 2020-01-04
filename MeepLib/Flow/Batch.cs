@@ -34,11 +34,11 @@ namespace MeepLib.Flow
             get
             {
                 if (_pipeline == null)
-                    _pipeline = from b in UpstreamMessaging.Buffer(MaxWait, MaxSize)
-                                select new MM.Batch
-                                {
+                    _pipeline = (from b in UpstreamMessaging.Buffer(MaxWait, MaxSize)
+                                 select new MM.Batch
+                                 {
                                     Messages = b.ToList()
-                                };
+                                 }).Publish().RefCount();
 
                 return _pipeline;
             }

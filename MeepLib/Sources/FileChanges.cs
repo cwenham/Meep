@@ -86,7 +86,9 @@ namespace MeepLib.Sources
                                     Modified = File.GetLastWriteTimeUtc(fev.FullPath),
                                     Size = info != null ? info.Length : 0
                                 };
-                    
+
+                    _Pipeline = _Pipeline.Publish().RefCount();
+
                     fsw.EnableRaisingEvents = true;
                 }
 

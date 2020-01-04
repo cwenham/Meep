@@ -59,7 +59,7 @@ namespace MeepLib.Filters
             get
             {
                 if (_pipeline == null)
-                    _pipeline = UpstreamMessaging.Distinct(b => SelectValue(b));
+                    _pipeline = UpstreamMessaging.Distinct(b => SelectValue(b)).Publish().RefCount();
 
                 return _pipeline;
             }

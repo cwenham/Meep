@@ -71,7 +71,8 @@ namespace MeepLib.Sources
                 if (_pipeline == null)
                     _pipeline = Observable
                             .Create<Message>(observer => TaskPoolScheduler.Default
-                            .Schedule(() => ReadMessages(observer)));
+                            .Schedule(() => ReadMessages(observer)))
+                            .Publish().RefCount();
 
                 return _pipeline;
             }

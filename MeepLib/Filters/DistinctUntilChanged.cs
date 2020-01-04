@@ -25,7 +25,7 @@ namespace MeepLib.Filters
             get
             {
                 if (_pipeline == null)
-                    _pipeline = UpstreamMessaging.DistinctUntilChanged(b => SelectValue(b));
+                    _pipeline = UpstreamMessaging.DistinctUntilChanged(b => SelectValue(b)).Publish().RefCount();
 
                 return _pipeline;
             }

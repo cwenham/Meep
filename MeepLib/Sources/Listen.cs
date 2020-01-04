@@ -58,7 +58,8 @@ namespace MeepLib.Sources
                                 Context = context
                             });
                         }
-                    });
+                    })
+                        .Publish().RefCount();
                 }
 
                 return _pipeline;

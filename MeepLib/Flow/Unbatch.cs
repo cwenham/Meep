@@ -70,9 +70,10 @@ namespace MeepLib.Flow
             get
             {
                 if (_pipeline == null)
-                    _pipeline = from b in UpstreamMessaging
-                                from m in Constituents(b)
-                                select m;
+                    _pipeline = (from b in UpstreamMessaging
+                                 from m in Constituents(b)
+                                 select m)
+                                 .Publish().RefCount();
 
                 return _pipeline;
             }

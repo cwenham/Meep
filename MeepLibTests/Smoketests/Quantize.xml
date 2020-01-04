@@ -5,9 +5,13 @@
           xmlns:s="http://meep.example.com/MeepSQL/V1">
 
 <Quantize Scale="Western Musical" WriteLine="{msg.Number}">
-    <Fibonacci>
+    <Fibonacci Name="Fibo">
         <Timer Interval="00:00:01"/>
     </Fibonacci>
 </Quantize>
+    
+<WriteLine From="Fibo: {msg.Number}">
+    <Tap From="Fibo"/>
+</WriteLine>
     
 </Pipeline>

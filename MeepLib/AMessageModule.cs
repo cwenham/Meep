@@ -37,6 +37,8 @@ namespace MeepLib
         /// </summary>
         private static ConcurrentDictionary<string, Message> _messageCache = new ConcurrentDictionary<string, Message>();
 
+        protected IDisposable selfSubscription = null;
+
         /// <summary>
         /// True if the module manages the cache itself
         /// </summary>
@@ -87,10 +89,10 @@ namespace MeepLib
             get
             {
                 if (_Pipeline == null)
-                    _Pipeline = from msg in UpstreamMessaging
-                                let result = ShippingAndHandling(msg)
-                                where result != null
-                                select result;
+                    _Pipeline = (from msg in UpstreamMessaging
+                                 let result = ShippingAndHandling(msg)
+                                 where result != null
+                                 select result).Publish().RefCount();
 
                 return _Pipeline;
             }
@@ -105,9 +107,9 @@ namespace MeepLib
         private IObservable<Message> _Pipeline;
 
         /// <summary>
-        /// Give an outbound message the same name as this module
+        /// Give an outbound message the same name as this module if not already set
         /// </summary>
-        /// <returns>The christen.</returns>
+        /// <returns></returns>
         /// <param name="msg">Message.</param>
         protected Message Christen(Message msg)
         {
@@ -268,7 +270,7 @@ namespace MeepLib
 
         public virtual void Dispose()
         {
-            // Subclasses will override this to dispose of resources
+            selfSubscription?.Dispose();
         }
     }
 }
