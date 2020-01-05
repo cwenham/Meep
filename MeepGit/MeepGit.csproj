@@ -23,10 +23,10 @@
     <ProjectReference Include="..\MeepModel\MeepModel.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Reactive" Version="4.2.0-preview.625" />
-    <PackageReference Include="NLog" Version="4.6.7" />
-    <PackageReference Include="SmartFormat.NET" Version="2.4.2" />
-    <PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0017" />
+    <PackageReference Include="System.Reactive" Version="4.3.2" />
+    <PackageReference Include="NLog" Version="4.6.8" />
+    <PackageReference Include="SmartFormat.NET" Version="2.5.0" />
+    <PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0034" />
     <PackageReference Include="NuGet.Build.Packaging" Version="0.2.2" />
   </ItemGroup>
 
