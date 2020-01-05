@@ -13,7 +13,7 @@
     <Summary>Git plugin for Meep</Summary>
     <Title>MeepGit</Title>
     <Description>Git plugin for Meep. Supports basic Git operations on any repository.</Description>
-    <ReleaseVersion>1.0.1</ReleaseVersion>
+    <ReleaseVersion>1.0.2</ReleaseVersion>
     <PackageLicenseUrl>https://raw.githubusercontent.com/cwenham/Meep/master/LICENSE</PackageLicenseUrl>
     <Copyright>Chris Wenham</Copyright>
   </PropertyGroup>

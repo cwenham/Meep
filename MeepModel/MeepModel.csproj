@@ -14,7 +14,7 @@
     <Summary>Message class family for Meep</Summary>
     <Title>MeepModel</Title>
     <Description>Message class family for Meep. Can be used on its own for projects that need to serialise to/from Meep messages without requiring all of MeepLib.</Description>
-    <ReleaseVersion>1.0.1</ReleaseVersion>
+    <ReleaseVersion>1.0.2</ReleaseVersion>
     <Copyright>Chris Wenham</Copyright>
     <PackageLicenseUrl>https://raw.githubusercontent.com/cwenham/Meep/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>

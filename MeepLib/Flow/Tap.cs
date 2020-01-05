@@ -31,6 +31,9 @@ namespace MeepLib.Flow
         }
         private AMessageModule _Source;
 
-        public override IObservable<Message> Pipeline { get => Source.Pipeline; protected set => throw new InvalidOperationException("Cannot set a Tap's pipeline directly."); }
+        protected override IObservable<Message> GetMessagingSource()
+        {
+            return Source.Pipeline;
+        }
     }
 }

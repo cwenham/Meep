@@ -54,20 +54,9 @@ namespace MeepLib.Filters
             }
         }
 
-        public override IObservable<Message> Pipeline
+        protected override IObservable<Message> GetMessagingSource()
         {
-            get
-            {
-                if (_pipeline == null)
-                    _pipeline = UpstreamMessaging.Distinct(b => SelectValue(b)).Publish().RefCount();
-
-                return _pipeline;
-            }
-            protected set
-            {
-                _pipeline = value;
-            }
+            return UpstreamMessaging.Distinct(b => SelectValue(b));
         }
-        protected IObservable<Message> _pipeline;
     }
 }

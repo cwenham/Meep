@@ -20,19 +20,9 @@ namespace MeepLib.Filters
     [Macro(Name = "DistinctUntilChanged", DefaultProperty = "From", Position = MacroPosition.Downstream)]
     public class DistinctUntilChanged : Distinct
     {
-        public override IObservable<Message> Pipeline
+        protected override IObservable<Message> GetMessagingSource()
         {
-            get
-            {
-                if (_pipeline == null)
-                    _pipeline = UpstreamMessaging.DistinctUntilChanged(b => SelectValue(b)).Publish().RefCount();
-
-                return _pipeline;
-            }
-            protected set
-            {
-                _pipeline = value;
-            }
+            return UpstreamMessaging.DistinctUntilChanged(b => SelectValue(b));
         }
     }
 }

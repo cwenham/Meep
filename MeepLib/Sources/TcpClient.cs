@@ -64,18 +64,11 @@ namespace MeepLib.Sources
         /// ReadOnlySequence.PositionOf(), perhaps in the future.</para></remarks>
         public Byte EOM { get; set; } = 13;
 
-        public override IObservable<Message> Pipeline
+        protected override IObservable<Message> GetMessagingSource()
         {
-            get
-            {
-                if (_pipeline == null)
-                    _pipeline = Observable
-                            .Create<Message>(observer => TaskPoolScheduler.Default
-                            .Schedule(() => ReadMessages(observer)))
-                            .Publish().RefCount();
-
-                return _pipeline;
-            }
+            return Observable
+                    .Create<Message>(observer => TaskPoolScheduler.Default
+                    .Schedule(() => ReadMessages(observer)));
         }
         private IObservable<Message> _pipeline;
 

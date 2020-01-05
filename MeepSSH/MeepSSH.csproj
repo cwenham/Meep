@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <ReleaseVersion>1.0.1</ReleaseVersion>
+    <ReleaseVersion>1.0.2</ReleaseVersion>
     <PackOnBuild>true</PackOnBuild>
     <Copyright>Chris Wenham</Copyright>
     <NeutralLanguage>en-GB</NeutralLanguage>

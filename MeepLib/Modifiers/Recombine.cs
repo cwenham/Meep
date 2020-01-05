@@ -80,31 +80,26 @@ namespace MeepLib.Modifiers
         /// <remarks>Defaults to 5.</remarks>
         public int Offspring { get; set; } = 5;
 
-        public override IObservable<Message> Pipeline
+        protected override IObservable<Message> GetMessagingSource()
         {
-            get
+            if (Upstreams.Count > 2)
+                logger.Warn("More than two upstream modules for Recombine:{0}", Name);
+
+            if (Upstreams.Count < 2)
             {
-                if (Upstreams.Count > 2)
-                    logger.Warn("More than two upstream modules for Recombine:{0}", Name);
-
-                if (Upstreams.Count < 2)
-                {
-                    logger.Fatal("Not enough upstream modules for Recombine:{0}. Needs 2", Name);
-                    throw new InvalidOperationException("Not enough upstream sources for Recombine module");
-                }
-
-                // Use Zip instead of Merge because we want only two parents
-                var parents = Upstreams.Take(2);
-                var pairings = parents.First().Pipeline.Zip<Message, Message, (Message, Message)>(parents.Last().Pipeline, (mum, dad) => (mum, dad));
-                return from p in pairings
-                       where p.Item1 is XMLMessage && p.Item2 is XMLMessage
-                       let offspring = GenerateOffspring(p, Offspring)
-                       where offspring != null
-                       from o in offspring
-                       select o;
-
+                logger.Fatal("Not enough upstream modules for Recombine:{0}. Needs 2", Name);
+                throw new InvalidOperationException("Not enough upstream sources for Recombine module");
             }
-            protected set => base.Pipeline = value;
+
+            // Use Zip instead of Merge because we want only two parents
+            var parents = Upstreams.Take(2);
+            var pairings = parents.First().Pipeline.Zip<Message, Message, (Message, Message)>(parents.Last().Pipeline, (mum, dad) => (mum, dad));
+            return from p in pairings
+                   where p.Item1 is XMLMessage && p.Item2 is XMLMessage
+                   let offspring = GenerateOffspring(p, Offspring)
+                   where offspring != null
+                   from o in offspring
+                   select o;
         }
 
         public IEnumerable<Message> GenerateOffspring((Message, Message) parents, int children)

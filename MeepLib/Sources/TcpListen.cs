@@ -53,40 +53,33 @@ namespace MeepLib.Sources
         /// <remarks>Defaults to the message serialised to JSON.</remarks>
         public DataSelector From { get; set; } = "{msg.AsJson}";
 
-        public override IObservable<Message> Pipeline
+        protected override IObservable<Message> GetMessagingSource()
         {
-            get
-            {
-                var context = new MessageContext(null, this);
-                IPAddress ip = null;
+            var context = new MessageContext(null, this);
+            IPAddress ip = null;
 
-                if (_listener != null)
-                    _listener.Stop();
+            if (_listener != null)
+                _listener.Stop();
 
-                string dsHost = null;
-                if (Host is null)
-                    dsHost = "localhost";
+            string dsHost = null;
+            if (Host is null)
+                dsHost = "localhost";
 
-                ip = Dns.GetHostEntry(dsHost).AddressList.First();
+            ip = Dns.GetHostEntry(dsHost).AddressList.First();
 
 
-                var dsPort = Port.TrySelectLong(context);
-                if (!dsPort.Parsed)
-                    throw new ArgumentException("Invalid port number");
+            var dsPort = Port.TrySelectLong(context);
+            if (!dsPort.Parsed)
+                throw new ArgumentException("Invalid port number");
 
-                _listener = new TcpListener(ip, (int)dsPort.Value);
-                _listener.Start();
+            _listener = new TcpListener(ip, (int)dsPort.Value);
+            _listener.Start();
 
-                if (_pipeline == null)
-                    _pipeline = Observable
-                            .Create<Message>(observer => TaskPoolScheduler.Default
-                            .Schedule(() => ConnectionToMessage(_listener, observer)))
-                            .Publish().RefCount();
-
-                return _pipeline;
-            }
+            return Observable
+                    .Create<Message>(observer => TaskPoolScheduler.Default
+                    .Schedule(() => ConnectionToMessage(_listener, observer)))
+                    .Publish().RefCount();
         }
-        private IObservable<Message> _pipeline;
 
         private TcpListener _listener;
 

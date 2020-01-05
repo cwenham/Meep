@@ -13,7 +13,7 @@
     <Summary>SQL plugin for Meep</Summary>
     <Title>MeepSQL</Title>
     <Description>SQL plugin for Meep. Read and write to SQL databases, with out-of-box/configuration-free support for SQLite.</Description>
-    <ReleaseVersion>1.0.1</ReleaseVersion>
+    <ReleaseVersion>1.0.2</ReleaseVersion>
     <Copyright>Chris Wenham</Copyright>
     <PackageLicenseUrl>https://raw.githubusercontent.com/cwenham/Meep/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>

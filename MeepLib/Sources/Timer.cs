@@ -47,30 +47,20 @@ namespace MeepLib.Sources
         /// starts.</remarks>
         public bool DryStart { get; set; } = false;
 
-        public override IObservable<Message> Pipeline
+        protected override IObservable<Message> GetMessagingSource()
         {
-            get
-            {
-                if (_Pipeline == null)
-                {
-                    IObservable<long> source = Observable.Interval(Interval);
+            IObservable<long> source = Observable.Interval(Interval);
 
-                    if (!DryStart)
-                        source = source.StartWith(0);
+            if (!DryStart)
+                source = source.StartWith(0);
 
-                    _Pipeline = (from seq in source
-                                 let message = IssueMessage(seq)
-                                 where message != null
-                                 select message).Publish().RefCount();
-                }
-
-                return _Pipeline;
-            }
-            protected set => base.Pipeline = value;
+            return from seq in source
+                   let message = IssueMessage(seq)
+                   where message != null
+                   select message;
         }
-        private IObservable<Message> _Pipeline;
 
-        public virtual Message CreateMessage(long step)
+        protected virtual Message CreateMessage(long step)
         {
             var msg = new Step
             {

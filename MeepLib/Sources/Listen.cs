@@ -19,7 +19,7 @@ namespace MeepLib.Sources
     /// saves the HttpListenerContext to the message so another module can
     /// respond.</remarks>
     [Macro(Name = "Listen", DefaultProperty = "Base", Position = MacroPosition.Child)]
-    public class Listen : AMessageModule, IDisposable
+    public class Listen : AMessageModule
     {
         /// <summary>
         /// Base URL to bind to
@@ -31,47 +31,37 @@ namespace MeepLib.Sources
         /// </remarks>
         public DataSelector Base { get; set; } = "http://127.0.0.1:7780/";
 
-        public override IObservable<Message> Pipeline
+        protected override IObservable<Message> GetMessagingSource()
         {
-            get
+            MessageContext context = new MessageContext(null, this);
+            string dsBase = Base.SelectString(context);
+
+            _cancelSource = new CancellationTokenSource();
+
+            return Observable.Create<WebRequestMessage>(async observer =>
             {
-                if (_pipeline == null)
+                var server = new HttpListener();
+                if (!String.IsNullOrWhiteSpace(dsBase) && Uri.IsWellFormedUriString(dsBase, UriKind.Absolute))
+                    server.Prefixes.Add(dsBase);
+                server.Start();
+
+                while (!_cancelSource.IsCancellationRequested)
                 {
-                    MessageContext context = new MessageContext(null, this);
-                    string dsBase = Base.SelectString(context);
-
-                    _cancelSource = new CancellationTokenSource();
-
-                    _pipeline = Observable.Create<WebRequestMessage>(async observer =>
+                    var context = await Task.Run(() => server.GetContext(), _cancelSource.Token);
+                    observer.OnNext(new WebRequestMessage
                     {
-                        var server = new HttpListener();
-                        if (!String.IsNullOrWhiteSpace(dsBase) && Uri.IsWellFormedUriString(dsBase, UriKind.Absolute))
-                            server.Prefixes.Add(dsBase);
-                        server.Start();
-
-                        while (!_cancelSource.IsCancellationRequested)
-                        {
-                            var context = await Task.Run(() => server.GetContext(), _cancelSource.Token);                            
-                            observer.OnNext(new WebRequestMessage
-                            {
-                                URL = context.Request.RawUrl,
-                                Context = context
-                            });
-                        }
-                    })
-                        .Publish().RefCount();
+                        URL = context.Request.RawUrl,
+                        Context = context
+                    });
                 }
-
-                return _pipeline;
-            }
-            protected set => base.Pipeline = value;
+            });
         }
-        private IObservable<Message> _pipeline;
 
         private CancellationTokenSource _cancelSource;
 
-        public void Dispose()
+        public override void Dispose()
         {
+            base.Dispose();
             _cancelSource?.Cancel();
         }
     }

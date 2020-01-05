@@ -64,25 +64,12 @@ namespace MeepLib.Flow
             }
         }
 
-
-        public override IObservable<MM.Message> Pipeline
+        protected override IObservable<MM.Message> GetMessagingSource()
         {
-            get
-            {
-                if (_pipeline == null)
-                    _pipeline = (from b in UpstreamMessaging
-                                 from m in Constituents(b)
-                                 select m)
-                                 .Publish().RefCount();
-
-                return _pipeline;
-            }
-            protected set
-            {
-                _pipeline = value;
-            }
+            return from b in UpstreamMessaging
+                   from m in Constituents(b)
+                   select m;
         }
-        private IObservable<MM.Message> _pipeline;
 
         private IEnumerable<MM.Message> Constituents(MM.Message msg)
         {

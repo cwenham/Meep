@@ -29,24 +29,13 @@ namespace MeepLib.Flow
         /// </summary>
         public TimeSpan MaxWait { get; set; } = TimeSpan.FromMinutes(10);
 
-        public override IObservable<MM.Message> Pipeline
+        protected override IObservable<MM.Message> GetMessagingSource()
         {
-            get
-            {
-                if (_pipeline == null)
-                    _pipeline = (from b in UpstreamMessaging.Buffer(MaxWait, MaxSize)
-                                 select new MM.Batch
-                                 {
-                                    Messages = b.ToList()
-                                 }).Publish().RefCount();
-
-                return _pipeline;
-            }
-            protected set
-            {
-                _pipeline = value;
-            }
+            return from b in UpstreamMessaging.Buffer(MaxWait, MaxSize)
+                   select new MM.Batch
+                   {
+                       Messages = b.ToList()
+                   };
         }
-        private IObservable<MM.Message> _pipeline;
     }
 }

@@ -76,6 +76,10 @@ namespace MeepLib
             return await Task.Run(() => msg);
         }
 
+        /// <summary>
+        /// Merged messaging from the upstream pipeline (child modules)
+        /// </summary>
+        /// <remarks>This is a convenience property for those overriding <see cref="GetMessagingSource"/></remarks>
         protected IObservable<Message> UpstreamMessaging
         {
             get
@@ -84,27 +88,58 @@ namespace MeepLib
             }
         }
 
-        public virtual IObservable<Message> Pipeline
+        /// <summary>
+        /// Return an IObservable of Messages, which Meep will package for you as part of building the pipeline
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>Only override if you're creating a module that's a pure source or does sophisticated internal
+        /// work with Reactive operators (you need more than to just override HandleMessage()).
+        ///
+        /// <para>By default, it just returns UpstreamMessaging (the merged messaging from all upstream modules).</para>
+        ///
+        /// <para>If you're using LINQ to construct the Observable, consider returning the LINQ expression itself and
+        /// do not finish with .ToList() or .ToObservable() unless you know this is what you need.</para>
+        ///
+        /// <para>E.G., Timer's method looks like this:</para>
+        ///
+        /// <code>
+        ///     return from seq in Observable.Interval(Interval)
+        ///            let message = IssueMessage(seq)
+        ///            where message != null
+        ///            select message;
+        /// </code>
+        ///
+        /// <para>Meep will then wrap this Observable with what it needs to enable all of the other pipelining features
+        /// (mainly publishing, tap points, caching, timing, diagnostics, etc. that you don't need to implement
+        /// yourself).</para></remarks>
+        protected virtual IObservable<Message> GetMessagingSource()
+        {
+            return UpstreamMessaging;
+        }
+
+        /// <summary>
+        /// The constructed Pipeline ready to subscribe to or append to downstream modules
+        /// </summary>
+        public IObservable<Message> Pipeline
         {
             get
             {
                 if (_Pipeline == null)
-                    _Pipeline = (from msg in UpstreamMessaging
+                    _Pipeline = (from msg in GetMessagingSource()
                                  let result = ShippingAndHandling(msg)
                                  where result != null
                                  select result).Publish().RefCount();
 
                 return _Pipeline;
             }
-            protected set
+            private set
             {
                 _Pipeline = value;
             }
         }
+        private IObservable<Message> _Pipeline;
 
         public ANamable Parent { get; private set; }
-
-        private IObservable<Message> _Pipeline;
 
         /// <summary>
         /// Give an outbound message the same name as this module if not already set

@@ -38,21 +38,11 @@ namespace MeepLib.Sources
         /// this template. Defaults to JSON serialised message.</remarks>
         public string OutboundTemplate { get; set; } = "{msg.AsJSON}";
 
-        public override IObservable<Message> Pipeline
+        protected override IObservable<Message> GetMessagingSource()
         {
-            get
-            {
-                if (_pipeline is null)
-                    _pipeline = Observable
-                            .Create<Message>(observer => TaskPoolScheduler.Default
-                                                        .Schedule(() => ReadWriteLoop(observer, UpstreamMessaging)))
-                            .Publish().RefCount();
-
-                return _pipeline;
-            }
+            return Observable.Create<Message>(observer => TaskPoolScheduler.Default
+                             .Schedule(() => ReadWriteLoop(observer, UpstreamMessaging)));
         }
-        private IObservable<Message> _pipeline;
-
 
         private async void ReadWriteLoop(IObserver<Message> observer, IObservable<Message> outbound)
         {

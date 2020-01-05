@@ -52,30 +52,17 @@ namespace MeepLib.Flow
             }
         }
 
-        public override IObservable<MM.Message> Pipeline
+        protected override IObservable<MM.Message> GetMessagingSource()
         {
-            get
-            {
-                if (_Pipeline == null)
-                {
-                    if (By > 0)
-                        _Pipeline = from b in UpstreamMessaging.Skip(By)
-                                    select b;
-                    else if (While != null)
-                        _Pipeline = from b in UpstreamMessaging.SkipWhile(msg => WhileCondition(msg))
-                                    select b;
+            if (By > 0)
+                return from b in UpstreamMessaging.Skip(By)
+                       select b;
+            else if (While != null)
+                return from b in UpstreamMessaging.SkipWhile(msg => WhileCondition(msg))
+                       select b;
 
-                    _Pipeline = _Pipeline?.Publish().RefCount();
-                }
-
-                return _Pipeline;
-            }
-            protected set
-            {
-                _Pipeline = value;
-            }
+            throw new InvalidOperationException("Either 'By' or 'While' must be set");
         }
-        private IObservable<MM.Message> _Pipeline;
 
         public bool WhileCondition(MM.Message msg)
         {

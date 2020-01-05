@@ -43,58 +43,49 @@ namespace MeepLib.Sources
         /// updates. If you strictly want updates only, set DryStart to true.</remarks>
         public bool DryStart { get; set; } = false;
 
-        public override IObservable<Message> Pipeline
+        protected override IObservable<Message> GetMessagingSource()
         {
-            get
+            MessageContext context = new MessageContext(null, this);
+            string dsPath = Path.SelectString(context);
+            string dsFilter = Filter.SelectString(context);
+
+            var fsw = new FileSystemWatcher(dsPath, dsFilter);
+            fsw.Error += Fsw_Error;
+
+            var mergedEvents = Observable.Merge(
+                Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(x => fsw.Changed += x, x => fsw.Changed -= x).Select(x => x.EventArgs),
+                Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(x => fsw.Created += x, x => fsw.Created -= x).Select(x => x.EventArgs),
+                Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(x => fsw.Deleted += x, x => fsw.Deleted -= x).Select(x => x.EventArgs)
+            ).Throttle(Throttle, TaskPoolScheduler.Default);
+
+            if (!DryStart)
             {
-                if (_Pipeline == null)
-                {
-                    MessageContext context = new MessageContext(null, this);
-                    string dsPath = Path.SelectString(context);
-                    string dsFilter = Filter.SelectString(context);
+                var initialList = from f in Directory.EnumerateFiles(dsPath, dsFilter)
+                                  let info = new FileInfo(f)
+                                  // Since this is injected into a stream of updates, we'll
+                                  // order by creation time to match the order implied if
+                                  // the files hadn't already existed.
+                                  orderby info.CreationTime
+                                  select new FileSystemEventArgs(WatcherChangeTypes.Created,
+                                                                 dsPath,
+                                                                 System.IO.Path.GetFileName(f));
 
-                    var fsw = new FileSystemWatcher(dsPath, dsFilter);
-                    fsw.Error += Fsw_Error;
-
-                    var mergedEvents = Observable.Merge(
-                        Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(x => fsw.Changed += x, x => fsw.Changed -= x).Select(x => x.EventArgs),
-                        Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(x => fsw.Created += x, x => fsw.Created -= x).Select(x => x.EventArgs),
-                        Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(x => fsw.Deleted += x, x => fsw.Deleted -= x).Select(x => x.EventArgs)
-                    ).Throttle(Throttle, TaskPoolScheduler.Default);
-
-                    if (!DryStart)
-                    {
-                        var initialList = from f in Directory.EnumerateFiles(dsPath, dsFilter)
-                                          let info = new FileInfo(f)
-                                          // Since this is injected into a stream of updates, we'll
-                                          // order by creation time to match the order implied if
-                                          // the files hadn't already existed.
-                                          orderby info.CreationTime
-                                          select new FileSystemEventArgs(WatcherChangeTypes.Created,
-                                                                         dsPath,
-                                                                         System.IO.Path.GetFileName(f));
-
-                        mergedEvents = mergedEvents.StartWith(initialList);
-                    }
-
-                    _Pipeline = from fev in mergedEvents
-                                let info = fev.ChangeType != WatcherChangeTypes.Deleted ? new FileInfo(fev.FullPath) : null
-                                select new FileChanged
-                                {
-                                    ChangeType = fev.ChangeType,
-                                    FullPath = fev.FullPath,
-                                    Modified = File.GetLastWriteTimeUtc(fev.FullPath),
-                                    Size = info != null ? info.Length : 0
-                                };
-
-                    _Pipeline = _Pipeline.Publish().RefCount();
-
-                    fsw.EnableRaisingEvents = true;
-                }
-
-                return _Pipeline;
+                mergedEvents = mergedEvents.StartWith(initialList);
             }
-            protected set => base.Pipeline = value;
+
+            var source = from fev in mergedEvents
+                         let info = fev.ChangeType != WatcherChangeTypes.Deleted ? new FileInfo(fev.FullPath) : null
+                         select new FileChanged
+                         {
+                             ChangeType = fev.ChangeType,
+                             FullPath = fev.FullPath,
+                             Modified = File.GetLastWriteTimeUtc(fev.FullPath),
+                             Size = info != null ? info.Length : 0
+                         };
+
+            fsw.EnableRaisingEvents = true;
+
+            return source;
         }
 
         private void Fsw_Error(object sender, ErrorEventArgs e)
@@ -106,6 +97,5 @@ namespace MeepLib.Sources
                 logger.Error("Unknown error thrown by FileSystemWatcher for {0}", this.Name);
         }
 
-        private IObservable<Message> _Pipeline;
     }
 }
