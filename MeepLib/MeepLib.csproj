@@ -3,12 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Meep.MeepLib</PackageId>
-    <PackageVersion>1.0-alpha</PackageVersion>
+    <PackageVersion>1.0.2-beta</PackageVersion>
     <Authors>Chris Wenham</Authors>
     <NeutralLanguage>en-GB</NeutralLanguage>
     <Owners>Chris Wenham</Owners>
     <PackageProjectUrl>https://github.com/cwenham/Meep</PackageProjectUrl>
-    <PackageReleaseNotes>Initial NuGet release</PackageReleaseNotes>
+    <PackageReleaseNotes>BREAKING CHANGE: Overriding Pipeline in your modules is no longer supported. Override GetMessagesSource() instead.
+
+Fix bug with Tap creating duplicate pipelines.</PackageReleaseNotes>
     <Summary>Message Pipelines set up with XML</Summary>
     <Title>MeepLib</Title>
     <Description>Message Pipelines; receive, filter, modify and output discrete messages with pipelines that are described and configured with an XML-based language. Supports realtime deadlines, plugins, and caching.

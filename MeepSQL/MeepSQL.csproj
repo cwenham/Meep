@@ -4,12 +4,12 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <PackOnBuild>true</PackOnBuild>
     <PackageId>Meep.MeepSQL</PackageId>
-    <PackageVersion>1.0-alpha</PackageVersion>
+    <PackageVersion>1.0.2-beta</PackageVersion>
     <Authors>Chris Wenham</Authors>
     <NeutralLanguage>en-GB</NeutralLanguage>
     <Owners>Chris Wenham</Owners>
     <PackageProjectUrl>https://github.com/cwenham/Meep</PackageProjectUrl>
-    <PackageReleaseNotes>Initial NuGet release.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update for compatibility with Meep 1.0.2</PackageReleaseNotes>
     <Summary>SQL plugin for Meep</Summary>
     <Title>MeepSQL</Title>
     <Description>SQL plugin for Meep. Read and write to SQL databases, with out-of-box/configuration-free support for SQLite.</Description>

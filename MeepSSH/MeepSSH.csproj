@@ -11,11 +11,11 @@
     <Summary>Login and send messages as commands to SSH hosts, upload/download data by SCP</Summary>
     <Title>SSH plugin for Meep</Title>
     <PackageId>Meep.MeepSSH</PackageId>
-    <PackageVersion>1.0-alpha</PackageVersion>
+    <PackageVersion>1.0.2-beta</PackageVersion>
     <Authors>Chris Wenham</Authors>
     <Description>SSH plugin for Meep, supporting SCP uploads/downloads and the ability to login to a remote shell and issue commands via inbound pipeline Messages, passing the responses back into the pipeline as Messages.</Description>
     <PackageProjectUrl>https://github.com/cwenham/Meep</PackageProjectUrl>
-    <PackageReleaseNotes>Initial NuGet release</PackageReleaseNotes>
+    <PackageReleaseNotes>Update for compatibility with Meep 1.0.2</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

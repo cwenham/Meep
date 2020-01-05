@@ -5,12 +5,12 @@
     <RootNamespace>MeepLib</RootNamespace>
     <PackOnBuild>true</PackOnBuild>
     <PackageId>Meep.Model</PackageId>
-    <PackageVersion>1.0-alpha</PackageVersion>
+    <PackageVersion>1.0.2-beta</PackageVersion>
     <Authors>Chris Wenham</Authors>
     <NeutralLanguage>en-GB</NeutralLanguage>
     <Owners>Chris Wenham</Owners>
     <PackageProjectUrl>https://github.com/cwenham/Meep</PackageProjectUrl>
-    <PackageReleaseNotes>Initial NuGet release</PackageReleaseNotes>
+    <PackageReleaseNotes>Update for compatibility with Meep 1.0.2</PackageReleaseNotes>
     <Summary>Message class family for Meep</Summary>
     <Title>MeepModel</Title>
     <Description>Message class family for Meep. Can be used on its own for projects that need to serialise to/from Meep messages without requiring all of MeepLib.</Description>
@@ -22,8 +22,8 @@
     <Compile Remove="Class1.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.6.0-preview9.19421.4" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
     <PackageReference Include="NuGet.Build.Packaging" Version="0.2.2" />
-    <PackageReference Include="System.Text.Json" Version="4.6.0-preview9.19421.4" />
+    <PackageReference Include="System.Text.Json" Version="4.7.0" />
   </ItemGroup>
 </Project>
