@@ -17,6 +17,7 @@ namespace MeepLib.DataSelection
         public SmartFormatSelector(string template) : base(template)
         {
             this.Template = template;
+            Smart.Default.Settings.FormatErrorAction = SmartFormat.Core.Settings.ErrorAction.Ignore;
         }
 
         FormatCache _cache = null;

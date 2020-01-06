@@ -200,7 +200,7 @@ namespace Meep
 
         private static void LogError(Exception ex)
         {
-            Console.WriteLine($"{ex.GetType().Name} thrown: {ex.Message}");
+            Console.WriteLine($"{ex.GetType().Name} thrown: {ex.Message} - {ex.StackTrace}");
         }
 
         /// <summary>
