@@ -25,6 +25,21 @@ namespace MeepLib.Sources
         public TimeSpan Interval { get; set; }
 
         /// <summary>
+        /// How long to wait after start until emitting messages, default is zero
+        /// </summary>
+        public TimeSpan DelayFor { get; set; } = TimeSpan.Zero;
+
+        /// <summary>
+        /// How long to run until stopping, default is infinity
+        /// </summary>
+        public TimeSpan RunFor { get; set; } = TimeSpan.Zero;
+
+        /// <summary>
+        /// When this timer started, in UTC
+        /// </summary>
+        public DateTime Started { get; private set; }
+
+        /// <summary>
         /// Last time the timer elapsed
         /// </summary>
         /// <value>The last elapsed.</value>
@@ -54,6 +69,8 @@ namespace MeepLib.Sources
             if (!DryStart)
                 source = source.StartWith(0);
 
+            Started = DateTime.UtcNow;
+
             return from seq in source
                    let message = IssueMessage(seq)
                    where message != null
@@ -77,6 +94,12 @@ namespace MeepLib.Sources
 
         private Message IssueMessage(long step)
         {
+            if (RunFor > TimeSpan.Zero && Started + RunFor < DateTime.UtcNow)
+                return null;
+
+            if (Started + DelayFor > DateTime.UtcNow)
+                return null;
+
             var msg = CreateMessage(step);
             LastElapsed = msg.CreatedTicks;
 
