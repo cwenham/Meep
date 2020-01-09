@@ -26,4 +26,8 @@
     <PackageReference Include="NuGet.Build.Packaging" Version="0.2.2" />
     <PackageReference Include="System.Text.Json" Version="4.7.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Messages\Exceptions\" />
+    <Folder Include="Messages\Compiled\" />
+  </ItemGroup>
 </Project>

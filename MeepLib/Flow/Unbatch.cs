@@ -75,15 +75,21 @@ namespace MeepLib.Flow
         {
             MM.Batch bMsg = msg as MM.Batch;
             if (bMsg != null)
+            {
                 foreach (var m in bMsg.Messages)
                     yield return m;
-
-            if (Family)
-                while (msg != null)
-                {
+            }
+            else
+            {
+                if (Family)
+                    while (msg != null)
+                    {
+                        yield return msg;
+                        msg = msg.DerivedFrom;
+                    }
+                else
                     yield return msg;
-                    msg = msg.DerivedFrom;
-                }
+            }
         }
     }
 }

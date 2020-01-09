@@ -31,6 +31,12 @@ namespace MeepLib
         }
         private string _Name;
 
+        /// <summary>
+        /// Search the entire pipeline tree for an ANamable matching the name and type T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public T ByName<T>(string name) where T : ANamable
         {
             var root = GetRoot();
@@ -41,6 +47,12 @@ namespace MeepLib
             return MineByName<T>(name);
         }
 
+        /// <summary>
+        /// Search this node and its siblings+children for an ANamable matching the name and type T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <returns></returns>
         private T MineByName<T>(string name) where T : ANamable
         {
             if (Name.Equals(name))
@@ -56,6 +68,11 @@ namespace MeepLib
             return null;
         }
 
+        /// <summary>
+        /// Search the entire pipeline tree for ANamables that have a common base type T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public IEnumerable<T> InventoryByBase<T>() where T : ANamable
         {
             var root = GetRoot();
@@ -65,6 +82,11 @@ namespace MeepLib
                 return root.MyInventoryByBase<T>();
         }
 
+        /// <summary>
+        /// Search this node and its siblings+children for ANamables that have a common base type T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         private IEnumerable<T> MyInventoryByBase<T>() where T : ANamable
         {
             var mine = new List<T>();
@@ -79,6 +101,10 @@ namespace MeepLib
             return mine;
         }
 
+        /// <summary>
+        /// Find the root node of a Pipeline tree
+        /// </summary>
+        /// <returns></returns>
         private ANamable GetRoot()
         {
             Pipeline pipeRoot = this as Pipeline;

@@ -3,15 +3,19 @@
           xmlns:mp="http://meep.example.com/Meep/V1" 
           xmlns:xi="http://www.w3.org/2003/XInclude" 
           xmlns:s="http://meep.example.com/MeepSQL/V1">
-
-<Quantize Scale="Western Musical" WriteLine="{msg.Number}">
-    <Fibonacci Name="Fibo">
-        <Timer Interval="00:00:01"/>
-    </Fibonacci>
-</Quantize>
+          
+<Memory Name="AscendingFibonacci">
+    <Quantize Scale="Western Musical" WriteLine="{msg.Number}">
+        <Fibonacci Name="Fibo">
+            <Timer Interval="00:00:01" RunFor="00:00:20"/>
+        </Fibonacci>
+    </Quantize>
+</Memory>
     
-<WriteLine From="Fibo: {msg.Number}">
-    <Tap From="Fibo"/>
+<WriteLine From="Playback: {msg.Number}" Unbatch="Children">
+    <Memory From="AscendingFibonacci" Mode="AscendingTime">
+        <Timer Interval="00:00:01" DelayFor="00:00:21" DryStart="true"/>
+    </Memory>
 </WriteLine>
     
 </Pipeline>

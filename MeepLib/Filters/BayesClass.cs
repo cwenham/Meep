@@ -13,12 +13,10 @@ namespace MeepLib.Filters
     /// Emit or import trained ClassIndexes
     /// </summary>
     /// <remarks>These are the class indexes created and trained by BayesTrain.
-    /// This module emits them on demand so they can be serialised to a store
-    /// or sent to a sister pipeline.
+    /// This module emits them on demand so they can be serialised to a store or sent to a sister pipeline.
     /// 
-    /// <para>When given a RecordMessage, it looks to see if it can find
-    /// ClassName, LastUsed, DocumentCount, and TokensString. If it finds them,
-    /// it loads the data into a new ClassIndex in the global dictionary.</para></remarks>
+    /// <para>When given a RecordMessage, it looks to see if it can find ClassName, LastUsed, DocumentCount, and
+    /// TokensString. If it finds them, it loads the data into a new ClassIndex in the global dictionary.</para></remarks>
     public class BayesClass : AMessageModule
     {
         /// <summary>

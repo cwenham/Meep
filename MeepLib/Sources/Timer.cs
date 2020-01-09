@@ -35,6 +35,13 @@ namespace MeepLib.Sources
         public TimeSpan RunFor { get; set; } = TimeSpan.Zero;
 
         /// <summary>
+        /// Number of times to cycle, defaults to infinite (0)
+        /// </summary>
+        public long Repeat { get; set; } = 0;
+
+        private long _remaining = 0;
+
+        /// <summary>
         /// When this timer started, in UTC
         /// </summary>
         public DateTime Started { get; private set; }
@@ -64,6 +71,9 @@ namespace MeepLib.Sources
 
         protected override IObservable<Message> GetMessagingSource()
         {
+            if (Repeat > 0)
+                _remaining = Repeat;
+
             IObservable<long> source = Observable.Interval(Interval);
 
             if (!DryStart)
@@ -99,6 +109,12 @@ namespace MeepLib.Sources
 
             if (Started + DelayFor > DateTime.UtcNow)
                 return null;
+
+            if (Repeat > 0)
+                if (_remaining <= 0)
+                    return null;
+                else
+                    _remaining--;
 
             var msg = CreateMessage(step);
             LastElapsed = msg.CreatedTicks;

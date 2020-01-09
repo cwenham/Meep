@@ -76,6 +76,32 @@ namespace MeepLib.Messages
         }
 
         /// <summary>
+        /// Return a Guid based on the hash of a record (array of strings)
+        /// </summary>
+        /// <param name="record"></param>
+        /// <returns>Uses MD5 since it produces 128-bit hashes to match 128-bit GUIDs, obviously not intended for use in
+        /// security, but is useful for de-duping.</returns>
+        public static Guid ToGuid(this string[] record)
+        {
+            return String.Join(',', record).ToGuid();
+        }
+
+        /// <summary>
+        /// Return a Guid based on the hash of a string
+        /// </summary>
+        /// <param name="record"></param>
+        /// <returns>Uses MD5 since it produces 128-bit hashes to match 128-bit GUIDs, obviously not intended for use in
+        /// security, but is useful for de-duping.</returns>
+        public static Guid ToGuid(this string value)
+        {
+            var hasher = System.Security.Cryptography.MD5.Create();
+
+            byte[] hashBytes = hasher.ComputeHash(Encoding.UTF8.GetBytes(value));
+            var ID = new Guid(hashBytes);
+            return ID;
+        }
+
+        /// <summary>
         /// Serialise object to a string of XML
         /// </summary>
         /// <returns>The xml.</returns>

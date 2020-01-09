@@ -45,5 +45,31 @@ namespace MeepLib.Messages
                 return _stream;
             });
         }
+
+        /// <summary>
+        /// The string content of the stream (forces full read of the stream and closes it)
+        /// </summary>
+        public string Value
+        {
+            get
+            {
+                if (_content is null)
+                {
+                    var streamTask = GetStream();
+                    streamTask.Wait();
+                    StreamReader reader = new StreamReader(streamTask.Result);
+                    _content = reader.ReadToEnd();
+                    reader.Close();
+                }
+
+                return _content;
+            }
+        }
+        private string _content = null;
+
+        public override string ToString()
+        {
+            return this.Value;
+        }
     }
 }

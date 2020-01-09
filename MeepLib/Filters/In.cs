@@ -30,8 +30,22 @@ namespace MeepLib.Filters
         /// The Category:Out, used for setting by Meeplang macro, DO NOT SET DIRECTLY
         /// </summary>
         /// <value></value>
-        /// <remarks>This will be used by Meep when you use the "In" macro in another element's attributes, do not
-        /// set it directly.</remarks>
+        /// <remarks>Used to support the shorthand macro syntax in pipeline definitions. E.G.:
+        ///
+        /// <code>&lt;Append To="spam.txt" In="spam:ham"%gt;</code>
+        ///
+        /// <para>Meep re-writes the "In" attribute to this:</para>
+        ///
+        /// <code>
+        /// &lt;Append To="spam.txt"&gt;
+        ///     &lt;In InOut="spam:ham"&gt;
+        ///         ... rest of pipeline ...
+        ///     &lt;/In&gt;
+        /// &lt;/Append&gt;
+        /// </code>
+        ///
+        /// <para>Therefore, do not set this property directly.</para>
+        /// </remarks>
         public string InOut
         {
             get 

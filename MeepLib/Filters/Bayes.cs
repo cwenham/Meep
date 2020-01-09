@@ -36,8 +36,8 @@ namespace MeepLib.Filters
         /// Mimimum number of documents in training set to consider a class
         /// </summary>
         /// <value>The minimum training.</value>
-        /// <remarks>To eliminate classes that have not yet been trained adequately
-        /// and produce too many false positives. Defaults to 10.</remarks>
+        /// <remarks>To eliminate classes that have not yet been trained adequately and produce too many false
+        /// positives. Defaults to 10.</remarks>
         public int MinTraining { get; set; } = 10;
 
         public override async Task<Message> HandleMessage(Message msg)

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Text;
 
 using SmartFormat;
 
@@ -44,12 +45,22 @@ namespace MeepLib.Modifiers
         /// </remarks>
         public DataSelector Columns { get; set; } = "#";
 
+        public DataSelector From { get; set; } = "{msg.Value}";
+
+        /// <summary>
+        /// Base each RecordMessage.ID on an MD5 hash of the record line instead of a random Guid. Default is true
+        /// </summary>
+        /// <remarks>MD5 is, of course, not secure, but since this isn't used for security it can make it easier to
+        /// perform de-duping. E.G.: when saving to a Memory module, any dupes are automatically ignored.</remarks>
+        public bool HashID { get; set; } = true;
+
         public override async Task<Message> HandleMessage(Message msg)
         {
             MessageContext context = new MessageContext(msg, this);
             string dsOn = await On.SelectStringAsync(context);
             string dsWith = await With.SelectStringAsync(context);
             string dsColumns = await Columns.SelectStringAsync(context);
+            string dsContent = await From.SelectStringAsync(context);
 
             return await Task.Run<Message>(() =>
             {
@@ -58,10 +69,11 @@ namespace MeepLib.Modifiers
                     //ToDo: Support a streaming version for very large CSVs
 
                     // First the basic splitting into lines and columns
-                    string[] rawLines = msg.ToString().Trim().Split(new string[] { dsWith },
+                    string[] rawLines = dsContent.Trim().Split(new string[] { dsWith },
                                         StringSplitOptions.RemoveEmptyEntries);
 
                     var lines = from r in rawLines
+                                where !String.IsNullOrWhiteSpace(r)
                                 select r.Split(new string[] { dsOn }, StringSplitOptions.None);
 
                     string[] first = lines?.FirstOrDefault();
@@ -86,6 +98,9 @@ namespace MeepLib.Modifiers
 
                     // Third, determine the column types and get converters for them
                     var sample = lines.FirstOrDefault();
+                    if (sample is null)
+                        return null;
+
                     var converters = (from c in sample
                                       let parsed = c.ToBestType()
                                       let converter = TypeDescriptor.GetConverter(parsed.GetType())
@@ -93,13 +108,14 @@ namespace MeepLib.Modifiers
 
 
                     // Finally, return the cleaned and polished results as a batch
-                    return new Batch
+                    var batch = new Batch
                     {
                         DerivedFrom = msg,
                         Name = this.Name,
                         Messages = (from line in lines
                                     select new RecordMessage
                                     {
+                                        ID = HashID ? line.ToGuid() : Guid.NewGuid(),
                                         DerivedFrom = msg,
                                         Record = (from i in Enumerable.Range(0, Math.Min(columns.Length, line.Length))
                                                   select new
@@ -109,6 +125,8 @@ namespace MeepLib.Modifiers
                                                   }).ToDictionary(x => x.k, y => y.v)
                                     }).ToList()
                     };
+
+                    return batch;
                 }
                 catch (Exception ex)
                 {

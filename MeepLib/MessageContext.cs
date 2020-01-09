@@ -97,5 +97,10 @@ namespace MeepLib
                 return msg.ToString();
             }
         }
+
+        public override string ToString()
+        {
+            return msg.ToString();
+        }
     }
 }

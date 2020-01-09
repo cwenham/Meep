@@ -1,0 +1,3 @@
+﻿Type,Regex
+Email,.*\@.*\..*
+Url,(https?|ftps?):\/\/.*

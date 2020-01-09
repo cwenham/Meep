@@ -21,8 +21,9 @@ namespace MeepLib.Sources
         /// <summary>
         /// Path for file to load
         /// </summary>
-        /// <value>From.</value>
-        public DataSelector From { get; set; }
+        /// <value></value>
+        /// <remarks>Defaults to msg.FullPath, since Load is often used in combination with FileChanges.</remarks>
+        public DataSelector From { get; set; } = "{msg.FullPath}";
 
         /// <summary>
         /// Max size of file before switching to returning a stream

@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+
+<Pipeline xmlns="http://meep.example.com/Meep/V1" 
+          xmlns:mp="http://meep.example.com/Meep/V1" 
+          xmlns:xi="http://www.w3.org/2003/XInclude" 
+          xmlns:s="http://meep.example.com/MeepSQL/V1">
+
+    <Memorize Name="RegexPatterns">
+        <Compile Language="Regex" From="{msg.Record.Regex}" NameFrom="{msg.Record.Type}" Unbatch="Children">
+            <Split Columns="*" Forget="RegexPatterns">
+                <Load>
+                    <FileChanges Path="/Users/cwenham/Projects/MeepStable/MeepLibTests/Smoketests" Filter="RegexPatterns.csv"/> 
+                </Load>
+            </Split>
+        </Compile>
+    </Memorize>
+    
+    <WriteLine From="{msg.Value}">
+        <Match Patterns="RegexPatterns" From="{msg.Value}" Unbatch="Children">
+            <Extract From="RX:.*\n">
+                <Get URL="http://www.google.com/">
+                    <Timer Interval="00:00:10" DryStart="true" Repeat="1"/>
+                </Get>                
+            </Extract>
+        </Match>
+    </WriteLine>
+    
+</Pipeline>
