@@ -17,3 +17,5 @@ jobs:
       run: dotnet build --configuration Release
     - name: docfx-action
       uses: nikeee/docfx-action@v0.1.0
+      with:
+        args: docfx_project/docfx.json
