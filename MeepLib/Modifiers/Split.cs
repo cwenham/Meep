@@ -116,6 +116,7 @@ namespace MeepLib.Modifiers
                                     select new RecordMessage
                                     {
                                         ID = HashID ? line.ToGuid() : Guid.NewGuid(),
+                                        Name = this.Name,
                                         DerivedFrom = msg,
                                         Record = (from i in Enumerable.Range(0, Math.Min(columns.Length, line.Length))
                                                   select new

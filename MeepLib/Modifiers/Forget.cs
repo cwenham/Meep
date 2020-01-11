@@ -20,7 +20,7 @@ namespace MeepLib.Modifiers
     public class Forget : AMessageModule
     {
         /// <summary>
-        /// Name of the Memory module to wipe
+        /// Name of the Memory modules to wipe, in comma-separated format
         /// </summary>
         public DataSelector From { get; set; }
 
@@ -29,14 +29,16 @@ namespace MeepLib.Modifiers
             MessageContext context = new MessageContext(msg, this);
             string dsFrom = await From.SelectStringAsync(context);
 
-            MeepLib.Outputs.Memorize mem = this.ByName<MeepLib.Outputs.Memorize>(dsFrom);
-            if (mem is null)
-            {
-                logger.Warn("Could not find a Memory module called: {0}", dsFrom);
-                return msg;
-            }
+            var memories = dsFrom.Split(',');
 
-            mem.Clear();
+            foreach (string memName in memories)
+            {
+                MeepLib.Outputs.Memorize mem = this.ByName<MeepLib.Outputs.Memorize>(memName);
+                if (mem is null)
+                    logger.Warn("Could not find a Memory module called: {0}", memName);
+
+                mem.Clear();
+            }
 
             return msg;
         }

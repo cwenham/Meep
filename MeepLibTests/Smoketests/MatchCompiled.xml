@@ -4,7 +4,8 @@
           xmlns:mp="http://meep.example.com/Meep/V1" 
           xmlns:xi="http://www.w3.org/2003/XInclude" 
           xmlns:s="http://meep.example.com/MeepSQL/V1">
-
+          
+    <Stage>
     <Memorize Name="RegexPatterns">
         <Compile Language="Regex" From="{msg.Record.Regex}" NameFrom="{msg.Record.Type}" Unbatch="Children">
             <Split Columns="*" Forget="RegexPatterns">
@@ -14,7 +15,8 @@
             </Split>
         </Compile>
     </Memorize>
-    
+    </Stage>
+        
     <WriteLine From="{msg.Value}">
         <Match Patterns="RegexPatterns" From="{msg.Value}" Unbatch="Children">
             <Extract From="RX:.*\n">

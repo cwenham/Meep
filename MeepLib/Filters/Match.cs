@@ -66,7 +66,7 @@ namespace MeepLib.Filters
 
         public override async Task<Message> HandleMessage(Message msg)
         {
-            MessageContext context = new MessageContext(msg, this);
+            var context = new MessageContext(msg, this);
             string test = await Value.SelectStringAsync(context);
 
             IEnumerable<Message> _patterns = null;
