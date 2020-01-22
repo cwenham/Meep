@@ -33,7 +33,6 @@ namespace Meep
         static void Main(string[] args)
         {
             bool shouldShowHelp = false;
-            bool shouldShowTypePrefixes = false;
             bool shouldShowLibrary = false;
             string gitRepo = null;
             string pipelineFile = Path.Combine(Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]), "Pipelines", "MasterPipeline.meep");
@@ -46,7 +45,6 @@ namespace Meep
                 { "t|recheck=", "Time to recheck Git/Url for changes", t => recheck = TimeSpan.Parse(t) },
                 { "q|quiet", "No gutter serialisation", g => GutterSerialisation = GutterSerialisation.None },
                 { "x|xml", "Gutter serialisation in XML", g => GutterSerialisation = GutterSerialisation.XML },
-                { "tp|typePrefixes", "Display a list of type prefixes (if Meep is misidentifying parameter types)", tp => shouldShowTypePrefixes = tp != null },
                 { "lb|listBooks", "Display a list of books available with <Enumerate Selection=\"...\"/>", lb => shouldShowLibrary = lb != null },
                 { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
             };
@@ -65,9 +63,6 @@ namespace Meep
 
             if (shouldShowHelp)
                 ShowHelp();
-
-            if (shouldShowTypePrefixes)
-                ShowTypePrefixes();
 
             if (shouldShowLibrary)
                 ShowLibrary();
@@ -112,23 +107,6 @@ namespace Meep
         static void ShowHelp()
         {
             Console.WriteLine("E.G.: meep -b evilplan.meep");
-        }
-
-        static void ShowTypePrefixes()
-        {
-            Console.WriteLine("Type Prefixes and conventions. Meep will try to guess the type by what it looks like, but if that's not working then these prefixes and conventions tell Meep specifically how to handle arguments in pipeline definitions.");
-            Console.WriteLine("  /Regex Slashes/      - Regular expression between the slashes.");
-            Console.WriteLine("  RX:RegEx             - Explicit Regex prefix.");
-            Console.WriteLine("  $.JSONPath           - Begin absolute JSON Paths (JPaths) with '$'.");
-            Console.WriteLine("  JP:.path[0]          - Relative JSON Paths with the 'JPath:' prefix.");
-            Console.WriteLine("  XP:Element/Path      - Relative XPaths with the 'XPath:' prefix.");
-            Console.WriteLine("  //Element/XPath      - Extra prefix not needed if the XPath begins with '//'.");
-            Console.WriteLine("  SF:{Smart.Format}    - Smart.Format templates with the 'SF:' prefix.");
-            Console.WriteLine("  NC:[NCalc] Format    - NCalc Formatted expressions with the 'NC:' prefix.");
-            Console.WriteLine("  ./Path/To/File       - On Unix or Windows, specify relative paths with the './' prefix and forward slashes.");
-            Console.WriteLine("  URL:/relative/url    - Specify relative URLs with the 'URL:' prefix.");
-            Console.WriteLine("  http://example.com/  - Absolute URLs do not need an extra prefix. Meep knows the 'scheme://' pattern.");
-            Console.WriteLine("  <?xml?>              - Begin XML with a standard declaration (include version and encoding optionally) if Meep doesn't guess from the matching root element tags.");
         }
 
         static void ShowLibrary()
