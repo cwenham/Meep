@@ -41,7 +41,7 @@ namespace MeepSQL
             // We'll only let the database and table vary by the type, not
             // individual messages.
             IEnumerable<Message> messages = null;
-            if (Unbatch)
+            if (Children)
                 messages = msg.AsEnumerable();
             else
                 messages = new List<Message> { msg };

@@ -69,7 +69,7 @@ namespace MeepSQL
         /// <value></value>
         /// <remarks>Set to false if you're saving details about the batch
         /// itself rather than its contents, such as statistical information.</remarks>
-        public bool Unbatch { get; set; } = true;
+        public bool Children { get; set; } = true;
 
         /// <summary>
         /// Dictionary of semaphores for serialising access to SQLite databases
