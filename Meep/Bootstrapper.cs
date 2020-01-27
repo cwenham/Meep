@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reactive.Linq;
 using System.ComponentModel;
+using System.Threading;
 
 using MeepLib;
 using MeepLib.Sources;
@@ -62,7 +63,7 @@ namespace Meep
         /// <summary>
         /// Subscription to bootstrap pipeline
         /// </summary>
-        private IDisposable _subscription;
+        private CancellationToken _subscription;
 
         /// <summary>
         /// Bootstrap from a file
@@ -99,7 +100,7 @@ namespace Meep
                 URL = uri.AbsoluteUri
             };
 
-            getter.AddUpstream(new Timer
+            getter.AddUpstream(new MeepLib.Sources.Timer
             {
                 Interval = recheckAfter
             });
@@ -131,7 +132,7 @@ namespace Meep
         {
             string repoName = Path.GetFileName(repository.AbsoluteUri).Replace(".git", "");
 
-            Timer timer = new Timer
+            MeepLib.Sources.Timer timer = new MeepLib.Sources.Timer
             {
                 Interval = recheckAfter
             };
@@ -157,24 +158,22 @@ namespace Meep
             _laces = deserialiser;
         }
 
-        public void Start()
+        public void Start(CancellationToken stoppingToken)
         {
             if (_laces == null)
                 throw new InvalidOperationException("Bootstrapper has not been initialised");
 
-            _subscription = _laces.Pipeline.Subscribe<Message>(
-                msg => PipelineRoot = ((DeserialisedPipeline)msg).Tree
-            );
-        }
+            _subscription = stoppingToken;
 
-        public void Stop()
-        {
-            _subscription?.Dispose();
+            _laces.Pipeline.Subscribe<Message>(
+                msg => PipelineRoot = ((DeserialisedPipeline)msg).Tree,
+                _subscription
+            );
         }
 
         public void Dispose()
         {
-            Stop();
+            // Now obsolete after switching to a CancellationToken
         }
 
         public event EventHandler<PipelineRefreshEventArgs> PipelineRefreshed;

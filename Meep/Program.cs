@@ -7,6 +7,10 @@ using System.Reactive.Concurrency;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Xml.Serialization;
+using System.Threading;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 using NLog;
 using Mono.Options;
@@ -24,35 +28,17 @@ namespace Meep
     {
         static Logger logger = LogManager.LoadConfiguration("nlog.config").GetCurrentClassLogger();
 
-        static IDisposable Subscription { get; set; }
+        static CancellationTokenSource stoppingTokenSource;
 
         static Bootstrapper Bootstrapper { get; set; }
 
-        static GutterSerialisation GutterSerialisation = GutterSerialisation.JSON;
+        static LaunchOptions options = null;
 
         static void Main(string[] args)
         {
-            bool shouldShowHelp = false;
-            bool shouldShowLibrary = false;
-            string gitRepo = null;
-            string pipelineFile = Path.Combine(Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]), "Pipelines", "MasterPipeline.meep");
-            TimeSpan recheck = TimeSpan.FromMinutes(30);
-
-            var options = new OptionSet
-            {
-                { "p|pipeline=", "Path or URL to pipeline file", p => pipelineFile = p },
-                { "g|git=", "Git repo address", g => gitRepo = g },
-                { "t|recheck=", "Time to recheck Git/Url for changes", t => recheck = TimeSpan.Parse(t) },
-                { "q|quiet", "No gutter serialisation", g => GutterSerialisation = GutterSerialisation.None },
-                { "x|xml", "Gutter serialisation in XML", g => GutterSerialisation = GutterSerialisation.XML },
-                { "lb|listBooks", "Display a list of books available with <Enumerate Selection=\"...\"/>", lb => shouldShowLibrary = lb != null },
-                { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
-            };
-
-            List<string> extra;
             try
             {
-                extra = options.Parse(args);
+                options = new LaunchOptions(args);
             }
             catch (OptionException e)
             {
@@ -61,39 +47,61 @@ namespace Meep
                 return;
             }
 
-            if (shouldShowHelp)
+            if (Environment.UserInteractive)
+                InteractiveMain(options);
+            else
+                CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+                        Host.CreateDefaultBuilder(args)
+                        .ConfigureServices(services =>
+                        {
+                            services.AddSingleton(typeof(Bootstrapper), Bootstrapper);
+                            services.AddSingleton(typeof(LaunchOptions), options);
+                            services.AddHostedService<PipelineService>();
+                        });
+
+        /// <summary>
+        /// Main() for User Interactive mode (command line)
+        /// </summary>
+        /// <param name="args"></param>
+        public static void InteractiveMain(LaunchOptions options)
+        {
+            if (options.Help)
                 ShowHelp();
 
-            if (shouldShowLibrary)
+            if (options.ListBooks)
                 ShowLibrary();
 
             LoadBasePlugins();
 
             var proxy = new HostProxy();
 
-            if (String.IsNullOrWhiteSpace(gitRepo))
-                if (File.Exists(pipelineFile))
-                    Bootstrapper = new Bootstrapper(pipelineFile);
+            if (String.IsNullOrWhiteSpace(options.GitRepository))
+                if (File.Exists(options.PipelineURI))
+                    Bootstrapper = new Bootstrapper(options.PipelineURI);
                 else
                 {
-                    Console.WriteLine("Couldn't find a pipeline definition at {0}", pipelineFile);
+                    Console.WriteLine("Couldn't find a pipeline definition at {0}", options.PipelineURI);
                     Console.WriteLine("Either create one at the default location (Pipelines/MasterPipeline.meep) or specify it with -p path/to/pipeline.meep");
                     Console.WriteLine("Try `meep --help' for more information.");
                     return;
                 }
             else
-                Bootstrapper = new Bootstrapper(new Uri(gitRepo), pipelineFile, recheck);
+                Bootstrapper = new Bootstrapper(new Uri(options.GitRepository), options.PipelineURI, options.RecheckInterval);
 
             try
             {
+                stoppingTokenSource = new CancellationTokenSource();
                 Bootstrapper.PipelineRefreshed += Bootstrapper_PipelineRefreshed;
-                Bootstrapper.Start();
+
+                Bootstrapper.Start(stoppingTokenSource.Token);
 
                 System.Threading.ManualResetEvent resetEvent = new System.Threading.ManualResetEvent(false);
                 resetEvent.WaitOne();
 
-                Bootstrapper.Stop();
-                Subscription?.Dispose();
+                stoppingTokenSource.Cancel();
             }
             catch (Exception ex)
             {
@@ -106,7 +114,7 @@ namespace Meep
 
         static void ShowHelp()
         {
-            Console.WriteLine("E.G.: meep -b evilplan.meep");
+            Console.WriteLine("E.G.: meep -p evilplan.meep");
         }
 
         static void ShowLibrary()
@@ -120,19 +128,21 @@ namespace Meep
 
         static void Bootstrapper_PipelineRefreshed(object sender, PipelineRefreshEventArgs e)
         {
-            Console.WriteLine("{0}tarting pipeline", Subscription == null ? "S" : "Re");
+            Console.WriteLine("{0}tarting pipeline", stoppingTokenSource == null ? "S" : "Re");
 
-            Subscription?.Dispose();
+            stoppingTokenSource?.Cancel();
+            stoppingTokenSource = new CancellationTokenSource();
 
             try
             {
                 IConnectableObservable<Message> observable = Bootstrapper.PipelineRoot.Pipeline.Publish();
                 observable.Connect();
 
-                Subscription = observable.SubscribeOn(TaskPoolScheduler.Default).Subscribe<Message>(
+                observable.SubscribeOn(TaskPoolScheduler.Default).Subscribe<Message>(
                     msg => EOLMessage(msg),
                     ex => LogError(ex),
-                    () => Console.WriteLine("Pipeline completed")
+                    () => Console.WriteLine("Pipeline completed"),
+                    stoppingTokenSource.Token
                 );
             }
             catch (Exception ex)
@@ -148,7 +158,7 @@ namespace Meep
         /// <remarks>Writes the message out according to gutter serialisation rules, then calls Dispose().</remarks>
         private static void EOLMessage(Message msg)
         {
-            switch (GutterSerialisation)
+            switch (options.GutterSerialisation)
             {
                 case GutterSerialisation.JSON:
                     Console.WriteLine($"{msg.AsJSON}\0");
