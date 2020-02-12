@@ -23,6 +23,7 @@ namespace MeepLib.Messages
         [DataMember]
         public string Value { get; set; }
 
+        [NotMapped]
         public IEnumerable<string> Tokens
         {
             get
