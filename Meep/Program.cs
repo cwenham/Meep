@@ -128,7 +128,7 @@ namespace Meep
 
         static void Bootstrapper_PipelineRefreshed(object sender, PipelineRefreshEventArgs e)
         {
-            Console.WriteLine("{0}tarting pipeline", stoppingTokenSource == null ? "S" : "Re");
+            Console.WriteLine("Starting pipeline");
 
             stoppingTokenSource?.Cancel();
             stoppingTokenSource = new CancellationTokenSource();
