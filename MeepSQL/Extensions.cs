@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Data.Common;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -88,7 +89,7 @@ namespace MeepSQL
         public static Config.Table ToTableDef(this Message msg, string tableName)
         {
             var cols = (from p in msg.GetType().GetProperties()
-                            // Ignore NotMapped properties
+                        // Ignore NotMapped properties
                         let nm = p.GetCustomAttributes(typeof(NotMappedAttribute), true)
                         where !nm.Any()
 
@@ -107,7 +108,7 @@ namespace MeepSQL
                         }).ToList();
 
             var ownKey = (from p in msg.GetType().GetProperties()
-                              // Ignore NotMapped properties
+                          // Ignore NotMapped properties
                           let nm = p.GetCustomAttributes(typeof(NotMappedAttribute), true)
                           where !nm.Any()
 
@@ -318,6 +319,7 @@ namespace MeepSQL
 
             { typeof(string), "varchar({0})" },
             { typeof(DateTime), "datetime" },
+            { typeof(TimeSpan), "datetime" },
             { typeof(byte), "tinyint" },
             { typeof(short), "smallint" },
             { typeof(int), "int" },
@@ -345,6 +347,7 @@ namespace MeepSQL
             { "date", "datetime" },
             { "time", "datetime" },
             { "datetime", "datetime" },
+            { "timespan", "datetime" },
             { "byte", "tinyint" },
             { "tinyint", "tinyint" },
             { "short", "smallint" },
