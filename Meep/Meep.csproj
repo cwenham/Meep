@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <ReleaseVersion>1.0.2</ReleaseVersion>
   </PropertyGroup>
 
@@ -17,13 +17,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Reactive" Version="4.3.2" />
+    <PackageReference Include="System.Reactive" Version="4.4.1" />
     <PackageReference Include="Mono.Options" Version="6.6.0.161" />
-    <PackageReference Include="Mvp.Xml.NetStandard" Version="1.0.1" />
+    <PackageReference Include="Mvp.Xml.NetStandard" Version="1.1.1" />
     <PackageReference Include="System.Reflection" Version="4.3.0" />
-    <PackageReference Include="System.Data.SQLite" Version="1.0.112" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="3.1.1" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.112.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0-preview.3.20215.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="5.0.0-preview.3.20215.2" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="PersistedCache.cs" />

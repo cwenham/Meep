@@ -37,15 +37,15 @@ Meep is System.Reactive + XML + Plugins.</Description>
     <Compile Remove="DataSelection\LiteralSelector.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.6.8" />
-    <PackageReference Include="System.IO.Pipelines" Version="4.7.0" />
-    <PackageReference Include="System.Reactive" Version="4.3.2" />
+    <PackageReference Include="NLog" Version="4.7.0" />
+    <PackageReference Include="System.IO.Pipelines" Version="4.7.1" />
+    <PackageReference Include="System.Reactive" Version="4.4.1" />
     <PackageReference Include="SmartFormat.NET" Version="2.5.0" />
-    <PackageReference Include="CoreCLR-NCalc" Version="2.2.70" />
-    <PackageReference Include="Mvp.Xml.NetStandard" Version="1.0.1" />
+    <PackageReference Include="CoreCLR-NCalc" Version="2.2.74" />
+    <PackageReference Include="Mvp.Xml.NetStandard" Version="1.1.1" />
     <PackageReference Include="NuGet.Build.Packaging" Version="0.2.2" />
-    <PackageReference Include="System.Memory" Version="4.5.3" />
-    <PackageReference Include="System.Text.Json" Version="4.7.0" />
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.Text.Json" Version="4.7.1" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Outputs\" />

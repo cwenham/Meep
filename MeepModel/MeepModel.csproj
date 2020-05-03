@@ -24,7 +24,7 @@
   <ItemGroup>
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
     <PackageReference Include="NuGet.Build.Packaging" Version="0.2.2" />
-    <PackageReference Include="System.Text.Json" Version="4.7.0" />
+    <PackageReference Include="System.Text.Json" Version="4.7.1" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Messages\Exceptions\" />

@@ -1,6 +1,6 @@
 # Meep
 
-(Short for Message Pipeline) 
+(Short for Message Pipeline)
 
 Use XML to create realtime message processing pipelines that receive, filter,
 modify, act upon, and output discrete messages. Meep is System.Reactive + XML + Plugins.
