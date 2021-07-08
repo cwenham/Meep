@@ -95,7 +95,7 @@ namespace MeepSQL
 
                         let length = p.PropertyType.TypeLength()
                         let key = p.GetCustomAttributes(typeof(KeyAttribute), true).Cast<KeyAttribute>()
-                        let index = p.GetCustomAttributes(typeof(IndexAttribute), true).Cast<IndexAttribute>()
+                        let index = p.GetCustomAttributes(typeof(MeepLib.IndexAttribute), true).Cast<MeepLib.IndexAttribute>()
 
                         select new Config.Column
                         {
@@ -133,7 +133,7 @@ namespace MeepSQL
             };
         }
 
-        private static Config.IndexType PickIndexType(IEnumerable<KeyAttribute> keys, IEnumerable<IndexAttribute> indecies)
+        private static Config.IndexType PickIndexType(IEnumerable<KeyAttribute> keys, IEnumerable<MeepLib.IndexAttribute> indecies)
         {
             if (keys.Any())
                 return Config.IndexType.PrimaryKey;
