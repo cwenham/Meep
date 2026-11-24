@@ -2,6 +2,12 @@
 
 (Short for Message Pipeline)
 
+## NOTE: This project is now retired, see Meep2
+
+**[Meep2](https://github.com/cwenham/Meep2)** is now the successor to this project. Development continues there.
+
+## Introduction
+
 Use XML to create realtime message processing pipelines that receive, filter,
 modify, act upon, and output discrete messages. Meep is System.Reactive + XML + Plugins.
 
